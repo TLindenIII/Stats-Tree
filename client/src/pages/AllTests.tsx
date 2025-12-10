@@ -4,23 +4,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { TestResultCard } from "@/components/TestResultCard";
-import { statisticalTests } from "@/lib/statsData";
+import { statisticalTests, categoryGroups } from "@/lib/statsData";
 import { Search, BarChart3 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
 export default function AllTests() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFamily, setSelectedFamily] = useState<string | null>(null);
-
-  const families = Array.from(new Set(statisticalTests.map((t) => t.methodFamily)));
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const filteredTests = statisticalTests.filter((test) => {
     const matchesSearch =
       searchQuery === "" ||
       test.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      test.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFamily = selectedFamily === null || test.methodFamily === selectedFamily;
-    return matchesSearch && matchesFamily;
+      test.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      test.category.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesCategory = selectedCategory === null || 
+      categoryGroups.find(g => g.id === selectedCategory)?.tests.includes(test.id);
+    
+    return matchesSearch && matchesCategory;
   });
 
   return (
@@ -47,7 +48,7 @@ export default function AllTests() {
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold">All Statistical Tests</h1>
             <p className="text-muted-foreground">
-              Browse our complete library of statistical tests and their use cases.
+              Browse our complete library of {statisticalTests.length} statistical tests and their use cases.
             </p>
           </div>
 
@@ -66,22 +67,22 @@ export default function AllTests() {
 
             <div className="flex justify-center gap-2 flex-wrap">
               <Button
-                variant={selectedFamily === null ? "default" : "outline"}
+                variant={selectedCategory === null ? "default" : "outline"}
                 size="sm"
-                onClick={() => setSelectedFamily(null)}
+                onClick={() => setSelectedCategory(null)}
                 data-testid="filter-all"
               >
                 All
               </Button>
-              {families.map((family) => (
+              {categoryGroups.map((category) => (
                 <Button
-                  key={family}
-                  variant={selectedFamily === family ? "default" : "outline"}
+                  key={category.id}
+                  variant={selectedCategory === category.id ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setSelectedFamily(family)}
-                  data-testid={`filter-${family.toLowerCase()}`}
+                  onClick={() => setSelectedCategory(category.id)}
+                  data-testid={`filter-${category.id}`}
                 >
-                  {family}
+                  {category.label}
                 </Button>
               ))}
             </div>

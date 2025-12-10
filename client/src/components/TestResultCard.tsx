@@ -30,7 +30,10 @@ export function TestResultCard({ test, isPrimary = false }: TestResultCardProps)
             )}
             <CardTitle className="font-mono text-xl">{test.name}</CardTitle>
           </div>
-          <Badge variant="secondary">{test.methodFamily}</Badge>
+          <div className="flex gap-2 flex-wrap">
+            <Badge variant="outline">{test.category}</Badge>
+            <Badge variant="secondary">{test.methodFamily}</Badge>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">

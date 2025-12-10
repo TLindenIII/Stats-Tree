@@ -1,0 +1,191 @@
+stats_tree = {
+    "Research Goal": {
+        "Estimate a parameter": {},
+        "Compare groups": {},
+        "Assess relationships": {},
+        "Predict outcomes": {},
+        "Test independence / association": {},
+        "Model time or sequential structure": {},
+        "Discover patterns (unsupervised)": {},
+        "Plan sample size / power": {}
+    },
+
+    "Data Structure": {
+        "Outcome Type": {
+            "Numeric (continuous)": {},
+            "Numeric (counts / rates)": {},
+            "Ordinal": {},
+            "Categorical (nominal)": {},
+            "Binary": {},
+            "Time-to-event": {},
+            "Multivariate": {},
+            "Compositional (parts summing to 100%)": {},
+            "Circular (angles, time-of-day)": {},
+            "Functional (curves)": {},
+            "High-dimensional (p >> n)": {},
+            "Network / graph data": {},
+            "Image data": {},
+            "Text data": {}
+        },
+
+        "Predictor Types": {
+            "Numeric predictors": {},
+            "Categorical predictors": {},
+            "Mixed predictors": {},
+            "No predictors": {}
+        },
+
+        "Sample Structure": {
+            "Independent samples": {},
+            "Paired / matched samples": {},
+            "Clustered / hierarchical": {},
+            "Longitudinal / repeated measures": {},
+            "Cross-sectional": {},
+            "Time series": {},
+            "Spatially indexed data": {}
+        },
+
+        "Sampling Design": {
+            "Simple random sample": {},
+            "Stratified sample": {},
+            "Cluster sample": {},
+            "Complex survey design (weights)": {},
+            "Convenience / nonprobability sample": {}
+        },
+
+        "Missing Data Mechanism": {
+            "MCAR (Missing completely at random)": {},
+            "MAR (Missing at random)": {},
+            "MNAR (Not missing at random)": {},
+            "Planned missingness": {}
+        }
+    },
+
+    "Study Design": {
+        "Experimental": {
+            "Randomized groups": {},
+            "Blocking / factorial design": {},
+            "Crossover": {}
+        },
+        "Observational": {
+            "Cross-sectional": {},
+            "Case-control": {},
+            "Cohort": {},
+            "Ecological": {}
+        }
+    },
+
+    "Analysis Constraints / Assumptions": {
+        "Distributional": {
+            "Normality": {},
+            "Equal variances": {},
+            "Linearity": {},
+            "Independence": {},
+            "Homoskedasticity": {},
+            "Sphericity (repeated measures)": {},
+            "Autocorrelation structure": {},
+            "Stationarity (time series)": {}
+        },
+        "Robustness Needs": {
+            "Outlier-resistant methods": {},
+            "Rank / nonparametric methods": {},
+            "Transformations": {}
+        },
+        "Multiple Comparison Control": {
+            "Family-wise error control": {},
+            "False discovery rate control": {}
+        }
+    },
+
+    "Unsupervised Analysis": {
+        "Clustering": {
+            "k-means": {},
+            "Hierarchical clustering": {},
+            "Density-based (DBSCAN)": {},
+            "Model-based (Gaussian mixtures)": {},
+            "Latent class analysis": {}
+        },
+        "Dimension Reduction": {
+            "PCA": {},
+            "Factor analysis": {},
+            "MDS": {},
+            "t-SNE / UMAP": {}
+        },
+        "Association Discovery": {
+            "Market basket / itemsets": {},
+            "Correlation networks": {}
+        }
+    },
+
+    "Prediction / Machine Learning Models": {
+        "Supervised (Regression)": {
+            "Linear models": {},
+            "Regularized (Lasso/Ridge/ElasticNet)": {},
+            "Tree-based models": {},
+            "Gradient boosting": {},
+            "Neural networks": {}
+        },
+        "Supervised (Classification)": {
+            "Logistic models": {},
+            "Tree-based classifiers": {},
+            "Random forests": {},
+            "Gradient boosting classifiers": {},
+            "SVM": {},
+            "Neural networks": {}
+        },
+        "Evaluation & Tuning": {
+            "Cross-validation": {},
+            "Hyperparameter tuning": {},
+            "Performance metrics": {}
+        }
+    },
+
+    "Specialized Statistical Domains": {
+        "Mixed / Multilevel Models": {
+            "Linear mixed models": {},
+            "Generalized linear mixed models": {},
+            "Random intercept / slope models": {}
+        },
+        "Time Series Models": {
+            "ARIMA / SARIMA": {},
+            "Exponential smoothing": {},
+            "State-space models": {},
+            "Forecasting": {}
+        },
+        "Spatial Statistics": {
+            "Spatial autocorrelation": {},
+            "Spatial regression": {},
+            "Geostatistics (kriging)": {}
+        },
+        "Survival / Event Time Analysis": {
+            "Survival curves": {},
+            "Hazard models": {},
+            "Competing risks": {}
+        },
+        "Extreme Value Analysis": {
+            "GEV models": {},
+            "Peak-over-threshold models": {}
+        },
+        "Simulation-Based Inference": {
+            "Bootstrap": {},
+            "Permutation tests": {},
+            "Monte Carlo inference": {},
+            "Bayesian posterior inference": {}
+        }
+    },
+
+    "Method Family": {
+        "Parametric": {},
+        "Nonparametric": {},
+        "Bayesian": {},
+        "Permutation-based": {},
+        "Resampling-based": {},
+        "Regression-based": {},
+        "Graphical / exploratory": {},
+        "Machine learning": {},
+        "Multivariate methods": {},
+        "Time-series models": {},
+        "Survival models": {},
+        "Spatial models": {}
+    }
+}

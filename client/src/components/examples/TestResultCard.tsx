@@ -18,6 +18,7 @@ const mockTest: StatTest = {
   ],
   alternatives: ["Mann-Whitney U test (non-parametric)", "Welch's t-test (unequal variances)"],
   methodFamily: "Parametric",
+  category: "Group Comparison",
 };
 
 export default function TestResultCardExample() {
