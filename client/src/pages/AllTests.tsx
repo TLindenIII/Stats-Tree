@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,29 +14,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const methodFamilies = [
-  "Parametric",
-  "Nonparametric",
-  "Regression-based",
-  "Bayesian",
-  "Machine Learning",
-  "Mixed Models",
-  "Multivariate",
-  "Diagnostic",
-  "Multiple Comparison",
-  "Effect Size",
-  "Reliability",
-  "Resampling",
-  "Permutation-based",
-  "Survival",
-  "Time-series",
-  "Planning",
-];
-
 export default function AllTests() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedMethodFamily, setSelectedMethodFamily] = useState<string | null>(null);
+
+  const methodFamilies = useMemo(() => {
+    return Array.from(new Set(statisticalTests.map(t => t.methodFamily))).sort();
+  }, []);
 
   const filteredTests = statisticalTests.filter((test) => {
     const matchesSearch =
