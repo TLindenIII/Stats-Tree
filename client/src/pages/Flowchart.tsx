@@ -181,35 +181,37 @@ function generateFlowchartData() {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
   
-  const nodeSpacing = 220; // Minimum horizontal spacing between nodes
+  // Use larger spacing to prevent any overlap (nodes are ~160px wide)
+  const nodeWidth = 180; // Account for node width plus padding
   const layerGap = 160; // Vertical spacing between layers
   
   const edgeStyle = { stroke: "hsl(var(--muted-foreground))", strokeWidth: 1.5 };
   const primaryEdgeStyle = { stroke: "hsl(var(--primary))", strokeWidth: 2 };
 
-  // Layer 0: Start node (centered above goals)
+  // Layer 0: Start node
   nodes.push({
     id: "start",
     type: "startNode",
-    position: { x: 550, y: 0 },
+    position: { x: 900, y: 0 },
     data: { label: "What is your research goal?" },
   });
 
-  // Layer 1: Research Goals (main branches) - evenly spaced
+  // Layer 1: Research Goals - wide spacing (nodeWidth * 1.2 = 216px between centers)
+  const goalSpacing = nodeWidth * 1.3;
   const goals = [
-    { id: "compare", label: "Compare Groups", x: 0 },
-    { id: "relationship", label: "Assess Relationships", x: nodeSpacing },
-    { id: "predict", label: "Predict Outcomes", x: nodeSpacing * 2 },
-    { id: "time", label: "Time/Sequential", x: nodeSpacing * 3 },
-    { id: "unsupervised", label: "Discover Patterns", x: nodeSpacing * 4 },
-    { id: "planning", label: "Study Planning", x: nodeSpacing * 5 },
+    { id: "compare", label: "Compare Groups" },
+    { id: "relationship", label: "Assess Relationships" },
+    { id: "predict", label: "Predict Outcomes" },
+    { id: "time", label: "Time/Sequential" },
+    { id: "unsupervised", label: "Discover Patterns" },
+    { id: "planning", label: "Study Planning" },
   ];
 
-  goals.forEach((goal) => {
+  goals.forEach((goal, i) => {
     nodes.push({
       id: `goal-${goal.id}`,
       type: "decisionNode",
-      position: { x: goal.x, y: layerGap },
+      position: { x: i * goalSpacing, y: layerGap },
       data: { label: goal.label },
     });
     edges.push({
@@ -220,265 +222,162 @@ function generateFlowchartData() {
     });
   });
 
-  // Layer 2: Outcome Types (branching from goals)
-  // Compare branch - centered under goal-compare (x=0)
-  const compareOutcomes = [
-    { id: "compare-continuous", label: "Continuous Data", parent: "goal-compare", x: -110 },
-    { id: "compare-categorical", label: "Categorical Data", parent: "goal-compare", x: 110 },
-  ];
-
-  compareOutcomes.forEach((outcome) => {
-    nodes.push({
-      id: outcome.id,
-      type: "decisionNode",
-      position: { x: outcome.x, y: layerGap * 2 },
-      data: { label: outcome.label },
-    });
-    edges.push({
-      id: `${outcome.parent}-to-${outcome.id}`,
-      source: outcome.parent,
-      target: outcome.id,
-      style: edgeStyle,
-    });
-  });
-
-  // Relationship branch - under goal-relationship (x=220)
-  nodes.push({
-    id: "relationship-type",
-    type: "decisionNode",
-    position: { x: nodeSpacing, y: layerGap * 2 },
-    data: { label: "Variable Types" },
-  });
-  edges.push({
-    id: "goal-relationship-to-type",
-    source: "goal-relationship",
-    target: "relationship-type",
-    style: edgeStyle,
-  });
-
-  // Predict branch - under goal-predict (x=440)
-  const predictOutcomes = [
-    { id: "predict-continuous", label: "Continuous Outcome", parent: "goal-predict", x: nodeSpacing * 2 - 110 },
-    { id: "predict-categorical", label: "Categorical Outcome", parent: "goal-predict", x: nodeSpacing * 2 + 110 },
-  ];
-
-  predictOutcomes.forEach((outcome) => {
-    nodes.push({
-      id: outcome.id,
-      type: "decisionNode",
-      position: { x: outcome.x, y: layerGap * 2 },
-      data: { label: outcome.label },
-    });
-    edges.push({
-      id: `${outcome.parent}-to-${outcome.id}`,
-      source: outcome.parent,
-      target: outcome.id,
-      style: edgeStyle,
-    });
-  });
-
-  // Time branch - under goal-time (x=660)
-  const timeTypes = [
-    { id: "time-series", label: "Time Series", parent: "goal-time", x: nodeSpacing * 3 - 110 },
-    { id: "survival", label: "Survival/Event", parent: "goal-time", x: nodeSpacing * 3 + 110 },
-  ];
-
-  timeTypes.forEach((type) => {
-    nodes.push({
-      id: type.id,
-      type: "decisionNode",
-      position: { x: type.x, y: layerGap * 2 },
-      data: { label: type.label },
-    });
-    edges.push({
-      id: `${type.parent}-to-${type.id}`,
-      source: type.parent,
-      target: type.id,
-      style: edgeStyle,
-    });
-  });
-
-  // Unsupervised branch - under goal-unsupervised (x=880)
-  const unsupervisedTypes = [
-    { id: "clustering", label: "Clustering", parent: "goal-unsupervised", x: nodeSpacing * 4 - 110 },
-    { id: "dimension", label: "Dimension Reduction", parent: "goal-unsupervised", x: nodeSpacing * 4 + 110 },
-  ];
-
-  unsupervisedTypes.forEach((type) => {
-    nodes.push({
-      id: type.id,
-      type: "decisionNode",
-      position: { x: type.x, y: layerGap * 2 },
-      data: { label: type.label },
-    });
-    edges.push({
-      id: `${type.parent}-to-${type.id}`,
-      source: type.parent,
-      target: type.id,
-      style: edgeStyle,
-    });
-  });
-
-  // Layer 3: Sample Structure / Assumptions
-  // Compare continuous -> sample structure (under compare-continuous at x=-110)
-  const compareContinuousStructure = [
-    { id: "compare-independent", label: "Independent Samples", parent: "compare-continuous", x: -280 },
-    { id: "compare-paired", label: "Paired/Matched", parent: "compare-continuous", x: -110 },
-    { id: "compare-repeated", label: "Repeated Measures", parent: "compare-continuous", x: 60 },
-  ];
-
-  compareContinuousStructure.forEach((structure) => {
-    nodes.push({
-      id: structure.id,
-      type: "decisionNode",
-      position: { x: structure.x, y: layerGap * 3 },
-      data: { label: structure.label },
-    });
-    edges.push({
-      id: `compare-continuous-to-${structure.id}`,
-      source: "compare-continuous",
-      target: structure.id,
-      style: edgeStyle,
-    });
-  });
-
-  // Relationship -> correlation types (under relationship-type at x=220)
-  const correlationTypes = [
-    { id: "corr-parametric", label: "Parametric", parent: "relationship-type", x: nodeSpacing - 60 },
-    { id: "corr-nonparametric", label: "Non-parametric", parent: "relationship-type", x: nodeSpacing + 110 },
-  ];
-
-  correlationTypes.forEach((type) => {
-    nodes.push({
-      id: type.id,
-      type: "decisionNode",
-      position: { x: type.x, y: layerGap * 3 },
-      data: { label: type.label },
-    });
-    edges.push({
-      id: `relationship-type-to-${type.id}`,
-      source: "relationship-type",
-      target: type.id,
-      style: edgeStyle,
-    });
-  });
-
-  // Predict continuous -> regression types (under predict-continuous at x=330)
-  const regressionTypes = [
-    { id: "reg-linear", label: "Linear Models", parent: "predict-continuous", x: nodeSpacing * 2 - 170 },
-    { id: "reg-regularized", label: "Regularized", parent: "predict-continuous", x: nodeSpacing * 2 },
-  ];
-
-  regressionTypes.forEach((type) => {
-    nodes.push({
-      id: type.id,
-      type: "decisionNode",
-      position: { x: type.x, y: layerGap * 3 },
-      data: { label: type.label },
-    });
-    edges.push({
-      id: `predict-continuous-to-${type.id}`,
-      source: "predict-continuous",
-      target: type.id,
-      style: edgeStyle,
-    });
-  });
-
-  // Predict categorical -> classification types (under predict-categorical at x=550)
-  const classificationTypes = [
-    { id: "class-traditional", label: "Traditional", parent: "predict-categorical", x: nodeSpacing * 2 + 170 },
-    { id: "class-ml", label: "Machine Learning", parent: "predict-categorical", x: nodeSpacing * 2 + 340 },
-  ];
-
-  classificationTypes.forEach((type) => {
-    nodes.push({
-      id: type.id,
-      type: "decisionNode",
-      position: { x: type.x, y: layerGap * 3 },
-      data: { label: type.label },
-    });
-    edges.push({
-      id: `predict-categorical-to-${type.id}`,
-      source: "predict-categorical",
-      target: type.id,
-      style: edgeStyle,
-    });
-  });
-
-  // Layer 4: Assumptions (parametric vs non-parametric for comparison)
-  const comparisonAssumptions = [
-    { id: "ind-parametric", label: "Parametric", parent: "compare-independent", x: -360 },
-    { id: "ind-nonparametric", label: "Non-parametric", parent: "compare-independent", x: -190 },
-    { id: "paired-parametric", label: "Parametric", parent: "compare-paired", x: -110 },
-    { id: "paired-nonparametric", label: "Non-parametric", parent: "compare-paired", x: 60 },
-  ];
-
-  comparisonAssumptions.forEach((assumption) => {
-    nodes.push({
-      id: assumption.id,
-      type: "decisionNode",
-      position: { x: assumption.x, y: layerGap * 4 },
-      data: { label: assumption.label },
-    });
-    edges.push({
-      id: `${assumption.parent}-to-${assumption.id}`,
-      source: assumption.parent,
-      target: assumption.id,
-      style: edgeStyle,
-    });
-  });
-
-  // Layer 5: Final Test Nodes
-  const testNodeY = layerGap * 5;
+  // Layer 2: Outcome Types - each branch gets unique x positions
+  // Use sequential numbering to ensure no overlaps
+  let layer2X = 0;
+  const layer2Nodes: Array<{id: string; label: string; parent: string; x: number}> = [];
   
-  // Test nodes with proper spacing (nodes are ~160px wide, so space them 200px apart minimum)
+  // Compare branch (2 nodes)
+  layer2Nodes.push({ id: "compare-continuous", label: "Continuous Data", parent: "goal-compare", x: layer2X });
+  layer2X += nodeWidth;
+  layer2Nodes.push({ id: "compare-categorical", label: "Categorical Data", parent: "goal-compare", x: layer2X });
+  layer2X += nodeWidth;
+  
+  // Relationship branch (1 node)
+  layer2Nodes.push({ id: "relationship-type", label: "Variable Types", parent: "goal-relationship", x: layer2X });
+  layer2X += nodeWidth;
+  
+  // Predict branch (2 nodes)
+  layer2Nodes.push({ id: "predict-continuous", label: "Continuous Outcome", parent: "goal-predict", x: layer2X });
+  layer2X += nodeWidth;
+  layer2Nodes.push({ id: "predict-categorical", label: "Categorical Outcome", parent: "goal-predict", x: layer2X });
+  layer2X += nodeWidth;
+  
+  // Time branch (2 nodes)
+  layer2Nodes.push({ id: "time-series", label: "Time Series", parent: "goal-time", x: layer2X });
+  layer2X += nodeWidth;
+  layer2Nodes.push({ id: "survival", label: "Survival/Event", parent: "goal-time", x: layer2X });
+  layer2X += nodeWidth;
+  
+  // Unsupervised branch (2 nodes)
+  layer2Nodes.push({ id: "clustering", label: "Clustering", parent: "goal-unsupervised", x: layer2X });
+  layer2X += nodeWidth;
+  layer2Nodes.push({ id: "dimension", label: "Dimension Reduction", parent: "goal-unsupervised", x: layer2X });
+
+  layer2Nodes.forEach((node) => {
+    nodes.push({
+      id: node.id,
+      type: "decisionNode",
+      position: { x: node.x, y: layerGap * 2 },
+      data: { label: node.label },
+    });
+    edges.push({
+      id: `${node.parent}-to-${node.id}`,
+      source: node.parent,
+      target: node.id,
+      style: edgeStyle,
+    });
+  });
+
+  // Layer 3: Sample Structure / Method Types - sequential x positions
+  let layer3X = 0;
+  const layer3Nodes: Array<{id: string; label: string; parent: string; x: number}> = [];
+  
+  // Compare continuous -> sample structure (3 nodes)
+  layer3Nodes.push({ id: "compare-independent", label: "Independent Samples", parent: "compare-continuous", x: layer3X });
+  layer3X += nodeWidth;
+  layer3Nodes.push({ id: "compare-paired", label: "Paired/Matched", parent: "compare-continuous", x: layer3X });
+  layer3X += nodeWidth;
+  layer3Nodes.push({ id: "compare-repeated", label: "Repeated Measures", parent: "compare-continuous", x: layer3X });
+  layer3X += nodeWidth;
+  
+  // Relationship -> correlation types (2 nodes)
+  layer3Nodes.push({ id: "corr-parametric", label: "Parametric", parent: "relationship-type", x: layer3X });
+  layer3X += nodeWidth;
+  layer3Nodes.push({ id: "corr-nonparametric", label: "Non-parametric", parent: "relationship-type", x: layer3X });
+  layer3X += nodeWidth;
+  
+  // Predict continuous -> regression types (2 nodes)
+  layer3Nodes.push({ id: "reg-linear", label: "Linear Models", parent: "predict-continuous", x: layer3X });
+  layer3X += nodeWidth;
+  layer3Nodes.push({ id: "reg-regularized", label: "Regularized", parent: "predict-continuous", x: layer3X });
+  layer3X += nodeWidth;
+  
+  // Predict categorical -> classification types (2 nodes)
+  layer3Nodes.push({ id: "class-traditional", label: "Traditional", parent: "predict-categorical", x: layer3X });
+  layer3X += nodeWidth;
+  layer3Nodes.push({ id: "class-ml", label: "Machine Learning", parent: "predict-categorical", x: layer3X });
+
+  layer3Nodes.forEach((node) => {
+    nodes.push({
+      id: node.id,
+      type: "decisionNode",
+      position: { x: node.x, y: layerGap * 3 },
+      data: { label: node.label },
+    });
+    edges.push({
+      id: `${node.parent}-to-${node.id}`,
+      source: node.parent,
+      target: node.id,
+      style: edgeStyle,
+    });
+  });
+
+  // Layer 4: Assumptions (parametric vs non-parametric) - sequential x positions
+  let layer4X = 0;
+  const layer4Nodes: Array<{id: string; label: string; parent: string; x: number}> = [];
+  
+  layer4Nodes.push({ id: "ind-parametric", label: "Parametric", parent: "compare-independent", x: layer4X });
+  layer4X += nodeWidth;
+  layer4Nodes.push({ id: "ind-nonparametric", label: "Non-parametric", parent: "compare-independent", x: layer4X });
+  layer4X += nodeWidth;
+  layer4Nodes.push({ id: "paired-parametric", label: "Parametric", parent: "compare-paired", x: layer4X });
+  layer4X += nodeWidth;
+  layer4Nodes.push({ id: "paired-nonparametric", label: "Non-parametric", parent: "compare-paired", x: layer4X });
+
+  layer4Nodes.forEach((node) => {
+    nodes.push({
+      id: node.id,
+      type: "decisionNode",
+      position: { x: node.x, y: layerGap * 4 },
+      data: { label: node.label },
+    });
+    edges.push({
+      id: `${node.parent}-to-${node.id}`,
+      source: node.parent,
+      target: node.id,
+      style: edgeStyle,
+    });
+  });
+
+  // Layer 5: Final Test Nodes - sequential x positions
+  const testNodeY = layerGap * 5;
+  let testX = 0;
+  
   const testNodes = [
-    // Independent parametric
-    { id: "test-ttest", label: "t-Test / ANOVA", testIds: ["t-test-independent", "one-way-anova", "two-way-anova", "welch-t-test", "welch-anova"], parent: "ind-parametric", x: -360 },
-    // Independent non-parametric
-    { id: "test-mann-whitney", label: "Mann-Whitney / Kruskal-Wallis", testIds: ["mann-whitney", "kruskal-wallis", "brown-forsythe"], parent: "ind-nonparametric", x: -190 },
-    // Paired parametric
-    { id: "test-paired-t", label: "Paired t-Test", testIds: ["paired-t-test", "repeated-measures-anova"], parent: "paired-parametric", x: -110 },
-    // Paired non-parametric
-    { id: "test-wilcoxon", label: "Wilcoxon / Friedman", testIds: ["wilcoxon-signed-rank", "friedman-test"], parent: "paired-nonparametric", x: 60 },
-    // Repeated measures
-    { id: "test-repeated", label: "Mixed Models", testIds: ["linear-mixed-model", "glmm", "repeated-measures-anova"], parent: "compare-repeated", x: 60 },
-    // Categorical comparison
-    { id: "test-chi-square", label: "Chi-Square Tests", testIds: ["chi-square", "fisher-exact", "mcnemar-test", "cochran-q"], parent: "compare-categorical", x: 110 },
-
+    // Comparison tests
+    { id: "test-ttest", label: "t-Test / ANOVA", testIds: ["t-test-independent", "one-way-anova", "two-way-anova", "welch-t-test", "welch-anova"], parent: "ind-parametric" },
+    { id: "test-mann-whitney", label: "Mann-Whitney / Kruskal-Wallis", testIds: ["mann-whitney", "kruskal-wallis", "brown-forsythe"], parent: "ind-nonparametric" },
+    { id: "test-paired-t", label: "Paired t-Test", testIds: ["paired-t-test", "repeated-measures-anova"], parent: "paired-parametric" },
+    { id: "test-wilcoxon", label: "Wilcoxon / Friedman", testIds: ["wilcoxon-signed-rank", "friedman-test"], parent: "paired-nonparametric" },
+    { id: "test-repeated", label: "Mixed Models", testIds: ["linear-mixed-model", "glmm", "repeated-measures-anova"], parent: "compare-repeated" },
+    { id: "test-chi-square", label: "Chi-Square Tests", testIds: ["chi-square", "fisher-exact", "mcnemar-test", "cochran-q"], parent: "compare-categorical" },
     // Correlation tests
-    { id: "test-pearson", label: "Pearson / Partial", testIds: ["pearson-correlation", "partial-correlation", "point-biserial", "intraclass-correlation"], parent: "corr-parametric", x: nodeSpacing - 60 },
-    { id: "test-spearman", label: "Spearman / Kendall", testIds: ["spearman-correlation", "kendall-tau"], parent: "corr-nonparametric", x: nodeSpacing + 110 },
-
+    { id: "test-pearson", label: "Pearson / Partial", testIds: ["pearson-correlation", "partial-correlation", "point-biserial", "intraclass-correlation"], parent: "corr-parametric" },
+    { id: "test-spearman", label: "Spearman / Kendall", testIds: ["spearman-correlation", "kendall-tau"], parent: "corr-nonparametric" },
     // Regression tests
-    { id: "test-linear-reg", label: "Linear Regression", testIds: ["linear-regression", "multiple-regression", "robust-regression"], parent: "reg-linear", x: nodeSpacing * 2 - 170 },
-    { id: "test-regularized", label: "Lasso / Ridge / Elastic Net", testIds: ["lasso-ridge", "elastic-net"], parent: "reg-regularized", x: nodeSpacing * 2 },
-
+    { id: "test-linear-reg", label: "Linear Regression", testIds: ["linear-regression", "multiple-regression", "robust-regression"], parent: "reg-linear" },
+    { id: "test-regularized", label: "Lasso / Ridge / Elastic Net", testIds: ["lasso-ridge", "elastic-net"], parent: "reg-regularized" },
     // Classification tests
-    { id: "test-logistic", label: "Logistic / Ordinal", testIds: ["logistic-regression", "ordinal-regression", "probit-regression"], parent: "class-traditional", x: nodeSpacing * 2 + 170 },
-    { id: "test-ml-class", label: "ML Classifiers", testIds: ["random-forest", "svm", "xgboost", "lightgbm", "catboost", "knn", "naive-bayes", "decision-tree", "neural-network-mlp"], parent: "class-ml", x: nodeSpacing * 2 + 340 },
-
+    { id: "test-logistic", label: "Logistic / Ordinal", testIds: ["logistic-regression", "ordinal-regression", "probit-regression"], parent: "class-traditional" },
+    { id: "test-ml-class", label: "ML Classifiers", testIds: ["random-forest", "svm", "xgboost", "lightgbm", "catboost", "knn", "naive-bayes", "decision-tree", "neural-network-mlp"], parent: "class-ml" },
     // Time series tests
-    { id: "test-timeseries", label: "ARIMA / Prophet", testIds: ["arima", "exponential-smoothing", "prophet", "var", "granger-causality"], parent: "time-series", x: nodeSpacing * 3 - 110 },
-    
+    { id: "test-timeseries", label: "ARIMA / Prophet", testIds: ["arima", "exponential-smoothing", "prophet", "var", "granger-causality"], parent: "time-series" },
     // Survival tests
-    { id: "test-survival", label: "Survival Analysis", testIds: ["kaplan-meier", "log-rank-test", "cox-regression", "accelerated-failure-time", "competing-risks", "random-survival-forest"], parent: "survival", x: nodeSpacing * 3 + 110 },
-
+    { id: "test-survival", label: "Survival Analysis", testIds: ["kaplan-meier", "log-rank-test", "cox-regression", "accelerated-failure-time", "competing-risks", "random-survival-forest"], parent: "survival" },
     // Clustering tests
-    { id: "test-clustering", label: "Clustering Methods", testIds: ["kmeans", "hierarchical-clustering", "dbscan", "gaussian-mixture"], parent: "clustering", x: nodeSpacing * 4 - 110 },
-
+    { id: "test-clustering", label: "Clustering Methods", testIds: ["kmeans", "hierarchical-clustering", "dbscan", "gaussian-mixture"], parent: "clustering" },
     // Dimension reduction tests
-    { id: "test-dimension", label: "PCA / Factor Analysis", testIds: ["pca", "factor-analysis", "tsne", "umap"], parent: "dimension", x: nodeSpacing * 4 + 110 },
-
-    // Planning tests (directly from goal)
-    { id: "test-planning", label: "Power & Sample Size", testIds: ["power-analysis"], parent: "goal-planning", x: nodeSpacing * 5 },
+    { id: "test-dimension", label: "PCA / Factor Analysis", testIds: ["pca", "factor-analysis", "tsne", "umap"], parent: "dimension" },
+    // Planning tests
+    { id: "test-planning", label: "Power & Sample Size", testIds: ["power-analysis"], parent: "goal-planning" },
   ];
 
   testNodes.forEach((testNode) => {
     nodes.push({
       id: testNode.id,
       type: "testNode",
-      position: { x: testNode.x, y: testNodeY },
+      position: { x: testX, y: testNodeY },
       data: {
         label: testNode.label,
         testIds: testNode.testIds,
@@ -491,30 +390,33 @@ function generateFlowchartData() {
       target: testNode.id,
       style: { ...edgeStyle, stroke: "hsl(var(--primary))" },
     });
+    testX += nodeWidth;
   });
 
-  // Supplementary test nodes (connected to multiple parents via dashed lines)
-  const supplementaryY = testNodeY + 140;
+  // Supplementary test nodes - sequential x positions
+  const supplementaryY = testNodeY + 160;
+  let suppX = 0;
   
   const supplementaryNodes = [
-    { id: "test-assumptions", label: "Assumption Tests", testIds: ["levene-test", "shapiro-wilk", "bartlett-test", "kolmogorov-smirnov", "anderson-darling", "durbin-watson", "vif", "fligner-killeen"], x: -200 },
-    { id: "test-posthoc", label: "Post-hoc Tests", testIds: ["tukey-hsd", "bonferroni", "holm-bonferroni", "dunnett-test", "games-howell", "scheffe-test", "dunn-test", "benjamini-hochberg"], x: 20 },
-    { id: "test-effect", label: "Effect Sizes", testIds: ["cohens-d", "hedges-g", "eta-squared", "odds-ratio", "cramers-v", "cohens-kappa", "fleiss-kappa"], x: 240 },
-    { id: "test-bayesian", label: "Bayesian Methods", testIds: ["bayesian-t-test", "bayesian-regression", "bayesian-anova"], x: 460 },
-    { id: "test-resampling", label: "Resampling", testIds: ["bootstrap", "permutation-test"], x: 680 },
+    { id: "test-assumptions", label: "Assumption Tests", testIds: ["levene-test", "shapiro-wilk", "bartlett-test", "kolmogorov-smirnov", "anderson-darling", "durbin-watson", "vif", "fligner-killeen"] },
+    { id: "test-posthoc", label: "Post-hoc Tests", testIds: ["tukey-hsd", "bonferroni", "holm-bonferroni", "dunnett-test", "games-howell", "scheffe-test", "dunn-test", "benjamini-hochberg"] },
+    { id: "test-effect", label: "Effect Sizes", testIds: ["cohens-d", "hedges-g", "eta-squared", "odds-ratio", "cramers-v", "cohens-kappa", "fleiss-kappa"] },
+    { id: "test-bayesian", label: "Bayesian Methods", testIds: ["bayesian-t-test", "bayesian-regression", "bayesian-anova"] },
+    { id: "test-resampling", label: "Resampling", testIds: ["bootstrap", "permutation-test"] },
   ];
 
   supplementaryNodes.forEach((node) => {
     nodes.push({
       id: node.id,
       type: "testNode",
-      position: { x: node.x, y: supplementaryY },
+      position: { x: suppX, y: supplementaryY },
       data: {
         label: node.label,
         testIds: node.testIds,
         category: node.label,
       },
     });
+    suppX += nodeWidth;
   });
 
   // Add dashed edges from comparison tests to supplementary nodes
