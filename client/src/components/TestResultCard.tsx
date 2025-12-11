@@ -1,20 +1,38 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { CheckCircle, AlertCircle, Info, ArrowRight } from "lucide-react";
+import { CheckCircle, AlertCircle, Info, ArrowRight, Eye, GitCompare } from "lucide-react";
 import type { StatTest } from "@/lib/statsData";
 
 interface TestResultCardProps {
   test: StatTest;
   isPrimary?: boolean;
+  onViewDetails?: () => void;
+  onCompare?: () => void;
+  isComparing?: boolean;
+  canCompare?: boolean;
 }
 
-export function TestResultCard({ test, isPrimary = false }: TestResultCardProps) {
+export function TestResultCard({ 
+  test, 
+  isPrimary = false, 
+  onViewDetails,
+  onCompare,
+  isComparing = false,
+  canCompare = true
+}: TestResultCardProps) {
+  const levelColors: Record<string, string> = {
+    basic: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100",
+    intermediate: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100",
+    advanced: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100",
+  };
+
   return (
     <Card
       className={isPrimary ? "border-primary" : ""}
@@ -33,11 +51,30 @@ export function TestResultCard({ test, isPrimary = false }: TestResultCardProps)
           <div className="flex gap-2 flex-wrap">
             <Badge variant="outline">{test.category}</Badge>
             <Badge variant="secondary">{test.methodFamily}</Badge>
+            {test.level && (
+              <Badge className={levelColors[test.level] || ""}>
+                {test.level.charAt(0).toUpperCase() + test.level.slice(1)}
+              </Badge>
+            )}
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-muted-foreground">{test.description}</p>
+
+        {(test.outcomeScale || test.design || test.predictorStructure) && (
+          <div className="flex gap-4 text-sm text-muted-foreground flex-wrap">
+            {test.outcomeScale && (
+              <span><strong>Outcome:</strong> {test.outcomeScale}</span>
+            )}
+            {test.design && (
+              <span><strong>Design:</strong> {test.design}</span>
+            )}
+            {test.predictorStructure && (
+              <span><strong>Predictors:</strong> {test.predictorStructure}</span>
+            )}
+          </div>
+        )}
 
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="assumptions">
@@ -96,6 +133,29 @@ export function TestResultCard({ test, isPrimary = false }: TestResultCardProps)
             </AccordionContent>
           </AccordionItem>
         </Accordion>
+
+        {(onViewDetails || onCompare) && (
+          <div className="flex gap-2 pt-2">
+            {onViewDetails && (
+              <Button variant="outline" size="sm" onClick={onViewDetails} data-testid={`view-details-${test.id}`}>
+                <Eye className="w-4 h-4 mr-2" />
+                View Details
+              </Button>
+            )}
+            {onCompare && (
+              <Button 
+                variant={isComparing ? "default" : "outline"} 
+                size="sm" 
+                onClick={onCompare}
+                disabled={!canCompare && !isComparing}
+                data-testid={`compare-${test.id}`}
+              >
+                <GitCompare className="w-4 h-4 mr-2" />
+                {isComparing ? "Remove from Compare" : "Add to Compare"}
+              </Button>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

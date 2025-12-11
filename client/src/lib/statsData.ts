@@ -1754,159 +1754,162 @@ export const statisticalTests: StatTest[] = [
   },
 ];
 
+const outcomeTypeToScale: Record<string, string[]> = {
+  "continuous": ["continuous"],
+  "counts": ["count"],
+  "ordinal": ["ordinal"],
+  "categorical": ["nominal"],
+  "binary": ["binary"],
+  "time-to-event": ["time-to-event"],
+  "multivariate": ["multivariate"],
+  "high-dimensional": ["multivariate", "continuous"],
+};
+
+const structureToDesign: Record<string, string[]> = {
+  "independent": ["independent groups", "cross-sectional"],
+  "paired": ["paired/repeated measures"],
+  "clustered": ["longitudinal"],
+  "longitudinal": ["longitudinal", "paired/repeated measures"],
+  "time-series": ["time-series"],
+  "spatial": ["cross-sectional"],
+};
+
+const assumptionsToMethodFamily: Record<string, string[]> = {
+  "parametric": ["Parametric", "Regression-based"],
+  "nonparametric": ["Nonparametric"],
+  "robust": ["Regression-based", "Resampling"],
+  "bayesian": ["Bayesian"],
+};
+
 export function getRecommendedTests(selections: Record<string, string>): StatTest[] {
   const { 
     "research-goal": goal, 
     "outcome-type": outcome, 
     "sample-structure": structure, 
+    "study-design": studyDesign,
     assumptions 
   } = selections;
   
   let recommended: StatTest[] = [];
   
-  // Compare groups
+  const targetOutcomeScales = outcome ? outcomeTypeToScale[outcome] || [] : [];
+  const targetDesigns = structure ? structureToDesign[structure] || [] : [];
+  const targetMethodFamilies = assumptions ? assumptionsToMethodFamily[assumptions] || [] : [];
+
+  const scoreTest = (test: StatTest): number => {
+    let score = 0;
+    
+    if (targetOutcomeScales.length > 0 && test.outcomeScale && targetOutcomeScales.includes(test.outcomeScale)) {
+      score += 3;
+    }
+    
+    if (targetDesigns.length > 0 && test.design && targetDesigns.includes(test.design)) {
+      score += 2;
+    }
+    
+    if (targetMethodFamilies.length > 0 && targetMethodFamilies.includes(test.methodFamily)) {
+      score += 2;
+    }
+    
+    if (test.level === "basic") score += 1;
+    else if (test.level === "intermediate") score += 0.5;
+    
+    return score;
+  };
+  
   if (goal === "compare") {
-    if (outcome === "continuous") {
-      if (structure === "independent") {
-        if (assumptions === "parametric") {
-          recommended.push(
-            statisticalTests.find(t => t.id === "t-test-independent")!,
-            statisticalTests.find(t => t.id === "one-way-anova")!
-          );
-        } else {
-          recommended.push(
-            statisticalTests.find(t => t.id === "mann-whitney")!,
-            statisticalTests.find(t => t.id === "kruskal-wallis")!
-          );
-        }
-      } else if (structure === "paired") {
-        if (assumptions === "parametric") {
-          recommended.push(statisticalTests.find(t => t.id === "paired-t-test")!);
-        } else {
-          recommended.push(statisticalTests.find(t => t.id === "wilcoxon-signed-rank")!);
-        }
-      } else if (structure === "longitudinal") {
-        if (assumptions === "parametric") {
-          recommended.push(
-            statisticalTests.find(t => t.id === "repeated-measures-anova")!,
-            statisticalTests.find(t => t.id === "linear-mixed-model")!
-          );
-        } else {
-          recommended.push(statisticalTests.find(t => t.id === "friedman-test")!);
-        }
-      } else if (structure === "clustered") {
-        recommended.push(
-          statisticalTests.find(t => t.id === "linear-mixed-model")!,
-          statisticalTests.find(t => t.id === "glmm")!
-        );
-      }
-    } else if (outcome === "binary" || outcome === "categorical") {
-      recommended.push(
-        statisticalTests.find(t => t.id === "chi-square")!,
-        statisticalTests.find(t => t.id === "fisher-exact")!
-      );
-    }
-  }
-  
-  // Relationships
-  else if (goal === "relationship") {
-    if (outcome === "continuous") {
-      if (assumptions === "parametric") {
-        recommended.push(
-          statisticalTests.find(t => t.id === "pearson-correlation")!,
-          statisticalTests.find(t => t.id === "partial-correlation")!
-        );
-      } else {
-        recommended.push(statisticalTests.find(t => t.id === "spearman-correlation")!);
-      }
-    }
-  }
-  
-  // Prediction
-  else if (goal === "predict") {
-    if (outcome === "continuous") {
-      recommended.push(
-        statisticalTests.find(t => t.id === "linear-regression")!,
-        statisticalTests.find(t => t.id === "multiple-regression")!,
-        statisticalTests.find(t => t.id === "random-forest")!
-      );
-      if (assumptions === "robust") {
-        recommended.push(statisticalTests.find(t => t.id === "lasso-ridge")!);
-      }
-    } else if (outcome === "high-dimensional") {
-      recommended.push(
-        statisticalTests.find(t => t.id === "lasso-ridge")!,
-        statisticalTests.find(t => t.id === "pca")!,
-        statisticalTests.find(t => t.id === "random-forest")!
-      );
-    } else if (outcome === "binary") {
-      recommended.push(
-        statisticalTests.find(t => t.id === "logistic-regression")!,
-        statisticalTests.find(t => t.id === "random-forest")!
-      );
-    } else if (outcome === "counts") {
-      recommended.push(statisticalTests.find(t => t.id === "poisson-regression")!);
-    } else if (outcome === "ordinal") {
-      recommended.push(statisticalTests.find(t => t.id === "ordinal-regression")!);
-    }
-  }
-  
-  // Independence
-  else if (goal === "independence") {
-    recommended.push(
-      statisticalTests.find(t => t.id === "chi-square")!,
-      statisticalTests.find(t => t.id === "fisher-exact")!
+    let candidates = statisticalTests.filter(t => 
+      categoryGroups.find(g => g.id === "comparison")?.tests.includes(t.id)
     );
+    
+    if (targetOutcomeScales.length > 0) {
+      candidates = candidates.filter(t => !t.outcomeScale || targetOutcomeScales.includes(t.outcomeScale));
+    }
+    if (targetDesigns.length > 0) {
+      candidates = candidates.filter(t => !t.design || targetDesigns.includes(t.design));
+    }
+    if (targetMethodFamilies.length > 0) {
+      candidates = candidates.filter(t => targetMethodFamilies.includes(t.methodFamily));
+    }
+    
+    recommended = candidates.sort((a, b) => scoreTest(b) - scoreTest(a)).slice(0, 4);
   }
   
-  // Time/Survival
+  else if (goal === "relationship") {
+    let candidates = statisticalTests.filter(t => 
+      categoryGroups.find(g => g.id === "correlation")?.tests.includes(t.id)
+    );
+    
+    if (targetMethodFamilies.length > 0) {
+      candidates = candidates.filter(t => targetMethodFamilies.includes(t.methodFamily));
+    }
+    
+    recommended = candidates.sort((a, b) => scoreTest(b) - scoreTest(a)).slice(0, 3);
+  }
+  
+  else if (goal === "predict") {
+    let candidates = statisticalTests.filter(t => 
+      categoryGroups.find(g => g.id === "regression")?.tests.includes(t.id) ||
+      categoryGroups.find(g => g.id === "ml")?.tests.includes(t.id)
+    );
+    
+    if (targetOutcomeScales.length > 0) {
+      const matched = candidates.filter(t => t.outcomeScale && targetOutcomeScales.includes(t.outcomeScale));
+      if (matched.length > 0) candidates = matched;
+    }
+    
+    recommended = candidates.sort((a, b) => scoreTest(b) - scoreTest(a)).slice(0, 4);
+  }
+  
+  else if (goal === "independence") {
+    recommended = statisticalTests.filter(t => 
+      categoryGroups.find(g => g.id === "categorical")?.tests.includes(t.id) &&
+      t.level === "basic"
+    ).slice(0, 3);
+  }
+  
   else if (goal === "time") {
     if (outcome === "time-to-event") {
-      recommended.push(
-        statisticalTests.find(t => t.id === "kaplan-meier")!,
-        statisticalTests.find(t => t.id === "log-rank-test")!,
-        statisticalTests.find(t => t.id === "cox-regression")!
-      );
-    } else if (structure === "time-series") {
-      recommended.push(
-        statisticalTests.find(t => t.id === "arima")!,
-        statisticalTests.find(t => t.id === "exponential-smoothing")!
-      );
+      recommended = statisticalTests.filter(t => 
+        categoryGroups.find(g => g.id === "survival")?.tests.includes(t.id)
+      ).sort((a, b) => scoreTest(b) - scoreTest(a)).slice(0, 4);
+    } else {
+      recommended = statisticalTests.filter(t => 
+        categoryGroups.find(g => g.id === "time-series")?.tests.includes(t.id)
+      ).sort((a, b) => scoreTest(b) - scoreTest(a)).slice(0, 4);
     }
   }
   
-  // Unsupervised
   else if (goal === "unsupervised") {
-    recommended.push(
-      statisticalTests.find(t => t.id === "kmeans")!,
-      statisticalTests.find(t => t.id === "hierarchical-clustering")!,
-      statisticalTests.find(t => t.id === "pca")!,
-      statisticalTests.find(t => t.id === "factor-analysis")!
+    let candidates = statisticalTests.filter(t => 
+      categoryGroups.find(g => g.id === "clustering")?.tests.includes(t.id) ||
+      categoryGroups.find(g => g.id === "dimension")?.tests.includes(t.id)
     );
+    recommended = candidates.sort((a, b) => scoreTest(b) - scoreTest(a)).slice(0, 4);
   }
   
-  // Power analysis
   else if (goal === "power") {
-    recommended.push(statisticalTests.find(t => t.id === "power-analysis")!);
+    recommended = [statisticalTests.find(t => t.id === "power-analysis")!];
   }
   
-  // Default fallback
-  if (recommended.length === 0 || assumptions === "unsure") {
-    const baseRecommendations = [...recommended];
-    
-    if (goal === "compare" && outcome === "continuous") {
-      recommended = [
-        statisticalTests.find(t => t.id === "t-test-independent")!,
-        statisticalTests.find(t => t.id === "mann-whitney")!,
-        statisticalTests.find(t => t.id === "linear-mixed-model")!,
-      ];
-    } else if (baseRecommendations.length === 0) {
-      recommended = [
-        statisticalTests.find(t => t.id === "t-test-independent")!,
-        statisticalTests.find(t => t.id === "chi-square")!,
-        statisticalTests.find(t => t.id === "linear-regression")!,
-      ];
-    }
+  if (recommended.length === 0) {
+    recommended = statisticalTests
+      .filter(t => t.level === "basic")
+      .sort((a, b) => scoreTest(b) - scoreTest(a))
+      .slice(0, 3);
+  }
+  
+  if (assumptions === "bayesian") {
+    const bayesianTests = statisticalTests.filter(t => 
+      categoryGroups.find(g => g.id === "bayesian")?.tests.includes(t.id)
+    );
+    const existingIds = new Set(recommended.map(t => t.id));
+    bayesianTests.forEach(t => {
+      if (!existingIds.has(t.id)) {
+        recommended.push(t);
+      }
+    });
+    recommended = recommended.slice(0, 5);
   }
   
   return recommended.filter(Boolean);

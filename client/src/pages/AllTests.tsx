@@ -4,8 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { TestResultCard } from "@/components/TestResultCard";
-import { statisticalTests, categoryGroups } from "@/lib/statsData";
-import { Search, BarChart3, Filter } from "lucide-react";
+import { TestDetailSheet } from "@/components/TestDetailSheet";
+import { CompareSheet } from "@/components/CompareSheet";
+import { statisticalTests, categoryGroups, StatTest } from "@/lib/statsData";
+import { Search, BarChart3, Filter, X, GitCompare } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -18,9 +21,30 @@ export default function AllTests() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedMethodFamily, setSelectedMethodFamily] = useState<string | null>(null);
+  const [selectedOutcomeScale, setSelectedOutcomeScale] = useState<string | null>(null);
+  const [selectedDesign, setSelectedDesign] = useState<string | null>(null);
+  const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
+  
+  const [selectedTest, setSelectedTest] = useState<StatTest | null>(null);
+  const [compareTests, setCompareTests] = useState<StatTest[]>([]);
+  const [showCompare, setShowCompare] = useState(false);
 
   const methodFamilies = useMemo(() => {
     return Array.from(new Set(statisticalTests.map(t => t.methodFamily))).sort();
+  }, []);
+
+  const outcomeScales = useMemo(() => {
+    return Array.from(new Set(statisticalTests.map(t => t.outcomeScale).filter(Boolean))).sort() as string[];
+  }, []);
+
+  const designs = useMemo(() => {
+    return Array.from(new Set(statisticalTests.map(t => t.design).filter(Boolean))).sort() as string[];
+  }, []);
+
+  const levels = useMemo(() => {
+    const order = ["basic", "intermediate", "advanced"];
+    const unique = Array.from(new Set(statisticalTests.map(t => t.level).filter(Boolean))) as string[];
+    return unique.sort((a, b) => order.indexOf(a) - order.indexOf(b));
   }, []);
 
   const filteredCategories = useMemo(() => {
@@ -59,8 +83,49 @@ export default function AllTests() {
     const matchesMethodFamily = selectedMethodFamily === null ||
       test.methodFamily === selectedMethodFamily;
     
-    return matchesSearch && matchesCategory && matchesMethodFamily;
+    const matchesOutcomeScale = selectedOutcomeScale === null ||
+      test.outcomeScale === selectedOutcomeScale;
+    
+    const matchesDesign = selectedDesign === null ||
+      test.design === selectedDesign;
+    
+    const matchesLevel = selectedLevel === null ||
+      test.level === selectedLevel;
+    
+    return matchesSearch && matchesCategory && matchesMethodFamily && 
+           matchesOutcomeScale && matchesDesign && matchesLevel;
   });
+
+  const hasActiveFilters = selectedCategory !== null || selectedMethodFamily !== null ||
+    selectedOutcomeScale !== null || selectedDesign !== null || selectedLevel !== null;
+
+  const clearAllFilters = () => {
+    setSelectedCategory(null);
+    setSelectedMethodFamily(null);
+    setSelectedOutcomeScale(null);
+    setSelectedDesign(null);
+    setSelectedLevel(null);
+    setSearchQuery("");
+  };
+
+  const toggleCompare = (test: StatTest) => {
+    if (compareTests.some(t => t.id === test.id)) {
+      setCompareTests(compareTests.filter(t => t.id !== test.id));
+    } else if (compareTests.length < 3) {
+      setCompareTests([...compareTests, test]);
+    }
+  };
+
+  const handleTestClick = (test: StatTest) => {
+    setSelectedTest(test);
+  };
+
+  const handleAlternativeClick = (testId: string) => {
+    const test = statisticalTests.find(t => t.id === testId);
+    if (test) {
+      setSelectedTest(test);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -71,6 +136,17 @@ export default function AllTests() {
             <span>StatGuide</span>
           </Link>
           <div className="flex items-center gap-2">
+            {compareTests.length > 0 && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowCompare(true)}
+                data-testid="button-compare"
+              >
+                <GitCompare className="w-4 h-4 mr-2" />
+                Compare ({compareTests.length})
+              </Button>
+            )}
             <Button variant="ghost" size="sm" asChild>
               <Link href="/wizard" data-testid="link-use-wizard">
                 Use Wizard
@@ -82,7 +158,7 @@ export default function AllTests() {
       </header>
 
       <main className="flex-1 py-8 px-4">
-        <div className="max-w-5xl mx-auto space-y-8">
+        <div className="max-w-5xl mx-auto space-y-6">
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold">All Statistical Tests</h1>
             <p className="text-muted-foreground">
@@ -91,8 +167,8 @@ export default function AllTests() {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center gap-4 max-w-2xl mx-auto">
-              <div className="relative flex-1">
+            <div className="flex items-center gap-3 max-w-4xl mx-auto flex-wrap justify-center">
+              <div className="relative flex-1 min-w-[200px]">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   type="search"
@@ -107,15 +183,62 @@ export default function AllTests() {
                 value={selectedMethodFamily ?? "all"}
                 onValueChange={(value) => setSelectedMethodFamily(value === "all" ? null : value)}
               >
-                <SelectTrigger className="w-48" data-testid="select-method-family">
-                  <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
-                  <SelectValue placeholder="Method Family" />
+                <SelectTrigger className="w-40" data-testid="select-method-family">
+                  <SelectValue placeholder="Method" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Methods</SelectItem>
                   {methodFamilies.map((family) => (
                     <SelectItem key={family} value={family}>
                       {family}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={selectedOutcomeScale ?? "all"}
+                onValueChange={(value) => setSelectedOutcomeScale(value === "all" ? null : value)}
+              >
+                <SelectTrigger className="w-40" data-testid="select-outcome-scale">
+                  <SelectValue placeholder="Outcome" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Outcomes</SelectItem>
+                  {outcomeScales.map((scale) => (
+                    <SelectItem key={scale} value={scale}>
+                      {scale}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={selectedDesign ?? "all"}
+                onValueChange={(value) => setSelectedDesign(value === "all" ? null : value)}
+              >
+                <SelectTrigger className="w-44" data-testid="select-design">
+                  <SelectValue placeholder="Design" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Designs</SelectItem>
+                  {designs.map((design) => (
+                    <SelectItem key={design} value={design}>
+                      {design}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={selectedLevel ?? "all"}
+                onValueChange={(value) => setSelectedLevel(value === "all" ? null : value)}
+              >
+                <SelectTrigger className="w-36" data-testid="select-level">
+                  <SelectValue placeholder="Level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Levels</SelectItem>
+                  {levels.map((level) => (
+                    <SelectItem key={level} value={level}>
+                      {level.charAt(0).toUpperCase() + level.slice(1)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -143,16 +266,55 @@ export default function AllTests() {
                 </Button>
               ))}
             </div>
+
+            {hasActiveFilters && (
+              <div className="flex justify-center">
+                <Button variant="ghost" size="sm" onClick={clearAllFilters} data-testid="button-clear-filters">
+                  <X className="w-4 h-4 mr-1" />
+                  Clear all filters
+                </Button>
+              </div>
+            )}
           </div>
 
-          <div className="space-y-6">
+          {compareTests.length > 0 && (
+            <div className="flex items-center justify-center gap-2 flex-wrap">
+              <span className="text-sm text-muted-foreground">Comparing:</span>
+              {compareTests.map(test => (
+                <Badge 
+                  key={test.id} 
+                  variant="secondary"
+                  className="cursor-pointer"
+                  onClick={() => toggleCompare(test)}
+                  data-testid={`compare-badge-${test.id}`}
+                >
+                  {test.name}
+                  <X className="w-3 h-3 ml-1" />
+                </Badge>
+              ))}
+            </div>
+          )}
+
+          <div className="space-y-4">
             {filteredTests.length > 0 ? (
               filteredTests.map((test) => (
-                <TestResultCard key={test.id} test={test} />
+                <TestResultCard 
+                  key={test.id} 
+                  test={test}
+                  onViewDetails={() => handleTestClick(test)}
+                  onCompare={() => toggleCompare(test)}
+                  isComparing={compareTests.some(t => t.id === test.id)}
+                  canCompare={compareTests.length < 3 || compareTests.some(t => t.id === test.id)}
+                />
               ))
             ) : (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">No tests found matching your criteria.</p>
+                {hasActiveFilters && (
+                  <Button variant="ghost" onClick={clearAllFilters} className="mt-2">
+                    Clear filters
+                  </Button>
+                )}
               </div>
             )}
           </div>
@@ -162,6 +324,19 @@ export default function AllTests() {
           </div>
         </div>
       </main>
+
+      <TestDetailSheet 
+        test={selectedTest}
+        onClose={() => setSelectedTest(null)}
+        onAlternativeClick={handleAlternativeClick}
+      />
+
+      <CompareSheet
+        tests={compareTests}
+        open={showCompare}
+        onClose={() => setShowCompare(false)}
+        onRemoveTest={(testId: string) => setCompareTests(compareTests.filter(t => t.id !== testId))}
+      />
     </div>
   );
 }
