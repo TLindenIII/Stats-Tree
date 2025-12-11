@@ -29,45 +29,86 @@ export default function AllTests() {
   const [compareTests, setCompareTests] = useState<StatTest[]>([]);
   const [showCompare, setShowCompare] = useState(false);
 
+  const getFilteredTests = (excludeFilter?: string) => {
+    return statisticalTests.filter((test) => {
+      const matchesCategory = excludeFilter === 'category' || selectedCategory === null || 
+        categoryGroups.find(g => g.id === selectedCategory)?.tests.includes(test.id);
+      const matchesMethodFamily = excludeFilter === 'methodFamily' || selectedMethodFamily === null ||
+        test.methodFamily === selectedMethodFamily;
+      const matchesOutcomeScale = excludeFilter === 'outcomeScale' || selectedOutcomeScale === null ||
+        test.outcomeScale === selectedOutcomeScale;
+      const matchesDesign = excludeFilter === 'design' || selectedDesign === null ||
+        test.design === selectedDesign;
+      const matchesLevel = excludeFilter === 'level' || selectedLevel === null ||
+        test.level === selectedLevel;
+      return matchesCategory && matchesMethodFamily && matchesOutcomeScale && matchesDesign && matchesLevel;
+    });
+  };
+
   const methodFamilies = useMemo(() => {
-    return Array.from(new Set(statisticalTests.map(t => t.methodFamily))).sort();
-  }, []);
+    const availableTests = getFilteredTests('methodFamily');
+    return Array.from(new Set(availableTests.map(t => t.methodFamily))).sort();
+  }, [selectedCategory, selectedOutcomeScale, selectedDesign, selectedLevel]);
 
   const outcomeScales = useMemo(() => {
-    return Array.from(new Set(statisticalTests.map(t => t.outcomeScale).filter(Boolean))).sort() as string[];
-  }, []);
+    const availableTests = getFilteredTests('outcomeScale');
+    return Array.from(new Set(availableTests.map(t => t.outcomeScale).filter(Boolean))).sort() as string[];
+  }, [selectedCategory, selectedMethodFamily, selectedDesign, selectedLevel]);
 
   const designs = useMemo(() => {
-    return Array.from(new Set(statisticalTests.map(t => t.design).filter(Boolean))).sort() as string[];
-  }, []);
+    const availableTests = getFilteredTests('design');
+    return Array.from(new Set(availableTests.map(t => t.design).filter(Boolean))).sort() as string[];
+  }, [selectedCategory, selectedMethodFamily, selectedOutcomeScale, selectedLevel]);
 
   const levels = useMemo(() => {
     const order = ["basic", "intermediate", "advanced"];
-    const unique = Array.from(new Set(statisticalTests.map(t => t.level).filter(Boolean))) as string[];
+    const availableTests = getFilteredTests('level');
+    const unique = Array.from(new Set(availableTests.map(t => t.level).filter(Boolean))) as string[];
     return unique.sort((a, b) => order.indexOf(a) - order.indexOf(b));
-  }, []);
+  }, [selectedCategory, selectedMethodFamily, selectedOutcomeScale, selectedDesign]);
 
   const filteredCategories = useMemo(() => {
-    if (selectedMethodFamily === null) {
-      return categoryGroups;
-    }
-    const testsForMethod = statisticalTests.filter(t => t.methodFamily === selectedMethodFamily);
-    const categoryIdsWithMethod = new Set<string>();
-    testsForMethod.forEach(test => {
+    const availableTests = getFilteredTests('category');
+    const categoryIdsWithTests = new Set<string>();
+    availableTests.forEach(test => {
       categoryGroups.forEach(group => {
         if (group.tests.includes(test.id)) {
-          categoryIdsWithMethod.add(group.id);
+          categoryIdsWithTests.add(group.id);
         }
       });
     });
-    return categoryGroups.filter(g => categoryIdsWithMethod.has(g.id));
-  }, [selectedMethodFamily]);
+    return categoryGroups.filter(g => categoryIdsWithTests.has(g.id));
+  }, [selectedMethodFamily, selectedOutcomeScale, selectedDesign, selectedLevel]);
 
   useEffect(() => {
     if (selectedCategory !== null && !filteredCategories.some(c => c.id === selectedCategory)) {
       setSelectedCategory(null);
     }
   }, [filteredCategories, selectedCategory]);
+
+  useEffect(() => {
+    if (selectedMethodFamily !== null && !methodFamilies.includes(selectedMethodFamily)) {
+      setSelectedMethodFamily(null);
+    }
+  }, [methodFamilies, selectedMethodFamily]);
+
+  useEffect(() => {
+    if (selectedOutcomeScale !== null && !outcomeScales.includes(selectedOutcomeScale)) {
+      setSelectedOutcomeScale(null);
+    }
+  }, [outcomeScales, selectedOutcomeScale]);
+
+  useEffect(() => {
+    if (selectedDesign !== null && !designs.includes(selectedDesign)) {
+      setSelectedDesign(null);
+    }
+  }, [designs, selectedDesign]);
+
+  useEffect(() => {
+    if (selectedLevel !== null && !levels.includes(selectedLevel)) {
+      setSelectedLevel(null);
+    }
+  }, [levels, selectedLevel]);
 
   const filteredTests = statisticalTests.filter((test) => {
     const matchesSearch =
