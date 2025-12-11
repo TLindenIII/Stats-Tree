@@ -26,7 +26,7 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { BarChart3, Home, CheckCircle2, AlertCircle, Lightbulb, ArrowRight, RotateCcw, ChevronRight } from "lucide-react";
+import { BarChart3, CheckCircle2, AlertCircle, Lightbulb, ArrowRight, RotateCcw, ChevronRight } from "lucide-react";
 import { statisticalTests, StatTest } from "@/lib/statsData";
 import { useWizardContext } from "@/contexts/WizardContext";
 
@@ -420,22 +420,15 @@ function FlowchartInner() {
   return (
     <div className="h-screen flex flex-col bg-background">
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="flex items-center justify-between gap-4 px-4 py-3">
-          <div className="flex items-center gap-3">
-            <Link href="/">
-              <Button variant="ghost" size="icon" data-testid="button-home">
-                <Home className="h-4 w-4" />
-              </Button>
-            </Link>
-            <div className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-primary" />
-              <h1 className="text-lg font-semibold">Decision Flowchart</h1>
-            </div>
-          </div>
+        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+          <Link href="/" className="flex items-center gap-2 font-semibold">
+            <BarChart3 className="w-5 h-5 text-primary" />
+            <span>StatGuide</span>
+          </Link>
           <div className="flex items-center gap-2">
             {selections.length > 0 && (
               <Button 
-                variant="outline" 
+                variant="ghost" 
                 size="sm" 
                 onClick={handleReset}
                 data-testid="button-reset-flowchart"
@@ -444,11 +437,11 @@ function FlowchartInner() {
                 Start Over
               </Button>
             )}
-            <Link href="/wizard">
-              <Button variant="outline" size="sm" data-testid="button-wizard-nav">
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/wizard" data-testid="button-wizard-nav">
                 Use Wizard
-              </Button>
-            </Link>
+              </Link>
+            </Button>
             <ThemeToggle />
           </div>
         </div>
