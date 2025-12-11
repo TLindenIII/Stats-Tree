@@ -35,6 +35,14 @@ Preferred communication style: Simple, everyday language.
 2. **Wizard** (`/wizard`) - Multi-step question flow for test selection
 3. **Results** (`/results`) - Displays recommended tests based on wizard answers
 4. **All Tests** (`/tests`) - Browse and search all statistical tests
+5. **Flowchart** (`/flowchart`) - Interactive decision tree with progressive disclosure
+
+### Progressive Disclosure Flowchart
+- **WizardContext**: Shared state between Wizard and Flowchart tracking user selections
+- **Progressive Revelation**: Initially shows only start node + 6 research goals; clicking reveals children
+- **Branch Switching**: Automatically truncates path when selecting a sibling node at same depth
+- **Breadcrumb Navigation**: Header displays current selection path with "Start Over" reset
+- **Test Detail Sheet**: Clicking test nodes opens side panel with statistical test details
 
 ### Key Design Patterns
 - **Wizard Pattern**: Step-by-step question flow with progress tracking and back navigation
