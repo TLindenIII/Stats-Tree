@@ -302,7 +302,7 @@ function FlowchartInner() {
   const selectedIds = useMemo(() => selections.map(s => s.nodeId), [selections]);
 
   const { visibleNodes, visibleEdges } = useMemo(() => {
-    const nodeWidth = 180;
+    const nodeWidth = 200;
     const layerGap = 140;
     const edgeStyle = { stroke: "hsl(var(--muted-foreground))", strokeWidth: 1.5 };
     const selectedEdgeStyle = { stroke: "hsl(var(--primary))", strokeWidth: 2.5 };
@@ -317,70 +317,78 @@ function FlowchartInner() {
       children.forEach(c => nodesToShow.add(c.id));
     });
 
-    const nodesByLayer: Map<number, FlowNode[]> = new Map();
-    
     const getLayerForNode = (nodeId: string, depth = 0): number => {
       const node = flowchartNodes.find(n => n.id === nodeId);
       if (!node || !node.parentId) return depth;
       return getLayerForNode(node.parentId, depth + 1);
     };
 
-    flowchartNodes.forEach(node => {
-      if (nodesToShow.has(node.id)) {
-        const layer = getLayerForNode(node.id);
-        if (!nodesByLayer.has(layer)) nodesByLayer.set(layer, []);
-        nodesByLayer.get(layer)!.push(node);
-      }
-    });
-
+    const nodePositions: Map<string, { x: number; y: number }> = new Map();
     const nodes: Node[] = [];
     const edges: Edge[] = [];
 
-    nodesByLayer.forEach((layerNodes, layer) => {
-      const totalWidth = (layerNodes.length - 1) * nodeWidth;
-      const startX = -totalWidth / 2;
+    const positionNode = (nodeId: string, parentX: number, siblingIndex: number, siblingCount: number): void => {
+      const node = flowchartNodes.find(n => n.id === nodeId);
+      if (!node || !nodesToShow.has(nodeId)) return;
 
-      layerNodes.forEach((node, i) => {
-        const x = startX + i * nodeWidth;
-        const y = layer * layerGap;
-        const isSelected = selectedIds.includes(node.id);
-        const hasChildren = getChildren(node.id).length > 0;
+      const layer = getLayerForNode(nodeId);
+      const y = layer * layerGap;
+      
+      let x: number;
+      if (!node.parentId) {
+        x = 0;
+      } else {
+        const spreadWidth = (siblingCount - 1) * nodeWidth;
+        const startX = parentX - spreadWidth / 2;
+        x = startX + siblingIndex * nodeWidth;
+      }
 
-        if (node.type === "start") {
-          nodes.push({
-            id: node.id,
-            type: "startNode",
-            position: { x, y },
-            data: { label: node.label },
-          });
-        } else if (node.type === "test") {
-          nodes.push({
-            id: node.id,
-            type: "testNode",
-            position: { x, y },
-            data: { label: node.label, testIds: node.testIds || [] },
-          });
-        } else {
-          nodes.push({
-            id: node.id,
-            type: "decisionNode",
-            position: { x, y },
-            data: { label: node.label, isSelected, hasChildren },
-          });
-        }
+      nodePositions.set(nodeId, { x, y });
 
-        if (node.parentId && nodesToShow.has(node.parentId)) {
-          const isOnSelectedPath = selectedIds.includes(node.id) || (node.parentId && selectedIds.includes(node.parentId));
-          edges.push({
-            id: `${node.parentId}-to-${node.id}`,
-            source: node.parentId,
-            target: node.id,
-            style: isOnSelectedPath ? selectedEdgeStyle : edgeStyle,
-            animated: node.type === "test",
-          });
-        }
+      const isSelected = selectedIds.includes(nodeId);
+      const hasChildren = getChildren(nodeId).length > 0;
+
+      if (node.type === "start") {
+        nodes.push({
+          id: node.id,
+          type: "startNode",
+          position: { x, y },
+          data: { label: node.label },
+        });
+      } else if (node.type === "test") {
+        nodes.push({
+          id: node.id,
+          type: "testNode",
+          position: { x, y },
+          data: { label: node.label, testIds: node.testIds || [] },
+        });
+      } else {
+        nodes.push({
+          id: node.id,
+          type: "decisionNode",
+          position: { x, y },
+          data: { label: node.label, isSelected, hasChildren },
+        });
+      }
+
+      if (node.parentId && nodesToShow.has(node.parentId)) {
+        const isOnSelectedPath = selectedIds.includes(nodeId) || selectedIds.includes(node.parentId);
+        edges.push({
+          id: `${node.parentId}-to-${nodeId}`,
+          source: node.parentId,
+          target: nodeId,
+          style: isOnSelectedPath ? selectedEdgeStyle : edgeStyle,
+          animated: node.type === "test",
+        });
+      }
+
+      const visibleChildren = getChildren(nodeId).filter(c => nodesToShow.has(c.id));
+      visibleChildren.forEach((child, i) => {
+        positionNode(child.id, x, i, visibleChildren.length);
       });
-    });
+    };
+
+    positionNode("start", 0, 0, 1);
 
     return { visibleNodes: nodes, visibleEdges: edges };
   }, [selectedIds]);
