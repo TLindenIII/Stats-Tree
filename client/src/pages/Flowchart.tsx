@@ -41,20 +41,28 @@ interface FlowNode {
 const flowchartNodes: FlowNode[] = [
   { id: "start", label: "What is your research goal?", parentId: null, type: "start" },
   
+  { id: "goal-estimate", label: "Estimate a Parameter", parentId: "start", type: "decision" },
   { id: "goal-compare", label: "Compare Groups", parentId: "start", type: "decision" },
   { id: "goal-relationship", label: "Assess Relationships", parentId: "start", type: "decision" },
   { id: "goal-predict", label: "Predict Outcomes", parentId: "start", type: "decision" },
+  { id: "goal-independence", label: "Test Independence", parentId: "start", type: "decision" },
   { id: "goal-time", label: "Time/Sequential", parentId: "start", type: "decision" },
   { id: "goal-unsupervised", label: "Discover Patterns", parentId: "start", type: "decision" },
   { id: "goal-planning", label: "Study Planning", parentId: "start", type: "decision" },
   
-  { id: "compare-continuous", label: "Continuous Data", parentId: "goal-compare", type: "decision" },
-  { id: "compare-categorical", label: "Categorical Data", parentId: "goal-compare", type: "decision" },
+  { id: "estimate-continuous", label: "Continuous", parentId: "goal-estimate", type: "decision" },
+  { id: "estimate-binary", label: "Binary", parentId: "goal-estimate", type: "decision" },
   
-  { id: "relationship-type", label: "Variable Types", parentId: "goal-relationship", type: "decision" },
+  { id: "compare-continuous", label: "Continuous", parentId: "goal-compare", type: "decision" },
+  { id: "compare-categorical", label: "Categorical", parentId: "goal-compare", type: "decision" },
   
-  { id: "predict-continuous", label: "Continuous Outcome", parentId: "goal-predict", type: "decision" },
-  { id: "predict-categorical", label: "Categorical Outcome", parentId: "goal-predict", type: "decision" },
+  { id: "relationship-continuous", label: "Continuous", parentId: "goal-relationship", type: "decision" },
+  { id: "relationship-ordinal", label: "Ordinal", parentId: "goal-relationship", type: "decision" },
+  
+  { id: "predict-continuous", label: "Continuous", parentId: "goal-predict", type: "decision" },
+  { id: "predict-categorical", label: "Categorical", parentId: "goal-predict", type: "decision" },
+  
+  { id: "independence-categorical", label: "Categorical Data", parentId: "goal-independence", type: "decision" },
   
   { id: "time-series", label: "Time Series", parentId: "goal-time", type: "decision" },
   { id: "survival", label: "Survival/Event", parentId: "goal-time", type: "decision" },
@@ -62,36 +70,57 @@ const flowchartNodes: FlowNode[] = [
   { id: "clustering", label: "Clustering", parentId: "goal-unsupervised", type: "decision" },
   { id: "dimension", label: "Dimension Reduction", parentId: "goal-unsupervised", type: "decision" },
   
+  { id: "est-cont-independent", label: "Independent Samples", parentId: "estimate-continuous", type: "decision" },
+  { id: "est-cont-paired", label: "Paired Samples", parentId: "estimate-continuous", type: "decision" },
+  
   { id: "compare-independent", label: "Independent Samples", parentId: "compare-continuous", type: "decision" },
   { id: "compare-paired", label: "Paired/Matched", parentId: "compare-continuous", type: "decision" },
   { id: "compare-repeated", label: "Repeated Measures", parentId: "compare-continuous", type: "decision" },
   
-  { id: "corr-parametric", label: "Parametric", parentId: "relationship-type", type: "decision" },
-  { id: "corr-nonparametric", label: "Non-parametric", parentId: "relationship-type", type: "decision" },
+  { id: "rel-cont-parametric", label: "Parametric", parentId: "relationship-continuous", type: "decision" },
+  { id: "rel-cont-nonparametric", label: "Non-parametric", parentId: "relationship-continuous", type: "decision" },
   
-  { id: "reg-linear", label: "Linear Models", parentId: "predict-continuous", type: "decision" },
-  { id: "reg-regularized", label: "Regularized", parentId: "predict-continuous", type: "decision" },
+  { id: "predict-cont-linear", label: "Linear Models", parentId: "predict-continuous", type: "decision" },
+  { id: "predict-cont-regularized", label: "Regularized", parentId: "predict-continuous", type: "decision" },
   
-  { id: "class-traditional", label: "Traditional", parentId: "predict-categorical", type: "decision" },
-  { id: "class-ml", label: "Machine Learning", parentId: "predict-categorical", type: "decision" },
+  { id: "predict-cat-traditional", label: "Traditional", parentId: "predict-categorical", type: "decision" },
+  { id: "predict-cat-ml", label: "Machine Learning", parentId: "predict-categorical", type: "decision" },
+  
+  { id: "est-ind-parametric", label: "Parametric", parentId: "est-cont-independent", type: "decision" },
+  { id: "est-ind-nonparametric", label: "Non-parametric", parentId: "est-cont-independent", type: "decision" },
+  
+  { id: "est-paired-parametric", label: "Parametric", parentId: "est-cont-paired", type: "decision" },
+  { id: "est-paired-nonparametric", label: "Non-parametric", parentId: "est-cont-paired", type: "decision" },
   
   { id: "ind-parametric", label: "Parametric", parentId: "compare-independent", type: "decision" },
   { id: "ind-nonparametric", label: "Non-parametric", parentId: "compare-independent", type: "decision" },
   { id: "paired-parametric", label: "Parametric", parentId: "compare-paired", type: "decision" },
   { id: "paired-nonparametric", label: "Non-parametric", parentId: "compare-paired", type: "decision" },
   
+  { id: "test-est-ind-param", label: "t-Test / CI", parentId: "est-ind-parametric", type: "test", testIds: ["t-test-independent", "cohens-d", "hedges-g"] },
+  { id: "test-est-ind-nonparam", label: "Bootstrap / Permutation", parentId: "est-ind-nonparametric", type: "test", testIds: ["bootstrap", "permutation-test", "mann-whitney"] },
+  { id: "test-est-paired-param", label: "Paired t-Test", parentId: "est-paired-parametric", type: "test", testIds: ["paired-t-test", "cohens-d"] },
+  { id: "test-est-paired-nonparam", label: "Wilcoxon / Bootstrap", parentId: "est-paired-nonparametric", type: "test", testIds: ["wilcoxon-signed-rank", "bootstrap"] },
+  { id: "test-est-binary", label: "Proportions / Odds", parentId: "estimate-binary", type: "test", testIds: ["chi-square", "fisher-exact", "odds-ratio"] },
+  
   { id: "test-ttest", label: "t-Test / ANOVA", parentId: "ind-parametric", type: "test", testIds: ["t-test-independent", "one-way-anova", "two-way-anova", "welch-t-test", "welch-anova"] },
-  { id: "test-mann-whitney", label: "Mann-Whitney / Kruskal-Wallis", parentId: "ind-nonparametric", type: "test", testIds: ["mann-whitney", "kruskal-wallis", "brown-forsythe"] },
+  { id: "test-mann-whitney", label: "Mann-Whitney / Kruskal-Wallis", parentId: "ind-nonparametric", type: "test", testIds: ["mann-whitney", "kruskal-wallis", "permutation-test"] },
   { id: "test-paired-t", label: "Paired t-Test", parentId: "paired-parametric", type: "test", testIds: ["paired-t-test", "repeated-measures-anova"] },
   { id: "test-wilcoxon", label: "Wilcoxon / Friedman", parentId: "paired-nonparametric", type: "test", testIds: ["wilcoxon-signed-rank", "friedman-test"] },
   { id: "test-repeated", label: "Mixed Models", parentId: "compare-repeated", type: "test", testIds: ["linear-mixed-model", "glmm", "repeated-measures-anova"] },
   { id: "test-chi-square", label: "Chi-Square Tests", parentId: "compare-categorical", type: "test", testIds: ["chi-square", "fisher-exact", "mcnemar-test", "cochran-q"] },
-  { id: "test-pearson", label: "Pearson / Partial", parentId: "corr-parametric", type: "test", testIds: ["pearson-correlation", "partial-correlation", "point-biserial", "intraclass-correlation"] },
-  { id: "test-spearman", label: "Spearman / Kendall", parentId: "corr-nonparametric", type: "test", testIds: ["spearman-correlation", "kendall-tau"] },
-  { id: "test-linear-reg", label: "Linear Regression", parentId: "reg-linear", type: "test", testIds: ["linear-regression", "multiple-regression", "robust-regression"] },
-  { id: "test-regularized", label: "Lasso / Ridge / Elastic Net", parentId: "reg-regularized", type: "test", testIds: ["lasso-ridge", "elastic-net"] },
-  { id: "test-logistic", label: "Logistic / Ordinal", parentId: "class-traditional", type: "test", testIds: ["logistic-regression", "ordinal-regression", "probit-regression"] },
-  { id: "test-ml-class", label: "ML Classifiers", parentId: "class-ml", type: "test", testIds: ["random-forest", "svm", "xgboost", "lightgbm", "catboost", "knn", "naive-bayes", "decision-tree", "neural-network-mlp"] },
+  
+  { id: "test-pearson", label: "Pearson / Partial", parentId: "rel-cont-parametric", type: "test", testIds: ["pearson-correlation", "partial-correlation", "point-biserial", "intraclass-correlation"] },
+  { id: "test-spearman", label: "Spearman / Kendall", parentId: "rel-cont-nonparametric", type: "test", testIds: ["spearman-correlation", "kendall-tau"] },
+  { id: "test-ordinal-corr", label: "Rank Correlations", parentId: "relationship-ordinal", type: "test", testIds: ["spearman-correlation", "kendall-tau"] },
+  
+  { id: "test-linear-reg", label: "Linear Regression", parentId: "predict-cont-linear", type: "test", testIds: ["linear-regression", "multiple-regression", "robust-regression"] },
+  { id: "test-regularized", label: "Lasso / Ridge / Elastic Net", parentId: "predict-cont-regularized", type: "test", testIds: ["lasso-ridge", "elastic-net"] },
+  { id: "test-logistic", label: "Logistic / Ordinal", parentId: "predict-cat-traditional", type: "test", testIds: ["logistic-regression", "ordinal-regression", "probit-regression"] },
+  { id: "test-ml-class", label: "ML Classifiers", parentId: "predict-cat-ml", type: "test", testIds: ["random-forest", "svm", "xgboost", "knn", "naive-bayes", "decision-tree", "neural-network-mlp"] },
+  
+  { id: "test-independence", label: "Chi-Square / Fisher", parentId: "independence-categorical", type: "test", testIds: ["chi-square", "fisher-exact", "cramers-v", "cohens-kappa"] },
+  
   { id: "test-timeseries", label: "ARIMA / Prophet", parentId: "time-series", type: "test", testIds: ["arima", "exponential-smoothing", "prophet", "var", "granger-causality"] },
   { id: "test-survival", label: "Survival Analysis", parentId: "survival", type: "test", testIds: ["kaplan-meier", "log-rank-test", "cox-regression", "accelerated-failure-time", "competing-risks", "random-survival-forest"] },
   { id: "test-clustering", label: "Clustering Methods", parentId: "clustering", type: "test", testIds: ["kmeans", "hierarchical-clustering", "dbscan", "gaussian-mixture"] },
