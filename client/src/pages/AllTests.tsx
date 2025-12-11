@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,28 @@ export default function AllTests() {
   const methodFamilies = useMemo(() => {
     return Array.from(new Set(statisticalTests.map(t => t.methodFamily))).sort();
   }, []);
+
+  const filteredCategories = useMemo(() => {
+    if (selectedMethodFamily === null) {
+      return categoryGroups;
+    }
+    const testsForMethod = statisticalTests.filter(t => t.methodFamily === selectedMethodFamily);
+    const categoryIdsWithMethod = new Set<string>();
+    testsForMethod.forEach(test => {
+      categoryGroups.forEach(group => {
+        if (group.tests.includes(test.id)) {
+          categoryIdsWithMethod.add(group.id);
+        }
+      });
+    });
+    return categoryGroups.filter(g => categoryIdsWithMethod.has(g.id));
+  }, [selectedMethodFamily]);
+
+  useEffect(() => {
+    if (selectedCategory !== null && !filteredCategories.some(c => c.id === selectedCategory)) {
+      setSelectedCategory(null);
+    }
+  }, [filteredCategories, selectedCategory]);
 
   const filteredTests = statisticalTests.filter((test) => {
     const matchesSearch =
@@ -109,7 +131,7 @@ export default function AllTests() {
               >
                 All Categories
               </Button>
-              {categoryGroups.map((category) => (
+              {filteredCategories.map((category) => (
                 <Button
                   key={category.id}
                   variant={selectedCategory === category.id ? "default" : "outline"}
