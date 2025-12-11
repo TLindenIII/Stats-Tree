@@ -1892,11 +1892,41 @@ export function getRecommendedTests(selections: Record<string, string>): StatTes
     recommended = [statisticalTests.find(t => t.id === "power-analysis")!];
   }
   
+  else if (goal === "estimate") {
+    let candidates = statisticalTests.filter(t => 
+      categoryGroups.find(g => g.id === "comparison")?.tests.includes(t.id) ||
+      categoryGroups.find(g => g.id === "effectsize")?.tests.includes(t.id) ||
+      categoryGroups.find(g => g.id === "resampling")?.tests.includes(t.id)
+    );
+    
+    if (targetOutcomeScales.length > 0) {
+      const matched = candidates.filter(t => !t.outcomeScale || targetOutcomeScales.includes(t.outcomeScale));
+      if (matched.length > 0) candidates = matched;
+    }
+    if (targetDesigns.length > 0) {
+      const matched = candidates.filter(t => !t.design || targetDesigns.includes(t.design));
+      if (matched.length > 0) candidates = matched;
+    }
+    if (targetMethodFamilies.length > 0) {
+      candidates = candidates.filter(t => targetMethodFamilies.includes(t.methodFamily));
+    }
+    
+    recommended = candidates.sort((a, b) => scoreTest(b) - scoreTest(a)).slice(0, 4);
+  }
+  
   if (recommended.length === 0) {
-    recommended = statisticalTests
-      .filter(t => t.level === "basic")
-      .sort((a, b) => scoreTest(b) - scoreTest(a))
-      .slice(0, 3);
+    let candidates = statisticalTests.filter(t => t.level === "basic");
+    
+    if (targetMethodFamilies.length > 0) {
+      const matched = candidates.filter(t => targetMethodFamilies.includes(t.methodFamily));
+      if (matched.length > 0) candidates = matched;
+    }
+    if (targetOutcomeScales.length > 0) {
+      const matched = candidates.filter(t => !t.outcomeScale || targetOutcomeScales.includes(t.outcomeScale));
+      if (matched.length > 0) candidates = matched;
+    }
+    
+    recommended = candidates.sort((a, b) => scoreTest(b) - scoreTest(a)).slice(0, 3);
   }
   
   if (assumptions === "bayesian") {
