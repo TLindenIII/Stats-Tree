@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ArrowRight, Target, Layers, CheckSquare, BarChart3, GitBranch, BookOpen, Network } from "lucide-react";
+import { statisticalTests, categoryGroups } from "@/lib/statsData";
 
 export default function Home() {
   const features = [
@@ -23,8 +24,8 @@ export default function Home() {
   ];
 
   const stats = [
-    { value: "80+", label: "Statistical Tests" },
-    { value: "16", label: "Categories" },
+    { value: String(statisticalTests.length), label: "Statistical Tests" },
+    { value: String(categoryGroups.length), label: "Categories" },
     { value: "100%", label: "Free to Use" },
   ];
 
