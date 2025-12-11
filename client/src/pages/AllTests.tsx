@@ -5,23 +5,54 @@ import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { TestResultCard } from "@/components/TestResultCard";
 import { statisticalTests, categoryGroups } from "@/lib/statsData";
-import { Search, BarChart3 } from "lucide-react";
+import { Search, BarChart3, Filter } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const methodFamilies = [
+  "Parametric",
+  "Nonparametric",
+  "Regression-based",
+  "Bayesian",
+  "Machine Learning",
+  "Mixed Models",
+  "Multivariate",
+  "Diagnostic",
+  "Multiple Comparison",
+  "Effect Size",
+  "Reliability",
+  "Resampling",
+  "Permutation-based",
+  "Survival",
+  "Time-series",
+  "Planning",
+];
 
 export default function AllTests() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedMethodFamily, setSelectedMethodFamily] = useState<string | null>(null);
 
   const filteredTests = statisticalTests.filter((test) => {
     const matchesSearch =
       searchQuery === "" ||
       test.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       test.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      test.category.toLowerCase().includes(searchQuery.toLowerCase());
+      test.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      test.methodFamily.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesCategory = selectedCategory === null || 
       categoryGroups.find(g => g.id === selectedCategory)?.tests.includes(test.id);
     
-    return matchesSearch && matchesCategory;
+    const matchesMethodFamily = selectedMethodFamily === null ||
+      test.methodFamily === selectedMethodFamily;
+    
+    return matchesSearch && matchesCategory && matchesMethodFamily;
   });
 
   return (
@@ -53,16 +84,35 @@ export default function AllTests() {
           </div>
 
           <div className="space-y-4">
-            <div className="relative max-w-md mx-auto">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search tests..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-                data-testid="input-search-tests"
-              />
+            <div className="flex items-center gap-4 max-w-2xl mx-auto">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search tests..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                  data-testid="input-search-tests"
+                />
+              </div>
+              <Select
+                value={selectedMethodFamily ?? "all"}
+                onValueChange={(value) => setSelectedMethodFamily(value === "all" ? null : value)}
+              >
+                <SelectTrigger className="w-48" data-testid="select-method-family">
+                  <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
+                  <SelectValue placeholder="Method Family" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Methods</SelectItem>
+                  {methodFamilies.map((family) => (
+                    <SelectItem key={family} value={family}>
+                      {family}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="flex justify-center gap-2 flex-wrap">
@@ -72,7 +122,7 @@ export default function AllTests() {
                 onClick={() => setSelectedCategory(null)}
                 data-testid="filter-all"
               >
-                All
+                All Categories
               </Button>
               {categoryGroups.map((category) => (
                 <Button

@@ -17,11 +17,18 @@ const exportData = {
     name: test.name,
     description: test.description,
     category: test.category,
+    categoryId: test.categoryId,
     methodFamily: test.methodFamily,
     assumptions: test.assumptions,
     whenToUse: test.whenToUse,
-    alternatives: test.alternatives
-  }))
+    alternatives: test.alternatives,
+    outcomeScale: test.outcomeScale ?? null,
+    predictorStructure: test.predictorStructure ?? null,
+    design: test.design ?? null,
+    level: test.level ?? null,
+    alternativeLinks: test.alternativeLinks ?? []
+  })),
+  schemaVersion: 2
 };
 
 const outputPath = path.join(process.cwd(), "client", "public", "statistical-tests-export.json");

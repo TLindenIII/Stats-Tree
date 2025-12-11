@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2025-12-11T19:04:29.977Z",
+  "exportedAt": "2025-12-11T19:31:36.399Z",
   "totalTests": 101,
   "categories": [
     "Assumption Testing",
@@ -125,6 +125,7 @@
       "name": "Independent Samples t-Test",
       "description": "Compares means of two independent groups to determine if they are statistically different.",
       "category": "Group Comparison",
+      "categoryId": "comparison",
       "methodFamily": "Parametric",
       "assumptions": [
         "Normal distribution in each group",
@@ -140,13 +141,19 @@
       "alternatives": [
         "Mann-Whitney U test (non-parametric)",
         "Welch's t-test (unequal variances)"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "paired-t-test",
       "name": "Paired Samples t-Test",
       "description": "Compares means from the same group at two different times or under two different conditions.",
       "category": "Group Comparison",
+      "categoryId": "comparison",
       "methodFamily": "Parametric",
       "assumptions": [
         "Differences are normally distributed",
@@ -160,13 +167,19 @@
       ],
       "alternatives": [
         "Wilcoxon signed-rank test (non-parametric)"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "one-way-anova",
       "name": "One-Way ANOVA",
       "description": "Tests whether there are statistically significant differences between the means of three or more independent groups.",
       "category": "Group Comparison",
+      "categoryId": "comparison",
       "methodFamily": "Parametric",
       "assumptions": [
         "Normal distribution in each group",
@@ -181,13 +194,19 @@
       "alternatives": [
         "Kruskal-Wallis H test (non-parametric)",
         "Welch's ANOVA (unequal variances)"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "two-way-anova",
       "name": "Two-Way ANOVA",
       "description": "Tests the effect of two independent categorical variables on a continuous outcome, including their interaction.",
       "category": "Group Comparison",
+      "categoryId": "comparison",
       "methodFamily": "Parametric",
       "assumptions": [
         "Normal distribution",
@@ -203,13 +222,19 @@
       "alternatives": [
         "Robust ANOVA",
         "Aligned ranks transformation"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "repeated-measures-anova",
       "name": "Repeated Measures ANOVA",
       "description": "Tests differences across multiple time points or conditions for the same subjects.",
       "category": "Group Comparison",
+      "categoryId": "comparison",
       "methodFamily": "Parametric",
       "assumptions": [
         "Sphericity",
@@ -224,13 +249,19 @@
       "alternatives": [
         "Friedman test (non-parametric)",
         "Mixed-effects models"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "mann-whitney",
       "name": "Mann-Whitney U Test",
       "description": "Non-parametric test that compares distributions of two independent groups.",
       "category": "Group Comparison",
+      "categoryId": "comparison",
       "methodFamily": "Nonparametric",
       "assumptions": [
         "Independent samples",
@@ -244,13 +275,19 @@
       ],
       "alternatives": [
         "Independent t-test (parametric)"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "wilcoxon-signed-rank",
       "name": "Wilcoxon Signed-Rank Test",
       "description": "Non-parametric test for comparing two related samples or repeated measurements.",
       "category": "Group Comparison",
+      "categoryId": "comparison",
       "methodFamily": "Nonparametric",
       "assumptions": [
         "Paired observations",
@@ -264,13 +301,19 @@
       ],
       "alternatives": [
         "Paired t-test (parametric)"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "kruskal-wallis",
       "name": "Kruskal-Wallis H Test",
       "description": "Non-parametric alternative to one-way ANOVA for comparing three or more independent groups.",
       "category": "Group Comparison",
+      "categoryId": "comparison",
       "methodFamily": "Nonparametric",
       "assumptions": [
         "Independent samples",
@@ -284,13 +327,19 @@
       ],
       "alternatives": [
         "One-way ANOVA (parametric)"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "friedman-test",
       "name": "Friedman Test",
       "description": "Non-parametric alternative to repeated measures ANOVA for ordinal or non-normal data.",
       "category": "Group Comparison",
+      "categoryId": "comparison",
       "methodFamily": "Nonparametric",
       "assumptions": [
         "Related samples",
@@ -304,13 +353,19 @@
       ],
       "alternatives": [
         "Repeated measures ANOVA (parametric)"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "pearson-correlation",
       "name": "Pearson Correlation",
       "description": "Measures the linear relationship between two continuous variables.",
       "category": "Correlation",
+      "categoryId": "correlation",
       "methodFamily": "Parametric",
       "assumptions": [
         "Linear relationship",
@@ -326,13 +381,19 @@
       "alternatives": [
         "Spearman correlation (non-parametric)",
         "Kendall's tau (ordinal)"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "spearman-correlation",
       "name": "Spearman Rank Correlation",
       "description": "Non-parametric measure of monotonic relationship between two variables.",
       "category": "Correlation",
+      "categoryId": "correlation",
       "methodFamily": "Nonparametric",
       "assumptions": [
         "Monotonic relationship",
@@ -347,13 +408,19 @@
       "alternatives": [
         "Pearson correlation (parametric)",
         "Kendall's tau"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "partial-correlation",
       "name": "Partial Correlation",
       "description": "Measures association between two variables while controlling for one or more other variables.",
       "category": "Correlation",
+      "categoryId": "correlation",
       "methodFamily": "Parametric",
       "assumptions": [
         "Linear relationships",
@@ -368,13 +435,19 @@
       "alternatives": [
         "Multiple regression",
         "Path analysis"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "linear-regression",
       "name": "Linear Regression",
       "description": "Models the relationship between a continuous outcome and one or more predictors.",
       "category": "Regression",
+      "categoryId": "regression",
       "methodFamily": "Regression-based",
       "assumptions": [
         "Linear relationship",
@@ -390,13 +463,19 @@
       "alternatives": [
         "Robust regression (outliers)",
         "Quantile regression"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "multiple-regression",
       "name": "Multiple Linear Regression",
       "description": "Models relationship between continuous outcome and multiple predictors simultaneously.",
       "category": "Regression",
+      "categoryId": "regression",
       "methodFamily": "Regression-based",
       "assumptions": [
         "Linear relationships",
@@ -412,13 +491,19 @@
       "alternatives": [
         "Ridge/Lasso regression",
         "Partial least squares"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "logistic-regression",
       "name": "Logistic Regression",
       "description": "Models the probability of a binary outcome based on one or more predictors.",
       "category": "Regression",
+      "categoryId": "regression",
       "methodFamily": "Regression-based",
       "assumptions": [
         "Binary outcome",
@@ -434,13 +519,19 @@
       "alternatives": [
         "Probit regression",
         "Discriminant analysis"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "poisson-regression",
       "name": "Poisson Regression",
       "description": "Models count data as a function of predictors, assuming counts follow a Poisson distribution.",
       "category": "Regression",
+      "categoryId": "regression",
       "methodFamily": "Regression-based",
       "assumptions": [
         "Count outcome",
@@ -456,13 +547,19 @@
       "alternatives": [
         "Negative binomial regression (overdispersion)",
         "Zero-inflated models"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "ordinal-regression",
       "name": "Ordinal Logistic Regression",
       "description": "Models ordinal outcomes with three or more ordered categories.",
       "category": "Regression",
+      "categoryId": "regression",
       "methodFamily": "Regression-based",
       "assumptions": [
         "Ordinal outcome",
@@ -477,13 +574,19 @@
       "alternatives": [
         "Multinomial regression",
         "Cumulative link models"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "chi-square",
       "name": "Chi-Square Test of Independence",
       "description": "Tests whether there is a significant association between two categorical variables.",
       "category": "Categorical",
+      "categoryId": "categorical",
       "methodFamily": "Nonparametric",
       "assumptions": [
         "Expected cell count >= 5 in 80% of cells",
@@ -497,13 +600,19 @@
       ],
       "alternatives": [
         "Fisher's exact test (small samples)"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "fisher-exact",
       "name": "Fisher's Exact Test",
       "description": "Exact test for association in 2x2 contingency tables, especially with small samples.",
       "category": "Categorical",
+      "categoryId": "categorical",
       "methodFamily": "Nonparametric",
       "assumptions": [
         "2x2 table",
@@ -517,13 +626,19 @@
       ],
       "alternatives": [
         "Chi-square test (larger samples)"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "mcnemar-test",
       "name": "McNemar's Test",
       "description": "Tests for differences in paired proportions or matched case-control studies.",
       "category": "Categorical",
+      "categoryId": "categorical",
       "methodFamily": "Nonparametric",
       "assumptions": [
         "Paired binary data",
@@ -537,13 +652,19 @@
       ],
       "alternatives": [
         "Cochran's Q test (3+ conditions)"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "linear-mixed-model",
       "name": "Linear Mixed Model",
       "description": "Models continuous outcomes with both fixed and random effects for hierarchical/clustered data.",
       "category": "Mixed Models",
+      "categoryId": "mixed",
       "methodFamily": "Mixed Models",
       "assumptions": [
         "Normal residuals",
@@ -558,13 +679,19 @@
       "alternatives": [
         "Generalized estimating equations",
         "Hierarchical Bayesian models"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "glmm",
       "name": "Generalized Linear Mixed Model",
       "description": "Extends GLM to include random effects for non-normal outcomes with clustering.",
       "category": "Mixed Models",
+      "categoryId": "mixed",
       "methodFamily": "Mixed Models",
       "assumptions": [
         "Appropriate link function",
@@ -578,13 +705,19 @@
       "alternatives": [
         "GEE",
         "Bayesian hierarchical models"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "arima",
       "name": "ARIMA Model",
       "description": "Autoregressive integrated moving average model for time series forecasting.",
       "category": "Time Series",
+      "categoryId": "time-series",
       "methodFamily": "Time-series",
       "assumptions": [
         "Stationarity (after differencing)",
@@ -600,13 +733,19 @@
         "Exponential smoothing",
         "Prophet",
         "State-space models"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "exponential-smoothing",
       "name": "Exponential Smoothing",
       "description": "Weighted moving average methods for time series forecasting with trend and seasonality.",
       "category": "Time Series",
+      "categoryId": "time-series",
       "methodFamily": "Time-series",
       "assumptions": [
         "Regular time intervals",
@@ -620,13 +759,19 @@
       "alternatives": [
         "ARIMA",
         "Theta method"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "kaplan-meier",
       "name": "Kaplan-Meier Estimator",
       "description": "Non-parametric estimator of survival function from time-to-event data.",
       "category": "Survival Analysis",
+      "categoryId": "survival",
       "methodFamily": "Survival",
       "assumptions": [
         "Independent censoring",
@@ -641,13 +786,19 @@
       "alternatives": [
         "Nelson-Aalen estimator",
         "Parametric survival models"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "log-rank-test",
       "name": "Log-Rank Test",
       "description": "Compares survival distributions between two or more groups.",
       "category": "Survival Analysis",
+      "categoryId": "survival",
       "methodFamily": "Survival",
       "assumptions": [
         "Proportional hazards",
@@ -662,13 +813,19 @@
       "alternatives": [
         "Wilcoxon-Gehan test",
         "Cox regression"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "cox-regression",
       "name": "Cox Proportional Hazards",
       "description": "Semi-parametric regression model for time-to-event data with covariates.",
       "category": "Survival Analysis",
+      "categoryId": "survival",
       "methodFamily": "Survival",
       "assumptions": [
         "Proportional hazards",
@@ -683,13 +840,19 @@
       "alternatives": [
         "Accelerated failure time models",
         "Parametric survival models"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "kmeans",
       "name": "K-Means Clustering",
       "description": "Partitions observations into k clusters by minimizing within-cluster variance.",
       "category": "Clustering",
+      "categoryId": "clustering",
       "methodFamily": "Machine Learning",
       "assumptions": [
         "Spherical clusters",
@@ -705,13 +868,19 @@
         "Hierarchical clustering",
         "DBSCAN",
         "Gaussian mixtures"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "hierarchical-clustering",
       "name": "Hierarchical Clustering",
       "description": "Builds a tree of clusters using agglomerative or divisive approaches.",
       "category": "Clustering",
+      "categoryId": "clustering",
       "methodFamily": "Machine Learning",
       "assumptions": [
         "Meaningful distance metric",
@@ -725,13 +894,19 @@
       "alternatives": [
         "K-means",
         "DBSCAN"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "pca",
       "name": "Principal Component Analysis",
       "description": "Reduces dimensionality by finding orthogonal directions of maximum variance.",
       "category": "Dimension Reduction",
+      "categoryId": "dimension",
       "methodFamily": "Multivariate",
       "assumptions": [
         "Linear relationships",
@@ -747,13 +922,19 @@
         "Factor analysis",
         "t-SNE",
         "UMAP"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "factor-analysis",
       "name": "Factor Analysis",
       "description": "Identifies latent factors underlying observed variables.",
       "category": "Dimension Reduction",
+      "categoryId": "dimension",
       "methodFamily": "Multivariate",
       "assumptions": [
         "Linear relationships",
@@ -768,13 +949,19 @@
       "alternatives": [
         "PCA",
         "Structural equation modeling"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "random-forest",
       "name": "Random Forest",
       "description": "Ensemble of decision trees for classification or regression with improved accuracy.",
       "category": "Prediction",
+      "categoryId": "ml",
       "methodFamily": "Machine Learning",
       "assumptions": [
         "No strict distributional assumptions",
@@ -789,13 +976,19 @@
         "Gradient boosting",
         "Single decision tree",
         "Neural networks"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "gradient-boosting",
       "name": "Gradient Boosting",
       "description": "Sequentially builds weak learners to minimize prediction errors.",
       "category": "Prediction",
+      "categoryId": "ml",
       "methodFamily": "Machine Learning",
       "assumptions": [
         "Sufficient training data",
@@ -810,13 +1003,19 @@
         "Random forest",
         "XGBoost",
         "LightGBM"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "lasso-ridge",
       "name": "Lasso/Ridge Regression",
       "description": "Regularized regression methods that shrink coefficients to prevent overfitting.",
       "category": "Prediction",
+      "categoryId": "ml",
       "methodFamily": "Regression-based",
       "assumptions": [
         "Linear relationships",
@@ -830,13 +1029,19 @@
       "alternatives": [
         "Elastic net",
         "Principal components regression"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "bootstrap",
       "name": "Bootstrap",
       "description": "Resampling method to estimate sampling distributions and confidence intervals.",
       "category": "Resampling",
+      "categoryId": "resampling",
       "methodFamily": "Resampling",
       "assumptions": [
         "Representative sample",
@@ -850,13 +1055,19 @@
       "alternatives": [
         "Jackknife",
         "Permutation tests"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "permutation-test",
       "name": "Permutation Test",
       "description": "Non-parametric test using random permutations to generate null distribution.",
       "category": "Resampling",
+      "categoryId": "resampling",
       "methodFamily": "Permutation-based",
       "assumptions": [
         "Exchangeability under null",
@@ -870,13 +1081,19 @@
       "alternatives": [
         "Bootstrap",
         "Parametric tests"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "power-analysis",
       "name": "Power Analysis",
       "description": "Calculates required sample size or statistical power for detecting an effect.",
       "category": "Study Planning",
+      "categoryId": "planning",
       "methodFamily": "Planning",
       "assumptions": [
         "Specified effect size",
@@ -891,13 +1108,19 @@
       "alternatives": [
         "Simulation-based power",
         "Bayesian sample size"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "levene-test",
       "name": "Levene's Test",
       "description": "Tests the null hypothesis that all groups have equal variances. More robust to non-normality than Bartlett's test.",
       "category": "Assumption Testing",
+      "categoryId": "assumption",
       "methodFamily": "Diagnostic",
       "assumptions": [
         "Independent samples",
@@ -912,13 +1135,19 @@
         "Bartlett's test (normal data)",
         "Brown-Forsythe test",
         "Fligner-Killeen test"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "bartlett-test",
       "name": "Bartlett's Test",
       "description": "Tests equality of variances across groups, sensitive to departures from normality.",
       "category": "Assumption Testing",
+      "categoryId": "assumption",
       "methodFamily": "Diagnostic",
       "assumptions": [
         "Normal distribution in each group",
@@ -932,13 +1161,19 @@
       "alternatives": [
         "Levene's test (non-normal)",
         "Brown-Forsythe test"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "brown-forsythe",
       "name": "Brown-Forsythe Test",
       "description": "Robust test for equality of variances using deviations from group medians.",
       "category": "Assumption Testing",
+      "categoryId": "assumption",
       "methodFamily": "Diagnostic",
       "assumptions": [
         "Independent samples",
@@ -951,13 +1186,19 @@
       "alternatives": [
         "Levene's test",
         "Bartlett's test"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "fligner-killeen",
       "name": "Fligner-Killeen Test",
       "description": "Non-parametric test for homogeneity of variances, highly robust to non-normality.",
       "category": "Assumption Testing",
+      "categoryId": "assumption",
       "methodFamily": "Diagnostic",
       "assumptions": [
         "Independent samples",
@@ -971,13 +1212,19 @@
       "alternatives": [
         "Levene's test",
         "Bartlett's test"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "hartley-fmax",
       "name": "Hartley's F-max Test",
       "description": "Quick test for variance homogeneity using ratio of largest to smallest group variance.",
       "category": "Assumption Testing",
+      "categoryId": "assumption",
       "methodFamily": "Diagnostic",
       "assumptions": [
         "Equal sample sizes",
@@ -992,13 +1239,19 @@
       "alternatives": [
         "Levene's test",
         "Bartlett's test"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "shapiro-wilk",
       "name": "Shapiro-Wilk Test",
       "description": "Tests whether a sample comes from a normally distributed population. Considered one of the most powerful normality tests.",
       "category": "Assumption Testing",
+      "categoryId": "assumption",
       "methodFamily": "Diagnostic",
       "assumptions": [
         "Sample size typically between 3-5000",
@@ -1013,13 +1266,19 @@
         "Kolmogorov-Smirnov",
         "Anderson-Darling",
         "D'Agostino-Pearson"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "kolmogorov-smirnov",
       "name": "Kolmogorov-Smirnov Test",
       "description": "Compares sample distribution to a reference distribution (often normal) or compares two samples.",
       "category": "Assumption Testing",
+      "categoryId": "assumption",
       "methodFamily": "Diagnostic",
       "assumptions": [
         "Continuous distribution",
@@ -1033,13 +1292,19 @@
       "alternatives": [
         "Shapiro-Wilk (normality)",
         "Anderson-Darling"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "anderson-darling",
       "name": "Anderson-Darling Test",
       "description": "Tests whether a sample comes from a specified distribution, with more weight on tails than KS test.",
       "category": "Assumption Testing",
+      "categoryId": "assumption",
       "methodFamily": "Diagnostic",
       "assumptions": [
         "Continuous distribution",
@@ -1053,13 +1318,19 @@
       "alternatives": [
         "Shapiro-Wilk",
         "Kolmogorov-Smirnov"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "dagostino-pearson",
       "name": "D'Agostino-Pearson Test",
       "description": "Omnibus test combining skewness and kurtosis to test for normality.",
       "category": "Assumption Testing",
+      "categoryId": "assumption",
       "methodFamily": "Diagnostic",
       "assumptions": [
         "Sample size > 20",
@@ -1072,13 +1343,19 @@
       "alternatives": [
         "Shapiro-Wilk",
         "Jarque-Bera"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "durbin-watson",
       "name": "Durbin-Watson Test",
       "description": "Tests for autocorrelation in residuals from regression analysis.",
       "category": "Assumption Testing",
+      "categoryId": "assumption",
       "methodFamily": "Diagnostic",
       "assumptions": [
         "Linear regression model",
@@ -1092,13 +1369,19 @@
       "alternatives": [
         "Breusch-Godfrey test",
         "Ljung-Box test"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "breusch-pagan",
       "name": "Breusch-Pagan Test",
       "description": "Tests for heteroscedasticity in regression residuals.",
       "category": "Assumption Testing",
+      "categoryId": "assumption",
       "methodFamily": "Diagnostic",
       "assumptions": [
         "Linear regression model",
@@ -1112,13 +1395,19 @@
       "alternatives": [
         "White's test",
         "Goldfeld-Quandt test"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "vif",
       "name": "Variance Inflation Factor (VIF)",
       "description": "Quantifies multicollinearity in regression by measuring how much variance is inflated.",
       "category": "Assumption Testing",
+      "categoryId": "assumption",
       "methodFamily": "Diagnostic",
       "assumptions": [
         "Multiple regression context",
@@ -1133,13 +1422,19 @@
         "Condition number",
         "Tolerance",
         "Correlation matrix"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "tukey-hsd",
       "name": "Tukey's HSD",
       "description": "Post-hoc test for pairwise comparisons after ANOVA, controlling family-wise error rate.",
       "category": "Post-hoc Tests",
+      "categoryId": "posthoc",
       "methodFamily": "Multiple Comparison",
       "assumptions": [
         "Equal sample sizes (approximate)",
@@ -1155,13 +1450,19 @@
         "Games-Howell (unequal variances)",
         "Bonferroni",
         "Scheffé"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "bonferroni",
       "name": "Bonferroni Correction",
       "description": "Simple adjustment for multiple comparisons by dividing alpha by number of tests.",
       "category": "Post-hoc Tests",
+      "categoryId": "posthoc",
       "methodFamily": "Multiple Comparison",
       "assumptions": [
         "Independent or dependent tests",
@@ -1176,13 +1477,19 @@
         "Holm-Bonferroni",
         "Benjamini-Hochberg",
         "Tukey HSD"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "holm-bonferroni",
       "name": "Holm-Bonferroni Method",
       "description": "Step-down procedure that is uniformly more powerful than Bonferroni while controlling FWER.",
       "category": "Post-hoc Tests",
+      "categoryId": "posthoc",
       "methodFamily": "Multiple Comparison",
       "assumptions": [
         "Any test statistic",
@@ -1197,13 +1504,19 @@
         "Bonferroni",
         "Hochberg",
         "Benjamini-Hochberg"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "benjamini-hochberg",
       "name": "Benjamini-Hochberg (FDR)",
       "description": "Controls false discovery rate rather than family-wise error rate, more powerful for many tests.",
       "category": "Post-hoc Tests",
+      "categoryId": "posthoc",
       "methodFamily": "Multiple Comparison",
       "assumptions": [
         "Independent or positively dependent tests",
@@ -1218,13 +1531,19 @@
         "Bonferroni (FWER)",
         "q-value",
         "Storey's method"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "dunnett-test",
       "name": "Dunnett's Test",
       "description": "Compares multiple treatment groups to a single control group.",
       "category": "Post-hoc Tests",
+      "categoryId": "posthoc",
       "methodFamily": "Multiple Comparison",
       "assumptions": [
         "Normal distribution",
@@ -1239,13 +1558,19 @@
       "alternatives": [
         "Tukey HSD (all pairs)",
         "Bonferroni"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "games-howell",
       "name": "Games-Howell Test",
       "description": "Post-hoc test for unequal variances and/or unequal sample sizes.",
       "category": "Post-hoc Tests",
+      "categoryId": "posthoc",
       "methodFamily": "Multiple Comparison",
       "assumptions": [
         "Does not assume equal variances",
@@ -1259,13 +1584,19 @@
       "alternatives": [
         "Tukey HSD (equal variances)",
         "Tamhane's T2"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "scheffe-test",
       "name": "Scheffé's Test",
       "description": "Most conservative post-hoc test, allows any linear contrast of means.",
       "category": "Post-hoc Tests",
+      "categoryId": "posthoc",
       "methodFamily": "Multiple Comparison",
       "assumptions": [
         "Normal distribution",
@@ -1279,13 +1610,19 @@
       "alternatives": [
         "Tukey HSD",
         "Bonferroni"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "dunn-test",
       "name": "Dunn's Test",
       "description": "Non-parametric post-hoc test for pairwise comparisons after Kruskal-Wallis.",
       "category": "Post-hoc Tests",
+      "categoryId": "posthoc",
       "methodFamily": "Multiple Comparison",
       "assumptions": [
         "Ordinal or continuous data",
@@ -1298,13 +1635,19 @@
       "alternatives": [
         "Conover-Iman test",
         "Nemenyi test"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "welch-t-test",
       "name": "Welch's t-Test",
       "description": "Modification of t-test that does not assume equal variances between groups.",
       "category": "Group Comparison",
+      "categoryId": "comparison",
       "methodFamily": "Parametric",
       "assumptions": [
         "Normal distribution",
@@ -1319,13 +1662,19 @@
       "alternatives": [
         "Student's t-test (equal variances)",
         "Mann-Whitney U"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "welch-anova",
       "name": "Welch's ANOVA",
       "description": "Robust alternative to one-way ANOVA when variances are unequal across groups.",
       "category": "Group Comparison",
+      "categoryId": "comparison",
       "methodFamily": "Parametric",
       "assumptions": [
         "Normal distribution",
@@ -1341,13 +1690,19 @@
         "One-way ANOVA",
         "Brown-Forsythe ANOVA",
         "Kruskal-Wallis"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "ancova",
       "name": "ANCOVA",
       "description": "Analysis of covariance combining ANOVA with regression to control for covariates.",
       "category": "Group Comparison",
+      "categoryId": "comparison",
       "methodFamily": "Parametric",
       "assumptions": [
         "Homogeneity of regression slopes",
@@ -1362,13 +1717,19 @@
       "alternatives": [
         "Mixed models",
         "Multiple regression"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "manova",
       "name": "MANOVA",
       "description": "Multivariate ANOVA testing group differences on multiple dependent variables simultaneously.",
       "category": "Group Comparison",
+      "categoryId": "comparison",
       "methodFamily": "Multivariate",
       "assumptions": [
         "Multivariate normality",
@@ -1383,13 +1744,19 @@
       "alternatives": [
         "Separate ANOVAs with correction",
         "Discriminant analysis"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "kendall-tau",
       "name": "Kendall's Tau",
       "description": "Non-parametric measure of rank correlation, more robust than Spearman for small samples.",
       "category": "Correlation",
+      "categoryId": "correlation",
       "methodFamily": "Nonparametric",
       "assumptions": [
         "Ordinal or continuous data",
@@ -1403,13 +1770,19 @@
       "alternatives": [
         "Spearman correlation",
         "Pearson correlation"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "point-biserial",
       "name": "Point-Biserial Correlation",
       "description": "Measures correlation between a continuous variable and a dichotomous variable.",
       "category": "Correlation",
+      "categoryId": "correlation",
       "methodFamily": "Parametric",
       "assumptions": [
         "One continuous, one binary variable",
@@ -1423,13 +1796,19 @@
       "alternatives": [
         "Biserial correlation",
         "Logistic regression"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "intraclass-correlation",
       "name": "Intraclass Correlation (ICC)",
       "description": "Measures reliability or agreement for observations that are organized into groups.",
       "category": "Correlation",
+      "categoryId": "correlation",
       "methodFamily": "Reliability",
       "assumptions": [
         "Grouped/clustered data",
@@ -1443,13 +1822,19 @@
       "alternatives": [
         "Cohen's kappa (categorical)",
         "Pearson correlation"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "cochran-q",
       "name": "Cochran's Q Test",
       "description": "Extension of McNemar test for comparing three or more matched proportions.",
       "category": "Categorical",
+      "categoryId": "categorical",
       "methodFamily": "Nonparametric",
       "assumptions": [
         "Binary outcome",
@@ -1464,13 +1849,19 @@
       "alternatives": [
         "McNemar test (2 conditions)",
         "Friedman test"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "cramers-v",
       "name": "Cramér's V",
       "description": "Measure of association between two categorical variables, normalized chi-square.",
       "category": "Categorical",
+      "categoryId": "categorical",
       "methodFamily": "Effect Size",
       "assumptions": [
         "Nominal variables",
@@ -1484,13 +1875,19 @@
       "alternatives": [
         "Phi coefficient (2x2)",
         "Contingency coefficient"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "cohens-kappa",
       "name": "Cohen's Kappa",
       "description": "Measures agreement between two raters for categorical items, adjusting for chance.",
       "category": "Categorical",
+      "categoryId": "categorical",
       "methodFamily": "Reliability",
       "assumptions": [
         "Categorical data",
@@ -1505,13 +1902,19 @@
       "alternatives": [
         "Fleiss' kappa (3+ raters)",
         "ICC (continuous)"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "fleiss-kappa",
       "name": "Fleiss' Kappa",
       "description": "Extends Cohen's kappa to measure agreement among three or more raters.",
       "category": "Categorical",
+      "categoryId": "categorical",
       "methodFamily": "Reliability",
       "assumptions": [
         "Categorical data",
@@ -1526,13 +1929,19 @@
       "alternatives": [
         "Cohen's kappa (2 raters)",
         "Krippendorff's alpha"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "negative-binomial",
       "name": "Negative Binomial Regression",
       "description": "Models count data with overdispersion (variance greater than mean).",
       "category": "Regression",
+      "categoryId": "regression",
       "methodFamily": "Regression-based",
       "assumptions": [
         "Count outcome",
@@ -1548,13 +1957,19 @@
         "Poisson regression",
         "Zero-inflated models",
         "Quasi-Poisson"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "zero-inflated-poisson",
       "name": "Zero-Inflated Poisson",
       "description": "Models count data with excess zeros using a two-part model.",
       "category": "Regression",
+      "categoryId": "regression",
       "methodFamily": "Regression-based",
       "assumptions": [
         "Count outcome",
@@ -1570,13 +1985,19 @@
         "Negative binomial",
         "Hurdle models",
         "Poisson regression"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "quantile-regression",
       "name": "Quantile Regression",
       "description": "Models conditional quantiles (e.g., median) rather than the mean.",
       "category": "Regression",
+      "categoryId": "regression",
       "methodFamily": "Regression-based",
       "assumptions": [
         "No distributional assumptions",
@@ -1590,13 +2011,19 @@
       "alternatives": [
         "Robust regression",
         "Linear regression"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "robust-regression",
       "name": "Robust Regression",
       "description": "Regression methods resistant to outliers and violations of assumptions.",
       "category": "Regression",
+      "categoryId": "regression",
       "methodFamily": "Regression-based",
       "assumptions": [
         "Linear relationship",
@@ -1610,13 +2037,19 @@
       "alternatives": [
         "Quantile regression",
         "M-estimation"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "probit-regression",
       "name": "Probit Regression",
       "description": "Models binary outcomes using the cumulative normal distribution function.",
       "category": "Regression",
+      "categoryId": "regression",
       "methodFamily": "Regression-based",
       "assumptions": [
         "Binary outcome",
@@ -1631,13 +2064,19 @@
       "alternatives": [
         "Logistic regression",
         "Complementary log-log"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "svm",
       "name": "Support Vector Machine (SVM)",
       "description": "Finds optimal hyperplane to separate classes, can use kernels for non-linear boundaries.",
       "category": "Prediction",
+      "categoryId": "ml",
       "methodFamily": "Machine Learning",
       "assumptions": [
         "Scaled features recommended",
@@ -1652,13 +2091,19 @@
         "Logistic regression",
         "Random forest",
         "Neural networks"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "xgboost",
       "name": "XGBoost",
       "description": "Optimized gradient boosting library with regularization and parallel processing.",
       "category": "Prediction",
+      "categoryId": "ml",
       "methodFamily": "Machine Learning",
       "assumptions": [
         "Sufficient training data",
@@ -1673,13 +2118,19 @@
         "LightGBM",
         "CatBoost",
         "Random forest"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "lightgbm",
       "name": "LightGBM",
       "description": "Gradient boosting framework using leaf-wise tree growth for faster training.",
       "category": "Prediction",
+      "categoryId": "ml",
       "methodFamily": "Machine Learning",
       "assumptions": [
         "Large datasets",
@@ -1694,13 +2145,19 @@
         "XGBoost",
         "CatBoost",
         "Random forest"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "catboost",
       "name": "CatBoost",
       "description": "Gradient boosting with native categorical feature support and ordered boosting.",
       "category": "Prediction",
+      "categoryId": "ml",
       "methodFamily": "Machine Learning",
       "assumptions": [
         "Categorical features present",
@@ -1715,13 +2172,19 @@
         "XGBoost",
         "LightGBM",
         "Random forest"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "knn",
       "name": "k-Nearest Neighbors (k-NN)",
       "description": "Classifies or predicts based on the k closest training examples in feature space.",
       "category": "Prediction",
+      "categoryId": "ml",
       "methodFamily": "Machine Learning",
       "assumptions": [
         "Meaningful distance metric",
@@ -1737,13 +2200,19 @@
         "SVM",
         "Random forest",
         "Decision tree"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "naive-bayes",
       "name": "Naive Bayes",
       "description": "Probabilistic classifier based on Bayes' theorem with independence assumption.",
       "category": "Prediction",
+      "categoryId": "ml",
       "methodFamily": "Machine Learning",
       "assumptions": [
         "Feature independence (often violated)",
@@ -1758,13 +2227,19 @@
         "Logistic regression",
         "SVM",
         "Random forest"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "decision-tree",
       "name": "Decision Tree",
       "description": "Tree-structured model making sequential splits based on feature values.",
       "category": "Prediction",
+      "categoryId": "ml",
       "methodFamily": "Machine Learning",
       "assumptions": [
         "No strict distributional assumptions",
@@ -1779,13 +2254,19 @@
         "Random forest",
         "Gradient boosting",
         "Rule-based models"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "elastic-net",
       "name": "Elastic Net",
       "description": "Regularized regression combining L1 (Lasso) and L2 (Ridge) penalties.",
       "category": "Prediction",
+      "categoryId": "ml",
       "methodFamily": "Regression-based",
       "assumptions": [
         "Linear relationships",
@@ -1800,13 +2281,19 @@
         "Lasso",
         "Ridge regression",
         "Principal components regression"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "neural-network-mlp",
       "name": "Neural Network (MLP)",
       "description": "Multi-layer perceptron with hidden layers for learning complex patterns.",
       "category": "Prediction",
+      "categoryId": "ml",
       "methodFamily": "Machine Learning",
       "assumptions": [
         "Sufficient training data",
@@ -1822,13 +2309,19 @@
         "Random forest",
         "Gradient boosting",
         "Deep learning architectures"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "dbscan",
       "name": "DBSCAN",
       "description": "Density-based clustering that finds arbitrarily shaped clusters and identifies outliers.",
       "category": "Clustering",
+      "categoryId": "clustering",
       "methodFamily": "Machine Learning",
       "assumptions": [
         "Meaningful distance metric",
@@ -1843,13 +2336,19 @@
         "K-means",
         "HDBSCAN",
         "OPTICS"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "gaussian-mixture",
       "name": "Gaussian Mixture Model",
       "description": "Probabilistic model assuming data comes from a mixture of Gaussian distributions.",
       "category": "Clustering",
+      "categoryId": "clustering",
       "methodFamily": "Machine Learning",
       "assumptions": [
         "Gaussian clusters",
@@ -1864,13 +2363,19 @@
         "K-means",
         "DBSCAN",
         "Hierarchical clustering"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "tsne",
       "name": "t-SNE",
       "description": "Non-linear dimensionality reduction technique for visualization of high-dimensional data.",
       "category": "Dimension Reduction",
+      "categoryId": "dimension",
       "methodFamily": "Machine Learning",
       "assumptions": [
         "Local structure preservation",
@@ -1885,13 +2390,19 @@
         "UMAP",
         "PCA",
         "MDS"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "umap",
       "name": "UMAP",
       "description": "Uniform Manifold Approximation for fast non-linear dimension reduction preserving global structure.",
       "category": "Dimension Reduction",
+      "categoryId": "dimension",
       "methodFamily": "Machine Learning",
       "assumptions": [
         "Manifold assumption",
@@ -1906,13 +2417,19 @@
         "t-SNE",
         "PCA",
         "Isomap"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "prophet",
       "name": "Prophet",
       "description": "Automated forecasting procedure by Facebook for time series with seasonality and holidays.",
       "category": "Time Series",
+      "categoryId": "time-series",
       "methodFamily": "Time-series",
       "assumptions": [
         "Regular time intervals",
@@ -1927,13 +2444,19 @@
         "ARIMA",
         "Exponential smoothing",
         "Neural Prophet"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "adf-test",
       "name": "Augmented Dickey-Fuller Test",
       "description": "Tests for unit root to determine if a time series is stationary.",
       "category": "Time Series",
+      "categoryId": "time-series",
       "methodFamily": "Diagnostic",
       "assumptions": [
         "Time series data",
@@ -1947,13 +2470,19 @@
       "alternatives": [
         "KPSS test",
         "Phillips-Perron test"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "granger-causality",
       "name": "Granger Causality Test",
       "description": "Tests whether one time series helps predict another (temporal precedence).",
       "category": "Time Series",
+      "categoryId": "time-series",
       "methodFamily": "Time-series",
       "assumptions": [
         "Stationary series",
@@ -1968,13 +2497,19 @@
       "alternatives": [
         "Cross-correlation",
         "Transfer entropy"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "ljung-box",
       "name": "Ljung-Box Test",
       "description": "Tests whether any autocorrelations in a series are non-zero.",
       "category": "Time Series",
+      "categoryId": "time-series",
       "methodFamily": "Diagnostic",
       "assumptions": [
         "Time series residuals",
@@ -1988,13 +2523,19 @@
       "alternatives": [
         "Durbin-Watson",
         "Box-Pierce test"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "var",
       "name": "Vector Autoregression (VAR)",
       "description": "Models multiple time series where each variable depends on its own and others' past values.",
       "category": "Time Series",
+      "categoryId": "time-series",
       "methodFamily": "Time-series",
       "assumptions": [
         "Stationary series",
@@ -2009,13 +2550,19 @@
       "alternatives": [
         "VECM (cointegrated)",
         "Structural VAR"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "bayesian-t-test",
       "name": "Bayesian t-Test",
       "description": "Bayesian alternative to t-test providing posterior probability of hypotheses.",
       "category": "Bayesian Methods",
+      "categoryId": "bayesian",
       "methodFamily": "Bayesian",
       "assumptions": [
         "Prior specification",
@@ -2029,13 +2576,19 @@
       "alternatives": [
         "Frequentist t-test",
         "Bayesian estimation"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "bayesian-regression",
       "name": "Bayesian Regression",
       "description": "Regression with prior distributions on parameters, yielding posterior distributions.",
       "category": "Bayesian Methods",
+      "categoryId": "bayesian",
       "methodFamily": "Bayesian",
       "assumptions": [
         "Prior specification",
@@ -2049,13 +2602,19 @@
       "alternatives": [
         "Frequentist regression",
         "Ridge/Lasso"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "bayesian-anova",
       "name": "Bayesian ANOVA",
       "description": "Bayesian approach to comparing group means with Bayes factors.",
       "category": "Bayesian Methods",
+      "categoryId": "bayesian",
       "methodFamily": "Bayesian",
       "assumptions": [
         "Prior specification",
@@ -2069,13 +2628,19 @@
       "alternatives": [
         "Frequentist ANOVA",
         "Bayesian mixed models"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "accelerated-failure-time",
       "name": "Accelerated Failure Time Model",
       "description": "Parametric survival model where covariates accelerate or decelerate time to event.",
       "category": "Survival Analysis",
+      "categoryId": "survival",
       "methodFamily": "Survival",
       "assumptions": [
         "Specified distribution (Weibull, log-normal)",
@@ -2089,13 +2654,19 @@
       "alternatives": [
         "Cox regression",
         "Parametric survival models"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "competing-risks",
       "name": "Competing Risks Analysis",
       "description": "Analyzes time-to-event when multiple event types can occur, only one observed.",
       "category": "Survival Analysis",
+      "categoryId": "survival",
       "methodFamily": "Survival",
       "assumptions": [
         "Mutually exclusive events",
@@ -2109,13 +2680,19 @@
       "alternatives": [
         "Kaplan-Meier (single event)",
         "Fine-Gray model"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "random-survival-forest",
       "name": "Random Survival Forest",
       "description": "Extension of random forest to survival data with censoring.",
       "category": "Survival Analysis",
+      "categoryId": "survival",
       "methodFamily": "Machine Learning",
       "assumptions": [
         "Sufficient training data",
@@ -2129,13 +2706,19 @@
       "alternatives": [
         "Cox regression",
         "Gradient boosted survival"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "cohens-d",
       "name": "Cohen's d",
       "description": "Standardized measure of effect size for difference between two means.",
       "category": "Effect Size",
+      "categoryId": "effectsize",
       "methodFamily": "Effect Size",
       "assumptions": [
         "Continuous outcome",
@@ -2149,13 +2732,19 @@
       "alternatives": [
         "Hedges' g (small samples)",
         "Glass's delta"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "hedges-g",
       "name": "Hedges' g",
       "description": "Bias-corrected version of Cohen's d for small sample sizes.",
       "category": "Effect Size",
+      "categoryId": "effectsize",
       "methodFamily": "Effect Size",
       "assumptions": [
         "Continuous outcome",
@@ -2170,13 +2759,19 @@
       "alternatives": [
         "Cohen's d",
         "Glass's delta"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "eta-squared",
       "name": "Eta-squared / Partial Eta-squared",
       "description": "Proportion of variance explained by a factor in ANOVA designs.",
       "category": "Effect Size",
+      "categoryId": "effectsize",
       "methodFamily": "Effect Size",
       "assumptions": [
         "ANOVA context",
@@ -2190,13 +2785,19 @@
       "alternatives": [
         "Omega-squared",
         "Cohen's f"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     },
     {
       "id": "odds-ratio",
       "name": "Odds Ratio",
       "description": "Ratio of odds of an event occurring in one group vs another.",
       "category": "Effect Size",
+      "categoryId": "effectsize",
       "methodFamily": "Effect Size",
       "assumptions": [
         "Binary outcome",
@@ -2210,7 +2811,13 @@
       "alternatives": [
         "Risk ratio",
         "Hazard ratio"
-      ]
+      ],
+      "outcomeScale": null,
+      "predictorStructure": null,
+      "design": null,
+      "level": null,
+      "alternativeLinks": []
     }
-  ]
+  ],
+  "schemaVersion": 2
 }
