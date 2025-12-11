@@ -241,7 +241,7 @@ function getChildren(parentId: string): FlowNode[] {
 }
 
 function FlowchartInner() {
-  const { selections, addSelection, clearSelections } = useWizardContext();
+  const { selections, addSelection, removeSelectionsAfter, clearSelections } = useWizardContext();
   const [selectedTests, setSelectedTests] = useState<StatTest[]>([]);
   const [detailOpen, setDetailOpen] = useState(false);
   const { fitView } = useReactFlow();
@@ -341,6 +341,12 @@ function FlowchartInner() {
     setTimeout(() => fitView({ padding: 0.3, duration: 300 }), 50);
   }, [visibleNodes, visibleEdges, setNodes, setEdges, fitView]);
 
+  const getNodeDepth = useCallback((nodeId: string, depth = 0): number => {
+    const node = flowchartNodes.find(n => n.id === nodeId);
+    if (!node || !node.parentId) return depth;
+    return getNodeDepth(node.parentId, depth + 1);
+  }, []);
+
   const handleNodeClick = useCallback((_: any, node: Node) => {
     if (node.type === "startNode") return;
     
@@ -358,9 +364,19 @@ function FlowchartInner() {
 
     const flowNode = flowchartNodes.find(n => n.id === node.id);
     if (flowNode) {
+      const clickedDepth = getNodeDepth(node.id);
+      
+      const selectionIndexAtDepth = selections.findIndex(sel => {
+        return getNodeDepth(sel.nodeId) >= clickedDepth;
+      });
+      
+      if (selectionIndexAtDepth >= 0) {
+        removeSelectionsAfter(selectionIndexAtDepth);
+      }
+      
       addSelection(node.id, flowNode.label);
     }
-  }, [addSelection]);
+  }, [addSelection, removeSelectionsAfter, selections, getNodeDepth]);
 
   const handleReset = useCallback(() => {
     clearSelections();
