@@ -8,8 +8,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle, AlertCircle, ArrowRight, BookOpen, Layers, Target, GraduationCap } from "lucide-react";
-import { statisticalTests, type StatTest } from "@/lib/statsData";
+import { CheckCircle, AlertCircle, ArrowRight, BookOpen, Layers, Target, GraduationCap, ExternalLink } from "lucide-react";
+import { statisticalTests, type StatTest, getWikipediaUrl } from "@/lib/statsData";
 
 interface TestDetailSheetProps {
   test: StatTest | null;
@@ -43,6 +43,18 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick }: TestDetai
             )}
           </div>
           <SheetDescription className="text-left">{test.description}</SheetDescription>
+          {getWikipediaUrl(test.id) && (
+            <a
+              href={getWikipediaUrl(test.id)!}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline mt-2"
+              data-testid="link-wikipedia"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              Learn more on Wikipedia
+            </a>
+          )}
         </SheetHeader>
 
         <div className="mt-6 space-y-6">

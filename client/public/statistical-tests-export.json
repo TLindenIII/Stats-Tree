@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2025-12-11T21:51:26.408Z",
+  "exportedAt": "2025-12-11T22:01:55.240Z",
   "totalTests": 101,
   "categories": [
     "Assumption Testing",
@@ -150,7 +150,8 @@
         "mann-whitney",
         "welch-t-test",
         "bayesian-t-test"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Student%27s_t-test"
     },
     {
       "id": "paired-t-test",
@@ -178,7 +179,8 @@
       "level": "basic",
       "alternativeLinks": [
         "wilcoxon-signed-rank"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Student%27s_t-test"
     },
     {
       "id": "one-way-anova",
@@ -209,7 +211,8 @@
         "kruskal-wallis",
         "welch-anova",
         "bayesian-anova"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/One-way_analysis_of_variance"
     },
     {
       "id": "two-way-anova",
@@ -240,7 +243,8 @@
       "alternativeLinks": [
         "linear-mixed-model",
         "manova"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Two-way_analysis_of_variance"
     },
     {
       "id": "repeated-measures-anova",
@@ -270,7 +274,8 @@
       "alternativeLinks": [
         "friedman-test",
         "linear-mixed-model"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Repeated_measures_design"
     },
     {
       "id": "mann-whitney",
@@ -299,7 +304,8 @@
       "alternativeLinks": [
         "t-test-independent",
         "permutation-test"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test"
     },
     {
       "id": "wilcoxon-signed-rank",
@@ -327,7 +333,8 @@
       "level": "basic",
       "alternativeLinks": [
         "paired-t-test"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test"
     },
     {
       "id": "kruskal-wallis",
@@ -356,7 +363,8 @@
       "alternativeLinks": [
         "one-way-anova",
         "dunn-test"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Kruskal%E2%80%93Wallis_test"
     },
     {
       "id": "friedman-test",
@@ -384,7 +392,8 @@
       "level": "intermediate",
       "alternativeLinks": [
         "repeated-measures-anova"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Friedman_test"
     },
     {
       "id": "pearson-correlation",
@@ -415,7 +424,8 @@
       "alternativeLinks": [
         "spearman-correlation",
         "kendall-tau"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Pearson_correlation_coefficient"
     },
     {
       "id": "spearman-correlation",
@@ -445,7 +455,8 @@
       "alternativeLinks": [
         "pearson-correlation",
         "kendall-tau"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient"
     },
     {
       "id": "partial-correlation",
@@ -474,7 +485,8 @@
       "level": "intermediate",
       "alternativeLinks": [
         "multiple-regression"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Partial_correlation"
     },
     {
       "id": "linear-regression",
@@ -506,7 +518,8 @@
         "multiple-regression",
         "robust-regression",
         "bayesian-regression"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Linear_regression"
     },
     {
       "id": "multiple-regression",
@@ -538,7 +551,8 @@
         "linear-regression",
         "lasso-ridge",
         "elastic-net"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Linear_regression"
     },
     {
       "id": "logistic-regression",
@@ -570,7 +584,8 @@
         "probit-regression",
         "random-forest",
         "svm"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Logistic_regression"
     },
     {
       "id": "poisson-regression",
@@ -601,7 +616,8 @@
       "alternativeLinks": [
         "negative-binomial",
         "zero-inflated-poisson"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Poisson_regression"
     },
     {
       "id": "ordinal-regression",
@@ -631,7 +647,8 @@
       "alternativeLinks": [
         "logistic-regression",
         "multinomial-logistic"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Ordinal_regression"
     },
     {
       "id": "chi-square",
@@ -660,7 +677,8 @@
       "alternativeLinks": [
         "fisher-exact",
         "cramers-v"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Chi-squared_test"
     },
     {
       "id": "fisher-exact",
@@ -688,7 +706,8 @@
       "level": "basic",
       "alternativeLinks": [
         "chi-square"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Fisher%27s_exact_test"
     },
     {
       "id": "mcnemar-test",
@@ -716,7 +735,8 @@
       "level": "intermediate",
       "alternativeLinks": [
         "cochran-q"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/McNemar%27s_test"
     },
     {
       "id": "linear-mixed-model",
@@ -746,7 +766,8 @@
       "alternativeLinks": [
         "glmm",
         "repeated-measures-anova"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Linear_mixed-effects_model"
     },
     {
       "id": "glmm",
@@ -775,7 +796,8 @@
       "alternativeLinks": [
         "linear-mixed-model",
         "gee"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Generalized_linear_mixed_model"
     },
     {
       "id": "arima",
@@ -807,7 +829,8 @@
         "exponential-smoothing",
         "prophet",
         "var"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Autoregressive_integrated_moving_average"
     },
     {
       "id": "exponential-smoothing",
@@ -836,7 +859,8 @@
       "alternativeLinks": [
         "arima",
         "prophet"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Exponential_smoothing"
     },
     {
       "id": "kaplan-meier",
@@ -866,7 +890,8 @@
       "alternativeLinks": [
         "log-rank-test",
         "cox-regression"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Kaplan%E2%80%93Meier_estimator"
     },
     {
       "id": "log-rank-test",
@@ -896,7 +921,8 @@
       "alternativeLinks": [
         "kaplan-meier",
         "cox-regression"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Logrank_test"
     },
     {
       "id": "cox-regression",
@@ -927,7 +953,8 @@
         "kaplan-meier",
         "accelerated-failure-time",
         "random-survival-forest"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Proportional_hazards_model"
     },
     {
       "id": "kmeans",
@@ -959,7 +986,8 @@
         "hierarchical-clustering",
         "dbscan",
         "gaussian-mixture"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/K-means_clustering"
     },
     {
       "id": "hierarchical-clustering",
@@ -988,7 +1016,8 @@
       "alternativeLinks": [
         "kmeans",
         "dbscan"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Hierarchical_clustering"
     },
     {
       "id": "pca",
@@ -1020,7 +1049,8 @@
         "factor-analysis",
         "tsne",
         "umap"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Principal_component_analysis"
     },
     {
       "id": "factor-analysis",
@@ -1049,7 +1079,8 @@
       "level": "intermediate",
       "alternativeLinks": [
         "pca"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Factor_analysis"
     },
     {
       "id": "random-forest",
@@ -1080,7 +1111,8 @@
         "gradient-boosting",
         "xgboost",
         "decision-tree"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Random_forest"
     },
     {
       "id": "gradient-boosting",
@@ -1111,7 +1143,8 @@
         "random-forest",
         "xgboost",
         "lightgbm"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Gradient_boosting"
     },
     {
       "id": "lasso-ridge",
@@ -1140,7 +1173,8 @@
       "alternativeLinks": [
         "elastic-net",
         "multiple-regression"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Regularization_(mathematics)#Regression"
     },
     {
       "id": "bootstrap",
@@ -1168,7 +1202,8 @@
       "level": "intermediate",
       "alternativeLinks": [
         "permutation-test"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Bootstrapping_(statistics)"
     },
     {
       "id": "permutation-test",
@@ -1197,7 +1232,8 @@
       "alternativeLinks": [
         "bootstrap",
         "mann-whitney"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Permutation_test"
     },
     {
       "id": "power-analysis",
@@ -1224,7 +1260,8 @@
       "predictorStructure": "none",
       "design": "cross-sectional",
       "level": "intermediate",
-      "alternativeLinks": []
+      "alternativeLinks": [],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Statistical_power"
     },
     {
       "id": "levene-test",
@@ -1255,7 +1292,8 @@
         "bartlett-test",
         "brown-forsythe",
         "fligner-killeen"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Levene%27s_test"
     },
     {
       "id": "bartlett-test",
@@ -1284,7 +1322,8 @@
       "alternativeLinks": [
         "levene-test",
         "brown-forsythe"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Bartlett%27s_test"
     },
     {
       "id": "brown-forsythe",
@@ -1312,7 +1351,8 @@
       "alternativeLinks": [
         "levene-test",
         "bartlett-test"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Brown%E2%80%93Forsythe_test"
     },
     {
       "id": "fligner-killeen",
@@ -1340,7 +1380,8 @@
       "level": "intermediate",
       "alternativeLinks": [
         "levene-test"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Fligner%E2%80%93Killeen_test"
     },
     {
       "id": "hartley-fmax",
@@ -1370,7 +1411,8 @@
       "alternativeLinks": [
         "levene-test",
         "bartlett-test"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Hartley%27s_test"
     },
     {
       "id": "shapiro-wilk",
@@ -1401,7 +1443,8 @@
         "kolmogorov-smirnov",
         "anderson-darling",
         "dagostino-pearson"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test"
     },
     {
       "id": "kolmogorov-smirnov",
@@ -1430,7 +1473,8 @@
       "alternativeLinks": [
         "shapiro-wilk",
         "anderson-darling"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test"
     },
     {
       "id": "anderson-darling",
@@ -1459,7 +1503,8 @@
       "alternativeLinks": [
         "shapiro-wilk",
         "kolmogorov-smirnov"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Anderson%E2%80%93Darling_test"
     },
     {
       "id": "dagostino-pearson",
@@ -1486,7 +1531,8 @@
       "level": "intermediate",
       "alternativeLinks": [
         "shapiro-wilk"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/D%27Agostino%27s_K-squared_test"
     },
     {
       "id": "durbin-watson",
@@ -1515,7 +1561,8 @@
       "alternativeLinks": [
         "ljung-box",
         "breusch-pagan"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Durbin%E2%80%93Watson_statistic"
     },
     {
       "id": "breusch-pagan",
@@ -1543,7 +1590,8 @@
       "level": "intermediate",
       "alternativeLinks": [
         "durbin-watson"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Breusch%E2%80%93Pagan_test"
     },
     {
       "id": "vif",
@@ -1570,7 +1618,8 @@
       "predictorStructure": "multiple mixed",
       "design": "cross-sectional",
       "level": "basic",
-      "alternativeLinks": []
+      "alternativeLinks": [],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Variance_inflation_factor"
     },
     {
       "id": "tukey-hsd",
@@ -1602,7 +1651,8 @@
         "bonferroni",
         "games-howell",
         "scheffe-test"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Tukey%27s_range_test"
     },
     {
       "id": "bonferroni",
@@ -1633,7 +1683,8 @@
         "holm-bonferroni",
         "tukey-hsd",
         "benjamini-hochberg"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Bonferroni_correction"
     },
     {
       "id": "holm-bonferroni",
@@ -1663,7 +1714,8 @@
       "alternativeLinks": [
         "bonferroni",
         "benjamini-hochberg"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Holm%E2%80%93Bonferroni_method"
     },
     {
       "id": "benjamini-hochberg",
@@ -1693,7 +1745,8 @@
       "alternativeLinks": [
         "bonferroni",
         "holm-bonferroni"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/False_discovery_rate"
     },
     {
       "id": "dunnett-test",
@@ -1722,7 +1775,8 @@
       "level": "intermediate",
       "alternativeLinks": [
         "tukey-hsd"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Dunnett%27s_test"
     },
     {
       "id": "games-howell",
@@ -1751,7 +1805,8 @@
       "alternativeLinks": [
         "tukey-hsd",
         "scheffe-test"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Post_hoc_analysis"
     },
     {
       "id": "scheffe-test",
@@ -1780,7 +1835,8 @@
       "alternativeLinks": [
         "tukey-hsd",
         "games-howell"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Scheff%C3%A9%27s_method"
     },
     {
       "id": "dunn-test",
@@ -1807,7 +1863,8 @@
       "level": "intermediate",
       "alternativeLinks": [
         "kruskal-wallis"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Kruskal%E2%80%93Wallis_test"
     },
     {
       "id": "welch-t-test",
@@ -1837,7 +1894,8 @@
       "alternativeLinks": [
         "t-test-independent",
         "mann-whitney"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Welch%27s_t-test"
     },
     {
       "id": "welch-anova",
@@ -1868,7 +1926,8 @@
       "alternativeLinks": [
         "one-way-anova",
         "kruskal-wallis"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Welch%27s_ANOVA"
     },
     {
       "id": "ancova",
@@ -1898,7 +1957,8 @@
       "alternativeLinks": [
         "multiple-regression",
         "linear-mixed-model"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Analysis_of_covariance"
     },
     {
       "id": "manova",
@@ -1928,7 +1988,8 @@
       "alternativeLinks": [
         "two-way-anova",
         "discriminant-analysis"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Multivariate_analysis_of_variance"
     },
     {
       "id": "kendall-tau",
@@ -1957,7 +2018,8 @@
       "alternativeLinks": [
         "spearman-correlation",
         "pearson-correlation"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Kendall_rank_correlation_coefficient"
     },
     {
       "id": "point-biserial",
@@ -1986,7 +2048,8 @@
       "alternativeLinks": [
         "pearson-correlation",
         "t-test-independent"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Point-biserial_correlation_coefficient"
     },
     {
       "id": "intraclass-correlation",
@@ -2015,7 +2078,8 @@
       "alternativeLinks": [
         "cohens-kappa",
         "linear-mixed-model"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Intraclass_correlation"
     },
     {
       "id": "cochran-q",
@@ -2045,7 +2109,8 @@
       "alternativeLinks": [
         "mcnemar-test",
         "friedman-test"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Cochran%27s_Q_test"
     },
     {
       "id": "cramers-v",
@@ -2074,7 +2139,8 @@
       "alternativeLinks": [
         "chi-square",
         "cohens-kappa"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Cram%C3%A9r%27s_V"
     },
     {
       "id": "cohens-kappa",
@@ -2104,7 +2170,8 @@
       "alternativeLinks": [
         "fleiss-kappa",
         "intraclass-correlation"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Cohen%27s_kappa"
     },
     {
       "id": "fleiss-kappa",
@@ -2133,7 +2200,8 @@
       "level": "intermediate",
       "alternativeLinks": [
         "cohens-kappa"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Fleiss%27_kappa"
     },
     {
       "id": "negative-binomial",
@@ -2164,7 +2232,8 @@
       "alternativeLinks": [
         "poisson-regression",
         "zero-inflated-poisson"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Negative_binomial_regression"
     },
     {
       "id": "zero-inflated-poisson",
@@ -2195,7 +2264,8 @@
       "alternativeLinks": [
         "poisson-regression",
         "negative-binomial"
-      ]
+      ],
+      "wikipediaUrl": null
     },
     {
       "id": "quantile-regression",
@@ -2224,7 +2294,8 @@
       "alternativeLinks": [
         "linear-regression",
         "robust-regression"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Quantile_regression"
     },
     {
       "id": "robust-regression",
@@ -2253,7 +2324,8 @@
       "alternativeLinks": [
         "linear-regression",
         "quantile-regression"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Robust_regression"
     },
     {
       "id": "probit-regression",
@@ -2282,7 +2354,8 @@
       "level": "intermediate",
       "alternativeLinks": [
         "logistic-regression"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Probit_model"
     },
     {
       "id": "svm",
@@ -2312,7 +2385,8 @@
       "alternativeLinks": [
         "logistic-regression",
         "random-forest"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Support-vector_machine"
     },
     {
       "id": "xgboost",
@@ -2343,7 +2417,8 @@
         "gradient-boosting",
         "lightgbm",
         "catboost"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/XGBoost"
     },
     {
       "id": "lightgbm",
@@ -2373,7 +2448,8 @@
       "alternativeLinks": [
         "xgboost",
         "catboost"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/LightGBM"
     },
     {
       "id": "catboost",
@@ -2403,7 +2479,8 @@
       "alternativeLinks": [
         "xgboost",
         "lightgbm"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/CatBoost"
     },
     {
       "id": "knn",
@@ -2434,7 +2511,8 @@
       "alternativeLinks": [
         "random-forest",
         "svm"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm"
     },
     {
       "id": "naive-bayes",
@@ -2464,7 +2542,8 @@
       "alternativeLinks": [
         "logistic-regression",
         "random-forest"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Naive_Bayes_classifier"
     },
     {
       "id": "decision-tree",
@@ -2494,7 +2573,8 @@
       "alternativeLinks": [
         "random-forest",
         "gradient-boosting"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Decision_tree_learning"
     },
     {
       "id": "elastic-net",
@@ -2524,7 +2604,8 @@
       "alternativeLinks": [
         "lasso-ridge",
         "multiple-regression"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Elastic_net_regularization"
     },
     {
       "id": "neural-network-mlp",
@@ -2555,7 +2636,8 @@
       "alternativeLinks": [
         "random-forest",
         "gradient-boosting"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Multilayer_perceptron"
     },
     {
       "id": "dbscan",
@@ -2585,7 +2667,8 @@
       "alternativeLinks": [
         "kmeans",
         "gaussian-mixture"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/DBSCAN"
     },
     {
       "id": "gaussian-mixture",
@@ -2615,7 +2698,8 @@
       "alternativeLinks": [
         "kmeans",
         "dbscan"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Mixture_model"
     },
     {
       "id": "tsne",
@@ -2645,7 +2729,8 @@
       "alternativeLinks": [
         "umap",
         "pca"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/T-distributed_stochastic_neighbor_embedding"
     },
     {
       "id": "umap",
@@ -2675,7 +2760,8 @@
       "alternativeLinks": [
         "tsne",
         "pca"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/UMAP"
     },
     {
       "id": "prophet",
@@ -2705,7 +2791,8 @@
       "alternativeLinks": [
         "arima",
         "exponential-smoothing"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Prophet_(software)"
     },
     {
       "id": "adf-test",
@@ -2733,7 +2820,8 @@
       "level": "intermediate",
       "alternativeLinks": [
         "ljung-box"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Augmented_Dickey%E2%80%93Fuller_test"
     },
     {
       "id": "granger-causality",
@@ -2762,7 +2850,8 @@
       "level": "advanced",
       "alternativeLinks": [
         "var"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Granger_causality"
     },
     {
       "id": "ljung-box",
@@ -2791,7 +2880,8 @@
       "alternativeLinks": [
         "adf-test",
         "durbin-watson"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Ljung%E2%80%93Box_test"
     },
     {
       "id": "var",
@@ -2821,7 +2911,8 @@
       "alternativeLinks": [
         "arima",
         "granger-causality"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Vector_autoregression"
     },
     {
       "id": "bayesian-t-test",
@@ -2850,7 +2941,8 @@
       "alternativeLinks": [
         "t-test-independent",
         "bayesian-anova"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Bayes_factor"
     },
     {
       "id": "bayesian-regression",
@@ -2879,7 +2971,8 @@
       "alternativeLinks": [
         "linear-regression",
         "multiple-regression"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Bayesian_linear_regression"
     },
     {
       "id": "bayesian-anova",
@@ -2908,7 +3001,8 @@
       "alternativeLinks": [
         "one-way-anova",
         "bayesian-t-test"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Bayesian_statistics"
     },
     {
       "id": "accelerated-failure-time",
@@ -2936,7 +3030,8 @@
       "level": "advanced",
       "alternativeLinks": [
         "cox-regression"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Accelerated_failure_time_model"
     },
     {
       "id": "competing-risks",
@@ -2965,7 +3060,8 @@
       "alternativeLinks": [
         "cox-regression",
         "kaplan-meier"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Competing_risks"
     },
     {
       "id": "random-survival-forest",
@@ -2994,7 +3090,8 @@
       "alternativeLinks": [
         "cox-regression",
         "random-forest"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Survival_analysis"
     },
     {
       "id": "cohens-d",
@@ -3023,7 +3120,8 @@
       "alternativeLinks": [
         "hedges-g",
         "eta-squared"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Effect_size#Cohen%27s_d"
     },
     {
       "id": "hedges-g",
@@ -3052,7 +3150,8 @@
       "level": "basic",
       "alternativeLinks": [
         "cohens-d"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Effect_size#Hedges%27_g"
     },
     {
       "id": "eta-squared",
@@ -3081,7 +3180,8 @@
       "alternativeLinks": [
         "cohens-d",
         "odds-ratio"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Effect_size#Eta-squared"
     },
     {
       "id": "odds-ratio",
@@ -3109,7 +3209,8 @@
       "level": "basic",
       "alternativeLinks": [
         "eta-squared"
-      ]
+      ],
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Odds_ratio"
     }
   ],
   "schemaVersion": 2

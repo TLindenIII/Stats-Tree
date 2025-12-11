@@ -1,4 +1,4 @@
-import { statisticalTests, categoryGroups } from "../client/src/lib/statsData";
+import { statisticalTests, categoryGroups, getWikipediaUrl } from "../client/src/lib/statsData";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -26,7 +26,8 @@ const exportData = {
     predictorStructure: test.predictorStructure ?? null,
     design: test.design ?? null,
     level: test.level ?? null,
-    alternativeLinks: test.alternativeLinks ?? []
+    alternativeLinks: test.alternativeLinks ?? [],
+    wikipediaUrl: getWikipediaUrl(test.id)
   })),
   schemaVersion: 2
 };
