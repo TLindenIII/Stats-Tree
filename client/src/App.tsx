@@ -8,6 +8,7 @@ import Home from "@/pages/Home";
 import Wizard from "@/pages/Wizard";
 import Results from "@/pages/Results";
 import AllTests from "@/pages/AllTests";
+import Flowchart from "@/pages/Flowchart";
 
 function Router() {
   return (
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/wizard" component={Wizard} />
       <Route path="/results" component={Results} />
       <Route path="/tests" component={AllTests} />
+      <Route path="/flowchart" component={Flowchart} />
       <Route component={NotFound} />
     </Switch>
   );

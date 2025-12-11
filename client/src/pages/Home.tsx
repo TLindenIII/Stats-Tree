@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { ArrowRight, Target, Layers, CheckSquare, BarChart3, GitBranch, BookOpen } from "lucide-react";
+import { ArrowRight, Target, Layers, CheckSquare, BarChart3, GitBranch, BookOpen, Network } from "lucide-react";
 
 export default function Home() {
   const features = [
@@ -23,8 +23,8 @@ export default function Home() {
   ];
 
   const stats = [
-    { value: "10+", label: "Statistical Tests" },
-    { value: "5", label: "Decision Steps" },
+    { value: "80+", label: "Statistical Tests" },
+    { value: "16", label: "Categories" },
     { value: "100%", label: "Free to Use" },
   ];
 
@@ -62,6 +62,12 @@ export default function Home() {
                 <Link href="/wizard" data-testid="button-start-wizard">
                   Start Selection Wizard
                   <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild>
+                <Link href="/flowchart" data-testid="button-view-flowchart">
+                  <Network className="mr-2 h-5 w-5" />
+                  View Flowchart
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
