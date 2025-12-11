@@ -148,7 +148,7 @@ function StartNode({ data }: { data: { label: string } }) {
   );
 }
 
-function TestDetailPanel({ tests, open, onClose }: { tests: StatTest[]; open: boolean; onClose: () => void }) {
+function TestDetailPanel({ tests, open, onClose, onAlternativeClick }: { tests: StatTest[]; open: boolean; onClose: () => void; onAlternativeClick: (testId: string) => void }) {
   const [, setLocation] = useLocation();
   
   return (
@@ -205,16 +205,40 @@ function TestDetailPanel({ tests, open, onClose }: { tests: StatTest[]; open: bo
                   </ul>
                 </div>
                 
-                {test.alternatives.length > 0 && (
+                {((test.alternativeLinks && test.alternativeLinks.length > 0) || test.alternatives.length > 0) && (
                   <div>
                     <h4 className="text-sm font-medium flex items-center gap-1 mb-2">
                       <AlertCircle className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                       Alternatives
                     </h4>
                     <div className="flex flex-wrap gap-2">
-                      {test.alternatives.map((alt, i) => (
-                        <Badge key={i} variant="secondary">{alt}</Badge>
-                      ))}
+                      {test.alternativeLinks && test.alternativeLinks.length > 0 ? (
+                        test.alternativeLinks.map((altId) => {
+                          const altTest = statisticalTests.find(t => t.id === altId);
+                          if (!altTest) {
+                            return (
+                              <Badge key={altId} variant="secondary">
+                                {altId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                              </Badge>
+                            );
+                          }
+                          return (
+                            <Button
+                              key={altId}
+                              variant="outline"
+                              size="sm"
+                              onClick={() => onAlternativeClick(altId)}
+                              data-testid={`alt-link-${altId}`}
+                            >
+                              {altTest.name}
+                            </Button>
+                          );
+                        })
+                      ) : (
+                        test.alternatives.map((alt, i) => (
+                          <Badge key={i} variant="secondary">{alt}</Badge>
+                        ))
+                      )}
                     </div>
                   </div>
                 )}
@@ -486,7 +510,13 @@ function FlowchartInner() {
       <TestDetailPanel 
         tests={selectedTests} 
         open={detailOpen} 
-        onClose={() => setDetailOpen(false)} 
+        onClose={() => setDetailOpen(false)}
+        onAlternativeClick={(testId) => {
+          const test = statisticalTests.find(t => t.id === testId);
+          if (test) {
+            setSelectedTests([test]);
+          }
+        }}
       />
     </div>
   );

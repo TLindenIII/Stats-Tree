@@ -8,7 +8,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { CheckCircle, AlertCircle, Info, ArrowRight, Eye, GitCompare } from "lucide-react";
-import type { StatTest } from "@/lib/statsData";
+import { statisticalTests, type StatTest } from "@/lib/statsData";
 
 interface TestResultCardProps {
   test: StatTest;
@@ -17,6 +17,7 @@ interface TestResultCardProps {
   onCompare?: () => void;
   isComparing?: boolean;
   canCompare?: boolean;
+  onAlternativeClick?: (testId: string) => void;
 }
 
 export function TestResultCard({ 
@@ -25,7 +26,8 @@ export function TestResultCard({
   onViewDetails,
   onCompare,
   isComparing = false,
-  canCompare = true
+  canCompare = true,
+  onAlternativeClick
 }: TestResultCardProps) {
   const levelColors: Record<string, string> = {
     basic: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100",
@@ -124,11 +126,39 @@ export function TestResultCard({
             </AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-wrap gap-2">
-                {test.alternatives.map((alt, i) => (
-                  <Badge key={i} variant="outline">
-                    {alt}
-                  </Badge>
-                ))}
+                {test.alternativeLinks && test.alternativeLinks.length > 0 ? (
+                  test.alternativeLinks.map((altId) => {
+                    const altTest = statisticalTests.find(t => t.id === altId);
+                    if (!altTest) {
+                      return (
+                        <Badge key={altId} variant="outline">
+                          {altId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                        </Badge>
+                      );
+                    }
+                    return onAlternativeClick ? (
+                      <Button
+                        key={altId}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onAlternativeClick(altId)}
+                        data-testid={`alt-link-${altId}`}
+                      >
+                        {altTest.name}
+                      </Button>
+                    ) : (
+                      <Badge key={altId} variant="outline">
+                        {altTest.name}
+                      </Badge>
+                    );
+                  })
+                ) : (
+                  test.alternatives.map((alt, i) => (
+                    <Badge key={i} variant="outline">
+                      {alt}
+                    </Badge>
+                  ))
+                )}
               </div>
             </AccordionContent>
           </AccordionItem>
