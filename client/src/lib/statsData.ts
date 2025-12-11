@@ -18,6 +18,12 @@ export interface StatTest {
   alternatives: string[];
   methodFamily: string;
   category: string;
+  categoryId: string;
+  outcomeScale?: string | null;
+  predictorStructure?: string | null;
+  design?: string | null;
+  level?: string | null;
+  alternativeLinks?: string[];
 }
 
 export const wizardSteps: WizardStep[] = [
@@ -103,6 +109,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Mann-Whitney U test (non-parametric)", "Welch's t-test (unequal variances)"],
     methodFamily: "Parametric",
     category: "Group Comparison",
+    categoryId: "comparison",
   },
   {
     id: "paired-t-test",
@@ -113,6 +120,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Wilcoxon signed-rank test (non-parametric)"],
     methodFamily: "Parametric",
     category: "Group Comparison",
+    categoryId: "comparison",
   },
   {
     id: "one-way-anova",
@@ -123,6 +131,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Kruskal-Wallis H test (non-parametric)", "Welch's ANOVA (unequal variances)"],
     methodFamily: "Parametric",
     category: "Group Comparison",
+    categoryId: "comparison",
   },
   {
     id: "two-way-anova",
@@ -133,6 +142,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Robust ANOVA", "Aligned ranks transformation"],
     methodFamily: "Parametric",
     category: "Group Comparison",
+    categoryId: "comparison",
   },
   {
     id: "repeated-measures-anova",
@@ -143,6 +153,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Friedman test (non-parametric)", "Mixed-effects models"],
     methodFamily: "Parametric",
     category: "Group Comparison",
+    categoryId: "comparison",
   },
   // Group Comparison - Non-parametric
   {
@@ -154,6 +165,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Independent t-test (parametric)"],
     methodFamily: "Nonparametric",
     category: "Group Comparison",
+    categoryId: "comparison",
   },
   {
     id: "wilcoxon-signed-rank",
@@ -164,6 +176,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Paired t-test (parametric)"],
     methodFamily: "Nonparametric",
     category: "Group Comparison",
+    categoryId: "comparison",
   },
   {
     id: "kruskal-wallis",
@@ -174,6 +187,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["One-way ANOVA (parametric)"],
     methodFamily: "Nonparametric",
     category: "Group Comparison",
+    categoryId: "comparison",
   },
   {
     id: "friedman-test",
@@ -184,6 +198,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Repeated measures ANOVA (parametric)"],
     methodFamily: "Nonparametric",
     category: "Group Comparison",
+    categoryId: "comparison",
   },
   // Relationship/Correlation
   {
@@ -195,6 +210,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Spearman correlation (non-parametric)", "Kendall's tau (ordinal)"],
     methodFamily: "Parametric",
     category: "Correlation",
+    categoryId: "correlation",
   },
   {
     id: "spearman-correlation",
@@ -205,6 +221,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Pearson correlation (parametric)", "Kendall's tau"],
     methodFamily: "Nonparametric",
     category: "Correlation",
+    categoryId: "correlation",
   },
   {
     id: "partial-correlation",
@@ -215,6 +232,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Multiple regression", "Path analysis"],
     methodFamily: "Parametric",
     category: "Correlation",
+    categoryId: "correlation",
   },
   // Regression
   {
@@ -226,6 +244,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Robust regression (outliers)", "Quantile regression"],
     methodFamily: "Regression-based",
     category: "Regression",
+    categoryId: "regression",
   },
   {
     id: "multiple-regression",
@@ -236,6 +255,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Ridge/Lasso regression", "Partial least squares"],
     methodFamily: "Regression-based",
     category: "Regression",
+    categoryId: "regression",
   },
   {
     id: "logistic-regression",
@@ -246,6 +266,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Probit regression", "Discriminant analysis"],
     methodFamily: "Regression-based",
     category: "Regression",
+    categoryId: "regression",
   },
   {
     id: "poisson-regression",
@@ -256,6 +277,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Negative binomial regression (overdispersion)", "Zero-inflated models"],
     methodFamily: "Regression-based",
     category: "Regression",
+    categoryId: "regression",
   },
   {
     id: "ordinal-regression",
@@ -266,6 +288,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Multinomial regression", "Cumulative link models"],
     methodFamily: "Regression-based",
     category: "Regression",
+    categoryId: "regression",
   },
   // Categorical Analysis
   {
@@ -277,6 +300,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Fisher's exact test (small samples)"],
     methodFamily: "Nonparametric",
     category: "Categorical",
+    categoryId: "categorical",
   },
   {
     id: "fisher-exact",
@@ -287,6 +311,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Chi-square test (larger samples)"],
     methodFamily: "Nonparametric",
     category: "Categorical",
+    categoryId: "categorical",
   },
   {
     id: "mcnemar-test",
@@ -297,6 +322,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Cochran's Q test (3+ conditions)"],
     methodFamily: "Nonparametric",
     category: "Categorical",
+    categoryId: "categorical",
   },
   // Mixed/Multilevel Models
   {
@@ -308,6 +334,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Generalized estimating equations", "Hierarchical Bayesian models"],
     methodFamily: "Mixed Models",
     category: "Mixed Models",
+    categoryId: "mixed",
   },
   {
     id: "glmm",
@@ -318,6 +345,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["GEE", "Bayesian hierarchical models"],
     methodFamily: "Mixed Models",
     category: "Mixed Models",
+    categoryId: "mixed",
   },
   // Time Series
   {
@@ -329,6 +357,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Exponential smoothing", "Prophet", "State-space models"],
     methodFamily: "Time-series",
     category: "Time Series",
+    categoryId: "time-series",
   },
   {
     id: "exponential-smoothing",
@@ -339,6 +368,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["ARIMA", "Theta method"],
     methodFamily: "Time-series",
     category: "Time Series",
+    categoryId: "time-series",
   },
   // Survival Analysis
   {
@@ -350,6 +380,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Nelson-Aalen estimator", "Parametric survival models"],
     methodFamily: "Survival",
     category: "Survival Analysis",
+    categoryId: "survival",
   },
   {
     id: "log-rank-test",
@@ -360,6 +391,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Wilcoxon-Gehan test", "Cox regression"],
     methodFamily: "Survival",
     category: "Survival Analysis",
+    categoryId: "survival",
   },
   {
     id: "cox-regression",
@@ -370,6 +402,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Accelerated failure time models", "Parametric survival models"],
     methodFamily: "Survival",
     category: "Survival Analysis",
+    categoryId: "survival",
   },
   // Unsupervised Learning
   {
@@ -381,6 +414,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Hierarchical clustering", "DBSCAN", "Gaussian mixtures"],
     methodFamily: "Machine Learning",
     category: "Clustering",
+    categoryId: "clustering",
   },
   {
     id: "hierarchical-clustering",
@@ -391,6 +425,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["K-means", "DBSCAN"],
     methodFamily: "Machine Learning",
     category: "Clustering",
+    categoryId: "clustering",
   },
   {
     id: "pca",
@@ -401,6 +436,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Factor analysis", "t-SNE", "UMAP"],
     methodFamily: "Multivariate",
     category: "Dimension Reduction",
+    categoryId: "dimension",
   },
   {
     id: "factor-analysis",
@@ -411,6 +447,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["PCA", "Structural equation modeling"],
     methodFamily: "Multivariate",
     category: "Dimension Reduction",
+    categoryId: "dimension",
   },
   // Machine Learning
   {
@@ -422,6 +459,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Gradient boosting", "Single decision tree", "Neural networks"],
     methodFamily: "Machine Learning",
     category: "Prediction",
+    categoryId: "ml",
   },
   {
     id: "gradient-boosting",
@@ -432,6 +470,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Random forest", "XGBoost", "LightGBM"],
     methodFamily: "Machine Learning",
     category: "Prediction",
+    categoryId: "ml",
   },
   {
     id: "lasso-ridge",
@@ -442,6 +481,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Elastic net", "Principal components regression"],
     methodFamily: "Regression-based",
     category: "Prediction",
+    categoryId: "ml",
   },
   // Resampling/Bootstrap
   {
@@ -453,6 +493,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Jackknife", "Permutation tests"],
     methodFamily: "Resampling",
     category: "Resampling",
+    categoryId: "resampling",
   },
   {
     id: "permutation-test",
@@ -463,6 +504,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Bootstrap", "Parametric tests"],
     methodFamily: "Permutation-based",
     category: "Resampling",
+    categoryId: "resampling",
   },
   // Power Analysis
   {
@@ -474,6 +516,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Simulation-based power", "Bayesian sample size"],
     methodFamily: "Planning",
     category: "Study Planning",
+    categoryId: "planning",
   },
   
   // === ASSUMPTION & DIAGNOSTIC TESTS ===
@@ -487,6 +530,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Bartlett's test (normal data)", "Brown-Forsythe test", "Fligner-Killeen test"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
+    categoryId: "assumption",
   },
   {
     id: "bartlett-test",
@@ -497,6 +541,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Levene's test (non-normal)", "Brown-Forsythe test"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
+    categoryId: "assumption",
   },
   {
     id: "brown-forsythe",
@@ -507,6 +552,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Levene's test", "Bartlett's test"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
+    categoryId: "assumption",
   },
   {
     id: "fligner-killeen",
@@ -517,6 +563,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Levene's test", "Bartlett's test"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
+    categoryId: "assumption",
   },
   {
     id: "hartley-fmax",
@@ -527,6 +574,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Levene's test", "Bartlett's test"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
+    categoryId: "assumption",
   },
   // Normality Tests
   {
@@ -538,6 +586,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Kolmogorov-Smirnov", "Anderson-Darling", "D'Agostino-Pearson"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
+    categoryId: "assumption",
   },
   {
     id: "kolmogorov-smirnov",
@@ -548,6 +597,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Shapiro-Wilk (normality)", "Anderson-Darling"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
+    categoryId: "assumption",
   },
   {
     id: "anderson-darling",
@@ -558,6 +608,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Shapiro-Wilk", "Kolmogorov-Smirnov"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
+    categoryId: "assumption",
   },
   {
     id: "dagostino-pearson",
@@ -568,6 +619,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Shapiro-Wilk", "Jarque-Bera"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
+    categoryId: "assumption",
   },
   // Regression Diagnostics
   {
@@ -579,6 +631,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Breusch-Godfrey test", "Ljung-Box test"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
+    categoryId: "assumption",
   },
   {
     id: "breusch-pagan",
@@ -589,6 +642,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["White's test", "Goldfeld-Quandt test"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
+    categoryId: "assumption",
   },
   {
     id: "vif",
@@ -599,6 +653,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Condition number", "Tolerance", "Correlation matrix"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
+    categoryId: "assumption",
   },
   
   // === POST-HOC TESTS ===
@@ -611,6 +666,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Games-Howell (unequal variances)", "Bonferroni", "Scheffé"],
     methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
+    categoryId: "posthoc",
   },
   {
     id: "bonferroni",
@@ -621,6 +677,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Holm-Bonferroni", "Benjamini-Hochberg", "Tukey HSD"],
     methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
+    categoryId: "posthoc",
   },
   {
     id: "holm-bonferroni",
@@ -631,6 +688,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Bonferroni", "Hochberg", "Benjamini-Hochberg"],
     methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
+    categoryId: "posthoc",
   },
   {
     id: "benjamini-hochberg",
@@ -641,6 +699,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Bonferroni (FWER)", "q-value", "Storey's method"],
     methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
+    categoryId: "posthoc",
   },
   {
     id: "dunnett-test",
@@ -651,6 +710,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Tukey HSD (all pairs)", "Bonferroni"],
     methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
+    categoryId: "posthoc",
   },
   {
     id: "games-howell",
@@ -661,6 +721,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Tukey HSD (equal variances)", "Tamhane's T2"],
     methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
+    categoryId: "posthoc",
   },
   {
     id: "scheffe-test",
@@ -671,6 +732,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Tukey HSD", "Bonferroni"],
     methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
+    categoryId: "posthoc",
   },
   {
     id: "dunn-test",
@@ -681,6 +743,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Conover-Iman test", "Nemenyi test"],
     methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
+    categoryId: "posthoc",
   },
   
   // === ADDITIONAL GROUP COMPARISON ===
@@ -693,6 +756,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Student's t-test (equal variances)", "Mann-Whitney U"],
     methodFamily: "Parametric",
     category: "Group Comparison",
+    categoryId: "comparison",
   },
   {
     id: "welch-anova",
@@ -703,6 +767,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["One-way ANOVA", "Brown-Forsythe ANOVA", "Kruskal-Wallis"],
     methodFamily: "Parametric",
     category: "Group Comparison",
+    categoryId: "comparison",
   },
   {
     id: "ancova",
@@ -713,6 +778,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Mixed models", "Multiple regression"],
     methodFamily: "Parametric",
     category: "Group Comparison",
+    categoryId: "comparison",
   },
   {
     id: "manova",
@@ -723,6 +789,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Separate ANOVAs with correction", "Discriminant analysis"],
     methodFamily: "Multivariate",
     category: "Group Comparison",
+    categoryId: "comparison",
   },
   
   // === ADDITIONAL CORRELATION ===
@@ -735,6 +802,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Spearman correlation", "Pearson correlation"],
     methodFamily: "Nonparametric",
     category: "Correlation",
+    categoryId: "correlation",
   },
   {
     id: "point-biserial",
@@ -745,6 +813,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Biserial correlation", "Logistic regression"],
     methodFamily: "Parametric",
     category: "Correlation",
+    categoryId: "correlation",
   },
   {
     id: "intraclass-correlation",
@@ -755,6 +824,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Cohen's kappa (categorical)", "Pearson correlation"],
     methodFamily: "Reliability",
     category: "Correlation",
+    categoryId: "correlation",
   },
   
   // === ADDITIONAL CATEGORICAL ===
@@ -767,6 +837,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["McNemar test (2 conditions)", "Friedman test"],
     methodFamily: "Nonparametric",
     category: "Categorical",
+    categoryId: "categorical",
   },
   {
     id: "cramers-v",
@@ -777,6 +848,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Phi coefficient (2x2)", "Contingency coefficient"],
     methodFamily: "Effect Size",
     category: "Categorical",
+    categoryId: "categorical",
   },
   {
     id: "cohens-kappa",
@@ -787,6 +859,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Fleiss' kappa (3+ raters)", "ICC (continuous)"],
     methodFamily: "Reliability",
     category: "Categorical",
+    categoryId: "categorical",
   },
   {
     id: "fleiss-kappa",
@@ -797,6 +870,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Cohen's kappa (2 raters)", "Krippendorff's alpha"],
     methodFamily: "Reliability",
     category: "Categorical",
+    categoryId: "categorical",
   },
   
   // === ADDITIONAL REGRESSION ===
@@ -809,6 +883,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Poisson regression", "Zero-inflated models", "Quasi-Poisson"],
     methodFamily: "Regression-based",
     category: "Regression",
+    categoryId: "regression",
   },
   {
     id: "zero-inflated-poisson",
@@ -819,6 +894,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Negative binomial", "Hurdle models", "Poisson regression"],
     methodFamily: "Regression-based",
     category: "Regression",
+    categoryId: "regression",
   },
   {
     id: "quantile-regression",
@@ -829,6 +905,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Robust regression", "Linear regression"],
     methodFamily: "Regression-based",
     category: "Regression",
+    categoryId: "regression",
   },
   {
     id: "robust-regression",
@@ -839,6 +916,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Quantile regression", "M-estimation"],
     methodFamily: "Regression-based",
     category: "Regression",
+    categoryId: "regression",
   },
   {
     id: "probit-regression",
@@ -849,6 +927,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Logistic regression", "Complementary log-log"],
     methodFamily: "Regression-based",
     category: "Regression",
+    categoryId: "regression",
   },
   
   // === ADDITIONAL ML METHODS ===
@@ -861,6 +940,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Logistic regression", "Random forest", "Neural networks"],
     methodFamily: "Machine Learning",
     category: "Prediction",
+    categoryId: "ml",
   },
   {
     id: "xgboost",
@@ -871,6 +951,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["LightGBM", "CatBoost", "Random forest"],
     methodFamily: "Machine Learning",
     category: "Prediction",
+    categoryId: "ml",
   },
   {
     id: "lightgbm",
@@ -881,6 +962,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["XGBoost", "CatBoost", "Random forest"],
     methodFamily: "Machine Learning",
     category: "Prediction",
+    categoryId: "ml",
   },
   {
     id: "catboost",
@@ -891,6 +973,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["XGBoost", "LightGBM", "Random forest"],
     methodFamily: "Machine Learning",
     category: "Prediction",
+    categoryId: "ml",
   },
   {
     id: "knn",
@@ -901,6 +984,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["SVM", "Random forest", "Decision tree"],
     methodFamily: "Machine Learning",
     category: "Prediction",
+    categoryId: "ml",
   },
   {
     id: "naive-bayes",
@@ -911,6 +995,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Logistic regression", "SVM", "Random forest"],
     methodFamily: "Machine Learning",
     category: "Prediction",
+    categoryId: "ml",
   },
   {
     id: "decision-tree",
@@ -921,6 +1006,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Random forest", "Gradient boosting", "Rule-based models"],
     methodFamily: "Machine Learning",
     category: "Prediction",
+    categoryId: "ml",
   },
   {
     id: "elastic-net",
@@ -931,6 +1017,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Lasso", "Ridge regression", "Principal components regression"],
     methodFamily: "Regression-based",
     category: "Prediction",
+    categoryId: "ml",
   },
   {
     id: "neural-network-mlp",
@@ -941,6 +1028,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Random forest", "Gradient boosting", "Deep learning architectures"],
     methodFamily: "Machine Learning",
     category: "Prediction",
+    categoryId: "ml",
   },
   {
     id: "dbscan",
@@ -951,6 +1039,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["K-means", "HDBSCAN", "OPTICS"],
     methodFamily: "Machine Learning",
     category: "Clustering",
+    categoryId: "clustering",
   },
   {
     id: "gaussian-mixture",
@@ -961,6 +1050,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["K-means", "DBSCAN", "Hierarchical clustering"],
     methodFamily: "Machine Learning",
     category: "Clustering",
+    categoryId: "clustering",
   },
   {
     id: "tsne",
@@ -971,6 +1061,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["UMAP", "PCA", "MDS"],
     methodFamily: "Machine Learning",
     category: "Dimension Reduction",
+    categoryId: "dimension",
   },
   {
     id: "umap",
@@ -981,6 +1072,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["t-SNE", "PCA", "Isomap"],
     methodFamily: "Machine Learning",
     category: "Dimension Reduction",
+    categoryId: "dimension",
   },
   
   // === TIME SERIES ADDITIONS ===
@@ -993,6 +1085,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["ARIMA", "Exponential smoothing", "Neural Prophet"],
     methodFamily: "Time-series",
     category: "Time Series",
+    categoryId: "time-series",
   },
   {
     id: "adf-test",
@@ -1003,6 +1096,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["KPSS test", "Phillips-Perron test"],
     methodFamily: "Diagnostic",
     category: "Time Series",
+    categoryId: "time-series",
   },
   {
     id: "granger-causality",
@@ -1013,6 +1107,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Cross-correlation", "Transfer entropy"],
     methodFamily: "Time-series",
     category: "Time Series",
+    categoryId: "time-series",
   },
   {
     id: "ljung-box",
@@ -1023,6 +1118,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Durbin-Watson", "Box-Pierce test"],
     methodFamily: "Diagnostic",
     category: "Time Series",
+    categoryId: "time-series",
   },
   {
     id: "var",
@@ -1033,6 +1129,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["VECM (cointegrated)", "Structural VAR"],
     methodFamily: "Time-series",
     category: "Time Series",
+    categoryId: "time-series",
   },
   
   // === BAYESIAN METHODS ===
@@ -1045,6 +1142,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Frequentist t-test", "Bayesian estimation"],
     methodFamily: "Bayesian",
     category: "Bayesian Methods",
+    categoryId: "bayesian",
   },
   {
     id: "bayesian-regression",
@@ -1055,6 +1153,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Frequentist regression", "Ridge/Lasso"],
     methodFamily: "Bayesian",
     category: "Bayesian Methods",
+    categoryId: "bayesian",
   },
   {
     id: "bayesian-anova",
@@ -1065,6 +1164,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Frequentist ANOVA", "Bayesian mixed models"],
     methodFamily: "Bayesian",
     category: "Bayesian Methods",
+    categoryId: "bayesian",
   },
   
   // === SURVIVAL ANALYSIS ADDITIONS ===
@@ -1077,6 +1177,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Cox regression", "Parametric survival models"],
     methodFamily: "Survival",
     category: "Survival Analysis",
+    categoryId: "survival",
   },
   {
     id: "competing-risks",
@@ -1087,6 +1188,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Kaplan-Meier (single event)", "Fine-Gray model"],
     methodFamily: "Survival",
     category: "Survival Analysis",
+    categoryId: "survival",
   },
   {
     id: "random-survival-forest",
@@ -1097,6 +1199,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Cox regression", "Gradient boosted survival"],
     methodFamily: "Machine Learning",
     category: "Survival Analysis",
+    categoryId: "survival",
   },
   
   // === EFFECT SIZE MEASURES ===
@@ -1109,6 +1212,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Hedges' g (small samples)", "Glass's delta"],
     methodFamily: "Effect Size",
     category: "Effect Size",
+    categoryId: "effectsize",
   },
   {
     id: "hedges-g",
@@ -1119,6 +1223,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Cohen's d", "Glass's delta"],
     methodFamily: "Effect Size",
     category: "Effect Size",
+    categoryId: "effectsize",
   },
   {
     id: "eta-squared",
@@ -1129,6 +1234,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Omega-squared", "Cohen's f"],
     methodFamily: "Effect Size",
     category: "Effect Size",
+    categoryId: "effectsize",
   },
   {
     id: "odds-ratio",
@@ -1139,6 +1245,7 @@ export const statisticalTests: StatTest[] = [
     alternatives: ["Risk ratio", "Hazard ratio"],
     methodFamily: "Effect Size",
     category: "Effect Size",
+    categoryId: "effectsize",
   },
 ];
 
