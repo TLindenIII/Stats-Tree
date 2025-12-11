@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2025-12-11T19:31:36.399Z",
+  "exportedAt": "2025-12-11T21:51:26.408Z",
   "totalTests": 101,
   "categories": [
     "Assumption Testing",
@@ -142,11 +142,15 @@
         "Mann-Whitney U test (non-parametric)",
         "Welch's t-test (unequal variances)"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "basic",
+      "alternativeLinks": [
+        "mann-whitney",
+        "welch-t-test",
+        "bayesian-t-test"
+      ]
     },
     {
       "id": "paired-t-test",
@@ -168,11 +172,13 @@
       "alternatives": [
         "Wilcoxon signed-rank test (non-parametric)"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "paired/repeated measures",
+      "level": "basic",
+      "alternativeLinks": [
+        "wilcoxon-signed-rank"
+      ]
     },
     {
       "id": "one-way-anova",
@@ -195,11 +201,15 @@
         "Kruskal-Wallis H test (non-parametric)",
         "Welch's ANOVA (unequal variances)"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "basic",
+      "alternativeLinks": [
+        "kruskal-wallis",
+        "welch-anova",
+        "bayesian-anova"
+      ]
     },
     {
       "id": "two-way-anova",
@@ -223,11 +233,14 @@
         "Robust ANOVA",
         "Aligned ranks transformation"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple categorical",
+      "design": "factorial",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "linear-mixed-model",
+        "manova"
+      ]
     },
     {
       "id": "repeated-measures-anova",
@@ -250,11 +263,14 @@
         "Friedman test (non-parametric)",
         "Mixed-effects models"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "paired/repeated measures",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "friedman-test",
+        "linear-mixed-model"
+      ]
     },
     {
       "id": "mann-whitney",
@@ -276,11 +292,14 @@
       "alternatives": [
         "Independent t-test (parametric)"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "ordinal",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "basic",
+      "alternativeLinks": [
+        "t-test-independent",
+        "permutation-test"
+      ]
     },
     {
       "id": "wilcoxon-signed-rank",
@@ -302,11 +321,13 @@
       "alternatives": [
         "Paired t-test (parametric)"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "ordinal",
+      "predictorStructure": "single categorical",
+      "design": "paired/repeated measures",
+      "level": "basic",
+      "alternativeLinks": [
+        "paired-t-test"
+      ]
     },
     {
       "id": "kruskal-wallis",
@@ -328,11 +349,14 @@
       "alternatives": [
         "One-way ANOVA (parametric)"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "ordinal",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "basic",
+      "alternativeLinks": [
+        "one-way-anova",
+        "dunn-test"
+      ]
     },
     {
       "id": "friedman-test",
@@ -354,11 +378,13 @@
       "alternatives": [
         "Repeated measures ANOVA (parametric)"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "ordinal",
+      "predictorStructure": "single categorical",
+      "design": "paired/repeated measures",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "repeated-measures-anova"
+      ]
     },
     {
       "id": "pearson-correlation",
@@ -382,11 +408,14 @@
         "Spearman correlation (non-parametric)",
         "Kendall's tau (ordinal)"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single continuous",
+      "design": "cross-sectional",
+      "level": "basic",
+      "alternativeLinks": [
+        "spearman-correlation",
+        "kendall-tau"
+      ]
     },
     {
       "id": "spearman-correlation",
@@ -409,11 +438,14 @@
         "Pearson correlation (parametric)",
         "Kendall's tau"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "ordinal",
+      "predictorStructure": "single continuous",
+      "design": "cross-sectional",
+      "level": "basic",
+      "alternativeLinks": [
+        "pearson-correlation",
+        "kendall-tau"
+      ]
     },
     {
       "id": "partial-correlation",
@@ -436,11 +468,13 @@
         "Multiple regression",
         "Path analysis"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple continuous",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "multiple-regression"
+      ]
     },
     {
       "id": "linear-regression",
@@ -464,11 +498,15 @@
         "Robust regression (outliers)",
         "Quantile regression"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single continuous",
+      "design": "cross-sectional",
+      "level": "basic",
+      "alternativeLinks": [
+        "multiple-regression",
+        "robust-regression",
+        "bayesian-regression"
+      ]
     },
     {
       "id": "multiple-regression",
@@ -492,11 +530,15 @@
         "Ridge/Lasso regression",
         "Partial least squares"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "linear-regression",
+        "lasso-ridge",
+        "elastic-net"
+      ]
     },
     {
       "id": "logistic-regression",
@@ -520,11 +562,15 @@
         "Probit regression",
         "Discriminant analysis"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "binary",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "probit-regression",
+        "random-forest",
+        "svm"
+      ]
     },
     {
       "id": "poisson-regression",
@@ -548,11 +594,14 @@
         "Negative binomial regression (overdispersion)",
         "Zero-inflated models"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "count",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "negative-binomial",
+        "zero-inflated-poisson"
+      ]
     },
     {
       "id": "ordinal-regression",
@@ -575,11 +624,14 @@
         "Multinomial regression",
         "Cumulative link models"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "ordinal",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "logistic-regression",
+        "multinomial-logistic"
+      ]
     },
     {
       "id": "chi-square",
@@ -601,11 +653,14 @@
       "alternatives": [
         "Fisher's exact test (small samples)"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "nominal",
+      "predictorStructure": "single categorical",
+      "design": "cross-sectional",
+      "level": "basic",
+      "alternativeLinks": [
+        "fisher-exact",
+        "cramers-v"
+      ]
     },
     {
       "id": "fisher-exact",
@@ -627,11 +682,13 @@
       "alternatives": [
         "Chi-square test (larger samples)"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "nominal",
+      "predictorStructure": "single categorical",
+      "design": "cross-sectional",
+      "level": "basic",
+      "alternativeLinks": [
+        "chi-square"
+      ]
     },
     {
       "id": "mcnemar-test",
@@ -653,11 +710,13 @@
       "alternatives": [
         "Cochran's Q test (3+ conditions)"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "binary",
+      "predictorStructure": "single categorical",
+      "design": "paired/repeated measures",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "cochran-q"
+      ]
     },
     {
       "id": "linear-mixed-model",
@@ -680,11 +739,14 @@
         "Generalized estimating equations",
         "Hierarchical Bayesian models"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple mixed",
+      "design": "longitudinal",
+      "level": "advanced",
+      "alternativeLinks": [
+        "glmm",
+        "repeated-measures-anova"
+      ]
     },
     {
       "id": "glmm",
@@ -706,11 +768,14 @@
         "GEE",
         "Bayesian hierarchical models"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "binary",
+      "predictorStructure": "multiple mixed",
+      "design": "longitudinal",
+      "level": "advanced",
+      "alternativeLinks": [
+        "linear-mixed-model",
+        "gee"
+      ]
     },
     {
       "id": "arima",
@@ -734,11 +799,15 @@
         "Prophet",
         "State-space models"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "none",
+      "design": "time-series",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "exponential-smoothing",
+        "prophet",
+        "var"
+      ]
     },
     {
       "id": "exponential-smoothing",
@@ -760,11 +829,14 @@
         "ARIMA",
         "Theta method"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "none",
+      "design": "time-series",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "arima",
+        "prophet"
+      ]
     },
     {
       "id": "kaplan-meier",
@@ -787,11 +859,14 @@
         "Nelson-Aalen estimator",
         "Parametric survival models"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "time-to-event",
+      "predictorStructure": "none",
+      "design": "longitudinal",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "log-rank-test",
+        "cox-regression"
+      ]
     },
     {
       "id": "log-rank-test",
@@ -814,11 +889,14 @@
         "Wilcoxon-Gehan test",
         "Cox regression"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "time-to-event",
+      "predictorStructure": "single categorical",
+      "design": "longitudinal",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "kaplan-meier",
+        "cox-regression"
+      ]
     },
     {
       "id": "cox-regression",
@@ -841,11 +919,15 @@
         "Accelerated failure time models",
         "Parametric survival models"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "time-to-event",
+      "predictorStructure": "multiple mixed",
+      "design": "longitudinal",
+      "level": "advanced",
+      "alternativeLinks": [
+        "kaplan-meier",
+        "accelerated-failure-time",
+        "random-survival-forest"
+      ]
     },
     {
       "id": "kmeans",
@@ -869,11 +951,15 @@
         "DBSCAN",
         "Gaussian mixtures"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "multivariate",
+      "predictorStructure": "none",
+      "design": "cross-sectional",
+      "level": "basic",
+      "alternativeLinks": [
+        "hierarchical-clustering",
+        "dbscan",
+        "gaussian-mixture"
+      ]
     },
     {
       "id": "hierarchical-clustering",
@@ -895,11 +981,14 @@
         "K-means",
         "DBSCAN"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "multivariate",
+      "predictorStructure": "none",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "kmeans",
+        "dbscan"
+      ]
     },
     {
       "id": "pca",
@@ -923,11 +1012,15 @@
         "t-SNE",
         "UMAP"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "multivariate",
+      "predictorStructure": "none",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "factor-analysis",
+        "tsne",
+        "umap"
+      ]
     },
     {
       "id": "factor-analysis",
@@ -950,11 +1043,13 @@
         "PCA",
         "Structural equation modeling"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "multivariate",
+      "predictorStructure": "none",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "pca"
+      ]
     },
     {
       "id": "random-forest",
@@ -977,11 +1072,15 @@
         "Single decision tree",
         "Neural networks"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "gradient-boosting",
+        "xgboost",
+        "decision-tree"
+      ]
     },
     {
       "id": "gradient-boosting",
@@ -1004,11 +1103,15 @@
         "XGBoost",
         "LightGBM"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "random-forest",
+        "xgboost",
+        "lightgbm"
+      ]
     },
     {
       "id": "lasso-ridge",
@@ -1030,11 +1133,14 @@
         "Elastic net",
         "Principal components regression"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple continuous",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "elastic-net",
+        "multiple-regression"
+      ]
     },
     {
       "id": "bootstrap",
@@ -1056,11 +1162,13 @@
         "Jackknife",
         "Permutation tests"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "none",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "permutation-test"
+      ]
     },
     {
       "id": "permutation-test",
@@ -1082,11 +1190,14 @@
         "Bootstrap",
         "Parametric tests"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "bootstrap",
+        "mann-whitney"
+      ]
     },
     {
       "id": "power-analysis",
@@ -1109,10 +1220,10 @@
         "Simulation-based power",
         "Bayesian sample size"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
+      "outcomeScale": "continuous",
+      "predictorStructure": "none",
+      "design": "cross-sectional",
+      "level": "intermediate",
       "alternativeLinks": []
     },
     {
@@ -1136,11 +1247,15 @@
         "Brown-Forsythe test",
         "Fligner-Killeen test"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "basic",
+      "alternativeLinks": [
+        "bartlett-test",
+        "brown-forsythe",
+        "fligner-killeen"
+      ]
     },
     {
       "id": "bartlett-test",
@@ -1162,11 +1277,14 @@
         "Levene's test (non-normal)",
         "Brown-Forsythe test"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "basic",
+      "alternativeLinks": [
+        "levene-test",
+        "brown-forsythe"
+      ]
     },
     {
       "id": "brown-forsythe",
@@ -1187,11 +1305,14 @@
         "Levene's test",
         "Bartlett's test"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "basic",
+      "alternativeLinks": [
+        "levene-test",
+        "bartlett-test"
+      ]
     },
     {
       "id": "fligner-killeen",
@@ -1213,11 +1334,13 @@
         "Levene's test",
         "Bartlett's test"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "levene-test"
+      ]
     },
     {
       "id": "hartley-fmax",
@@ -1240,11 +1363,14 @@
         "Levene's test",
         "Bartlett's test"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "basic",
+      "alternativeLinks": [
+        "levene-test",
+        "bartlett-test"
+      ]
     },
     {
       "id": "shapiro-wilk",
@@ -1267,11 +1393,15 @@
         "Anderson-Darling",
         "D'Agostino-Pearson"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "none",
+      "design": "cross-sectional",
+      "level": "basic",
+      "alternativeLinks": [
+        "kolmogorov-smirnov",
+        "anderson-darling",
+        "dagostino-pearson"
+      ]
     },
     {
       "id": "kolmogorov-smirnov",
@@ -1293,11 +1423,14 @@
         "Shapiro-Wilk (normality)",
         "Anderson-Darling"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "none",
+      "design": "cross-sectional",
+      "level": "basic",
+      "alternativeLinks": [
+        "shapiro-wilk",
+        "anderson-darling"
+      ]
     },
     {
       "id": "anderson-darling",
@@ -1319,11 +1452,14 @@
         "Shapiro-Wilk",
         "Kolmogorov-Smirnov"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "none",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "shapiro-wilk",
+        "kolmogorov-smirnov"
+      ]
     },
     {
       "id": "dagostino-pearson",
@@ -1344,11 +1480,13 @@
         "Shapiro-Wilk",
         "Jarque-Bera"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "none",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "shapiro-wilk"
+      ]
     },
     {
       "id": "durbin-watson",
@@ -1370,11 +1508,14 @@
         "Breusch-Godfrey test",
         "Ljung-Box test"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "none",
+      "design": "time-series",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "ljung-box",
+        "breusch-pagan"
+      ]
     },
     {
       "id": "breusch-pagan",
@@ -1396,11 +1537,13 @@
         "White's test",
         "Goldfeld-Quandt test"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "durbin-watson"
+      ]
     },
     {
       "id": "vif",
@@ -1423,10 +1566,10 @@
         "Tolerance",
         "Correlation matrix"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "basic",
       "alternativeLinks": []
     },
     {
@@ -1451,11 +1594,15 @@
         "Bonferroni",
         "Scheffé"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "basic",
+      "alternativeLinks": [
+        "bonferroni",
+        "games-howell",
+        "scheffe-test"
+      ]
     },
     {
       "id": "bonferroni",
@@ -1478,11 +1625,15 @@
         "Benjamini-Hochberg",
         "Tukey HSD"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "basic",
+      "alternativeLinks": [
+        "holm-bonferroni",
+        "tukey-hsd",
+        "benjamini-hochberg"
+      ]
     },
     {
       "id": "holm-bonferroni",
@@ -1505,11 +1656,14 @@
         "Hochberg",
         "Benjamini-Hochberg"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "basic",
+      "alternativeLinks": [
+        "bonferroni",
+        "benjamini-hochberg"
+      ]
     },
     {
       "id": "benjamini-hochberg",
@@ -1532,11 +1686,14 @@
         "q-value",
         "Storey's method"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "bonferroni",
+        "holm-bonferroni"
+      ]
     },
     {
       "id": "dunnett-test",
@@ -1559,11 +1716,13 @@
         "Tukey HSD (all pairs)",
         "Bonferroni"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "tukey-hsd"
+      ]
     },
     {
       "id": "games-howell",
@@ -1585,11 +1744,14 @@
         "Tukey HSD (equal variances)",
         "Tamhane's T2"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "tukey-hsd",
+        "scheffe-test"
+      ]
     },
     {
       "id": "scheffe-test",
@@ -1611,11 +1773,14 @@
         "Tukey HSD",
         "Bonferroni"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "tukey-hsd",
+        "games-howell"
+      ]
     },
     {
       "id": "dunn-test",
@@ -1636,11 +1801,13 @@
         "Conover-Iman test",
         "Nemenyi test"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "ordinal",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "kruskal-wallis"
+      ]
     },
     {
       "id": "welch-t-test",
@@ -1663,11 +1830,14 @@
         "Student's t-test (equal variances)",
         "Mann-Whitney U"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "basic",
+      "alternativeLinks": [
+        "t-test-independent",
+        "mann-whitney"
+      ]
     },
     {
       "id": "welch-anova",
@@ -1691,11 +1861,14 @@
         "Brown-Forsythe ANOVA",
         "Kruskal-Wallis"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "one-way-anova",
+        "kruskal-wallis"
+      ]
     },
     {
       "id": "ancova",
@@ -1718,11 +1891,14 @@
         "Mixed models",
         "Multiple regression"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "mixed",
+      "design": "independent groups",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "multiple-regression",
+        "linear-mixed-model"
+      ]
     },
     {
       "id": "manova",
@@ -1745,11 +1921,14 @@
         "Separate ANOVAs with correction",
         "Discriminant analysis"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "multivariate",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "advanced",
+      "alternativeLinks": [
+        "two-way-anova",
+        "discriminant-analysis"
+      ]
     },
     {
       "id": "kendall-tau",
@@ -1771,11 +1950,14 @@
         "Spearman correlation",
         "Pearson correlation"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "ordinal",
+      "predictorStructure": "single continuous",
+      "design": "cross-sectional",
+      "level": "basic",
+      "alternativeLinks": [
+        "spearman-correlation",
+        "pearson-correlation"
+      ]
     },
     {
       "id": "point-biserial",
@@ -1797,11 +1979,14 @@
         "Biserial correlation",
         "Logistic regression"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "cross-sectional",
+      "level": "basic",
+      "alternativeLinks": [
+        "pearson-correlation",
+        "t-test-independent"
+      ]
     },
     {
       "id": "intraclass-correlation",
@@ -1823,11 +2008,14 @@
         "Cohen's kappa (categorical)",
         "Pearson correlation"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "none",
+      "design": "paired/repeated measures",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "cohens-kappa",
+        "linear-mixed-model"
+      ]
     },
     {
       "id": "cochran-q",
@@ -1850,11 +2038,14 @@
         "McNemar test (2 conditions)",
         "Friedman test"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "binary",
+      "predictorStructure": "single categorical",
+      "design": "paired/repeated measures",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "mcnemar-test",
+        "friedman-test"
+      ]
     },
     {
       "id": "cramers-v",
@@ -1876,11 +2067,14 @@
         "Phi coefficient (2x2)",
         "Contingency coefficient"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "nominal",
+      "predictorStructure": "single categorical",
+      "design": "cross-sectional",
+      "level": "basic",
+      "alternativeLinks": [
+        "chi-square",
+        "cohens-kappa"
+      ]
     },
     {
       "id": "cohens-kappa",
@@ -1903,11 +2097,14 @@
         "Fleiss' kappa (3+ raters)",
         "ICC (continuous)"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "nominal",
+      "predictorStructure": "none",
+      "design": "cross-sectional",
+      "level": "basic",
+      "alternativeLinks": [
+        "fleiss-kappa",
+        "intraclass-correlation"
+      ]
     },
     {
       "id": "fleiss-kappa",
@@ -1930,11 +2127,13 @@
         "Cohen's kappa (2 raters)",
         "Krippendorff's alpha"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "nominal",
+      "predictorStructure": "none",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "cohens-kappa"
+      ]
     },
     {
       "id": "negative-binomial",
@@ -1958,11 +2157,14 @@
         "Zero-inflated models",
         "Quasi-Poisson"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "count",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "poisson-regression",
+        "zero-inflated-poisson"
+      ]
     },
     {
       "id": "zero-inflated-poisson",
@@ -1986,11 +2188,14 @@
         "Hurdle models",
         "Poisson regression"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "count",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "advanced",
+      "alternativeLinks": [
+        "poisson-regression",
+        "negative-binomial"
+      ]
     },
     {
       "id": "quantile-regression",
@@ -2012,11 +2217,14 @@
         "Robust regression",
         "Linear regression"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "advanced",
+      "alternativeLinks": [
+        "linear-regression",
+        "robust-regression"
+      ]
     },
     {
       "id": "robust-regression",
@@ -2038,11 +2246,14 @@
         "Quantile regression",
         "M-estimation"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "linear-regression",
+        "quantile-regression"
+      ]
     },
     {
       "id": "probit-regression",
@@ -2065,11 +2276,13 @@
         "Logistic regression",
         "Complementary log-log"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "binary",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "logistic-regression"
+      ]
     },
     {
       "id": "svm",
@@ -2092,11 +2305,14 @@
         "Random forest",
         "Neural networks"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "binary",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "logistic-regression",
+        "random-forest"
+      ]
     },
     {
       "id": "xgboost",
@@ -2119,11 +2335,15 @@
         "CatBoost",
         "Random forest"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "gradient-boosting",
+        "lightgbm",
+        "catboost"
+      ]
     },
     {
       "id": "lightgbm",
@@ -2146,11 +2366,14 @@
         "CatBoost",
         "Random forest"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "xgboost",
+        "catboost"
+      ]
     },
     {
       "id": "catboost",
@@ -2173,11 +2396,14 @@
         "LightGBM",
         "Random forest"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "xgboost",
+        "lightgbm"
+      ]
     },
     {
       "id": "knn",
@@ -2201,11 +2427,14 @@
         "Random forest",
         "Decision tree"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "basic",
+      "alternativeLinks": [
+        "random-forest",
+        "svm"
+      ]
     },
     {
       "id": "naive-bayes",
@@ -2228,11 +2457,14 @@
         "SVM",
         "Random forest"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "binary",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "basic",
+      "alternativeLinks": [
+        "logistic-regression",
+        "random-forest"
+      ]
     },
     {
       "id": "decision-tree",
@@ -2255,11 +2487,14 @@
         "Gradient boosting",
         "Rule-based models"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "basic",
+      "alternativeLinks": [
+        "random-forest",
+        "gradient-boosting"
+      ]
     },
     {
       "id": "elastic-net",
@@ -2282,11 +2517,14 @@
         "Ridge regression",
         "Principal components regression"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple continuous",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "lasso-ridge",
+        "multiple-regression"
+      ]
     },
     {
       "id": "neural-network-mlp",
@@ -2310,11 +2548,14 @@
         "Gradient boosting",
         "Deep learning architectures"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "advanced",
+      "alternativeLinks": [
+        "random-forest",
+        "gradient-boosting"
+      ]
     },
     {
       "id": "dbscan",
@@ -2337,11 +2578,14 @@
         "HDBSCAN",
         "OPTICS"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "multivariate",
+      "predictorStructure": "none",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "kmeans",
+        "gaussian-mixture"
+      ]
     },
     {
       "id": "gaussian-mixture",
@@ -2364,11 +2608,14 @@
         "DBSCAN",
         "Hierarchical clustering"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "multivariate",
+      "predictorStructure": "none",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "kmeans",
+        "dbscan"
+      ]
     },
     {
       "id": "tsne",
@@ -2391,11 +2638,14 @@
         "PCA",
         "MDS"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "multivariate",
+      "predictorStructure": "none",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "umap",
+        "pca"
+      ]
     },
     {
       "id": "umap",
@@ -2418,11 +2668,14 @@
         "PCA",
         "Isomap"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "multivariate",
+      "predictorStructure": "none",
+      "design": "cross-sectional",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "tsne",
+        "pca"
+      ]
     },
     {
       "id": "prophet",
@@ -2445,11 +2698,14 @@
         "Exponential smoothing",
         "Neural Prophet"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "none",
+      "design": "time-series",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "arima",
+        "exponential-smoothing"
+      ]
     },
     {
       "id": "adf-test",
@@ -2471,11 +2727,13 @@
         "KPSS test",
         "Phillips-Perron test"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "none",
+      "design": "time-series",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "ljung-box"
+      ]
     },
     {
       "id": "granger-causality",
@@ -2498,11 +2756,13 @@
         "Cross-correlation",
         "Transfer entropy"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple continuous",
+      "design": "time-series",
+      "level": "advanced",
+      "alternativeLinks": [
+        "var"
+      ]
     },
     {
       "id": "ljung-box",
@@ -2524,11 +2784,14 @@
         "Durbin-Watson",
         "Box-Pierce test"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "none",
+      "design": "time-series",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "adf-test",
+        "durbin-watson"
+      ]
     },
     {
       "id": "var",
@@ -2551,11 +2814,14 @@
         "VECM (cointegrated)",
         "Structural VAR"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "multivariate",
+      "predictorStructure": "multiple continuous",
+      "design": "time-series",
+      "level": "advanced",
+      "alternativeLinks": [
+        "arima",
+        "granger-causality"
+      ]
     },
     {
       "id": "bayesian-t-test",
@@ -2577,11 +2843,14 @@
         "Frequentist t-test",
         "Bayesian estimation"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "t-test-independent",
+        "bayesian-anova"
+      ]
     },
     {
       "id": "bayesian-regression",
@@ -2603,11 +2872,14 @@
         "Frequentist regression",
         "Ridge/Lasso"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "multiple mixed",
+      "design": "cross-sectional",
+      "level": "advanced",
+      "alternativeLinks": [
+        "linear-regression",
+        "multiple-regression"
+      ]
     },
     {
       "id": "bayesian-anova",
@@ -2629,11 +2901,14 @@
         "Frequentist ANOVA",
         "Bayesian mixed models"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "intermediate",
+      "alternativeLinks": [
+        "one-way-anova",
+        "bayesian-t-test"
+      ]
     },
     {
       "id": "accelerated-failure-time",
@@ -2655,11 +2930,13 @@
         "Cox regression",
         "Parametric survival models"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "time-to-event",
+      "predictorStructure": "multiple mixed",
+      "design": "longitudinal",
+      "level": "advanced",
+      "alternativeLinks": [
+        "cox-regression"
+      ]
     },
     {
       "id": "competing-risks",
@@ -2681,11 +2958,14 @@
         "Kaplan-Meier (single event)",
         "Fine-Gray model"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "time-to-event",
+      "predictorStructure": "multiple mixed",
+      "design": "longitudinal",
+      "level": "advanced",
+      "alternativeLinks": [
+        "cox-regression",
+        "kaplan-meier"
+      ]
     },
     {
       "id": "random-survival-forest",
@@ -2707,11 +2987,14 @@
         "Cox regression",
         "Gradient boosted survival"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "time-to-event",
+      "predictorStructure": "multiple mixed",
+      "design": "longitudinal",
+      "level": "advanced",
+      "alternativeLinks": [
+        "cox-regression",
+        "random-forest"
+      ]
     },
     {
       "id": "cohens-d",
@@ -2733,11 +3016,14 @@
         "Hedges' g (small samples)",
         "Glass's delta"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "basic",
+      "alternativeLinks": [
+        "hedges-g",
+        "eta-squared"
+      ]
     },
     {
       "id": "hedges-g",
@@ -2760,11 +3046,13 @@
         "Cohen's d",
         "Glass's delta"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "basic",
+      "alternativeLinks": [
+        "cohens-d"
+      ]
     },
     {
       "id": "eta-squared",
@@ -2786,11 +3074,14 @@
         "Omega-squared",
         "Cohen's f"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "continuous",
+      "predictorStructure": "single categorical",
+      "design": "independent groups",
+      "level": "basic",
+      "alternativeLinks": [
+        "cohens-d",
+        "odds-ratio"
+      ]
     },
     {
       "id": "odds-ratio",
@@ -2812,11 +3103,13 @@
         "Risk ratio",
         "Hazard ratio"
       ],
-      "outcomeScale": null,
-      "predictorStructure": null,
-      "design": null,
-      "level": null,
-      "alternativeLinks": []
+      "outcomeScale": "binary",
+      "predictorStructure": "single categorical",
+      "design": "cross-sectional",
+      "level": "basic",
+      "alternativeLinks": [
+        "eta-squared"
+      ]
     }
   ],
   "schemaVersion": 2
