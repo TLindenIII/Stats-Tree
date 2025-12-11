@@ -25,8 +25,8 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { BarChart3, Home, X, CheckCircle2, AlertCircle, Lightbulb, ArrowRight } from "lucide-react";
-import { wizardSteps, statisticalTests, StatTest } from "@/lib/statsData";
+import { BarChart3, Home, CheckCircle2, AlertCircle, Lightbulb, ArrowRight } from "lucide-react";
+import { statisticalTests, StatTest } from "@/lib/statsData";
 
 interface DecisionNodeData {
   label: string;
@@ -42,13 +42,13 @@ interface TestNodeData {
 
 function DecisionNode({ data }: { data: DecisionNodeData }) {
   return (
-    <div className="px-4 py-3 rounded-md border bg-card shadow-sm min-w-[180px] max-w-[220px]">
-      <Handle type="target" position={Position.Top} className="w-3 h-3 !bg-primary" />
-      <div className="text-sm font-medium text-card-foreground text-center">{data.label}</div>
+    <div className="px-4 py-3 rounded-md border bg-card shadow-sm min-w-[140px] max-w-[180px]">
+      <Handle type="target" position={Position.Top} className="w-2 h-2 !bg-primary" />
+      <div className="text-xs font-medium text-card-foreground text-center">{data.label}</div>
       {data.description && (
-        <div className="text-xs text-muted-foreground mt-1 text-center">{data.description}</div>
+        <div className="text-[10px] text-muted-foreground mt-1 text-center line-clamp-2">{data.description}</div>
       )}
-      <Handle type="source" position={Position.Bottom} className="w-3 h-3 !bg-primary" />
+      <Handle type="source" position={Position.Bottom} className="w-2 h-2 !bg-primary" />
     </div>
   );
 }
@@ -56,26 +56,27 @@ function DecisionNode({ data }: { data: DecisionNodeData }) {
 function TestNode({ data, onClick }: { data: TestNodeData; onClick?: () => void }) {
   return (
     <div 
-      className="px-4 py-3 rounded-md border-2 border-primary bg-primary/10 min-w-[160px] max-w-[200px] cursor-pointer hover-elevate"
+      className="px-3 py-2 rounded-md border-2 border-primary bg-primary/10 min-w-[120px] max-w-[160px] cursor-pointer hover-elevate"
       onClick={onClick}
       data-testid={`flowchart-test-node-${data.testIds[0]}`}
     >
-      <Handle type="target" position={Position.Top} className="w-3 h-3 !bg-primary" />
-      <div className="text-sm font-medium text-center">{data.label}</div>
+      <Handle type="target" position={Position.Top} className="w-2 h-2 !bg-primary" />
+      <div className="text-xs font-medium text-center">{data.label}</div>
       {data.testIds.length > 1 && (
-        <Badge variant="secondary" className="mt-1 text-xs mx-auto block w-fit">
+        <Badge variant="secondary" className="mt-1 text-[10px] mx-auto block w-fit">
           +{data.testIds.length - 1} more
         </Badge>
       )}
+      <Handle type="source" position={Position.Bottom} className="w-2 h-2 !bg-primary" />
     </div>
   );
 }
 
 function StartNode({ data }: { data: { label: string } }) {
   return (
-    <div className="px-6 py-4 rounded-full bg-primary text-primary-foreground font-semibold shadow-md">
-      <div className="text-sm">{data.label}</div>
-      <Handle type="source" position={Position.Bottom} className="w-3 h-3 !bg-primary-foreground" />
+    <div className="px-5 py-3 rounded-full bg-primary text-primary-foreground font-semibold shadow-md">
+      <div className="text-sm text-center">{data.label}</div>
+      <Handle type="source" position={Position.Bottom} className="w-2 h-2 !bg-primary-foreground" />
     </div>
   );
 }
@@ -123,7 +124,7 @@ function TestDetailPanel({
                   <ul className="text-sm text-muted-foreground space-y-1">
                     {test.assumptions.map((a, i) => (
                       <li key={i} className="flex items-start gap-2">
-                        <span className="text-primary">-</span>
+                        <span className="text-muted-foreground/50">-</span>
                         {a}
                       </li>
                     ))}
@@ -138,7 +139,7 @@ function TestDetailPanel({
                   <ul className="text-sm text-muted-foreground space-y-1">
                     {test.whenToUse.map((w, i) => (
                       <li key={i} className="flex items-start gap-2">
-                        <span className="text-primary">-</span>
+                        <span className="text-muted-foreground/50">-</span>
                         {w}
                       </li>
                     ))}
@@ -180,192 +181,353 @@ function generateFlowchartData() {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
   
-  const startNode: Node = {
+  const nodeWidth = 160;
+  const nodeHeight = 80;
+  const layerGap = 140;
+  
+  const edgeStyle = { stroke: "hsl(var(--muted-foreground))", strokeWidth: 1.5 };
+  const primaryEdgeStyle = { stroke: "hsl(var(--primary))", strokeWidth: 2 };
+
+  // Layer 0: Start node
+  nodes.push({
     id: "start",
     type: "startNode",
-    position: { x: 400, y: 0 },
+    position: { x: 600, y: 0 },
     data: { label: "What is your research goal?" },
-  };
-  nodes.push(startNode);
-  
-  const goalOptions = wizardSteps[0].options;
-  const goalSpacing = 180;
-  const startX = 400 - ((goalOptions.length - 1) * goalSpacing) / 2;
-  
-  goalOptions.forEach((option, i) => {
-    const nodeId = `goal-${option.value}`;
+  });
+
+  // Layer 1: Research Goals (main branches)
+  const goals = [
+    { id: "compare", label: "Compare Groups", x: 0 },
+    { id: "relationship", label: "Assess Relationships", x: 200 },
+    { id: "predict", label: "Predict Outcomes", x: 400 },
+    { id: "time", label: "Time/Sequential", x: 600 },
+    { id: "unsupervised", label: "Discover Patterns", x: 800 },
+    { id: "planning", label: "Study Planning", x: 1000 },
+  ];
+
+  goals.forEach((goal) => {
     nodes.push({
-      id: nodeId,
+      id: `goal-${goal.id}`,
       type: "decisionNode",
-      position: { x: startX + i * goalSpacing, y: 120 },
-      data: { 
-        label: option.label, 
-        description: option.description,
-        stepId: "research-goal"
+      position: { x: goal.x, y: layerGap },
+      data: { label: goal.label },
+    });
+    edges.push({
+      id: `start-to-${goal.id}`,
+      source: "start",
+      target: `goal-${goal.id}`,
+      style: primaryEdgeStyle,
+    });
+  });
+
+  // Layer 2: Outcome Types (branching from goals)
+  // Compare branch
+  const compareOutcomes = [
+    { id: "compare-continuous", label: "Continuous Data", parent: "goal-compare", x: -100 },
+    { id: "compare-categorical", label: "Categorical Data", parent: "goal-compare", x: 100 },
+  ];
+
+  compareOutcomes.forEach((outcome) => {
+    nodes.push({
+      id: outcome.id,
+      type: "decisionNode",
+      position: { x: outcome.x, y: layerGap * 2 },
+      data: { label: outcome.label },
+    });
+    edges.push({
+      id: `${outcome.parent}-to-${outcome.id}`,
+      source: outcome.parent,
+      target: outcome.id,
+      style: edgeStyle,
+    });
+  });
+
+  // Relationship branch
+  nodes.push({
+    id: "relationship-type",
+    type: "decisionNode",
+    position: { x: 200, y: layerGap * 2 },
+    data: { label: "Variable Types" },
+  });
+  edges.push({
+    id: "goal-relationship-to-type",
+    source: "goal-relationship",
+    target: "relationship-type",
+    style: edgeStyle,
+  });
+
+  // Predict branch
+  const predictOutcomes = [
+    { id: "predict-continuous", label: "Continuous Outcome", parent: "goal-predict", x: 350 },
+    { id: "predict-categorical", label: "Categorical Outcome", parent: "goal-predict", x: 500 },
+  ];
+
+  predictOutcomes.forEach((outcome) => {
+    nodes.push({
+      id: outcome.id,
+      type: "decisionNode",
+      position: { x: outcome.x, y: layerGap * 2 },
+      data: { label: outcome.label },
+    });
+    edges.push({
+      id: `${outcome.parent}-to-${outcome.id}`,
+      source: outcome.parent,
+      target: outcome.id,
+      style: edgeStyle,
+    });
+  });
+
+  // Time branch
+  const timeTypes = [
+    { id: "time-series", label: "Time Series", parent: "goal-time", x: 550 },
+    { id: "survival", label: "Survival/Event", parent: "goal-time", x: 700 },
+  ];
+
+  timeTypes.forEach((type) => {
+    nodes.push({
+      id: type.id,
+      type: "decisionNode",
+      position: { x: type.x, y: layerGap * 2 },
+      data: { label: type.label },
+    });
+    edges.push({
+      id: `${type.parent}-to-${type.id}`,
+      source: type.parent,
+      target: type.id,
+      style: edgeStyle,
+    });
+  });
+
+  // Unsupervised branch
+  const unsupervisedTypes = [
+    { id: "clustering", label: "Clustering", parent: "goal-unsupervised", x: 800 },
+    { id: "dimension", label: "Dimension Reduction", parent: "goal-unsupervised", x: 950 },
+  ];
+
+  unsupervisedTypes.forEach((type) => {
+    nodes.push({
+      id: type.id,
+      type: "decisionNode",
+      position: { x: type.x, y: layerGap * 2 },
+      data: { label: type.label },
+    });
+    edges.push({
+      id: `${type.parent}-to-${type.id}`,
+      source: type.parent,
+      target: type.id,
+      style: edgeStyle,
+    });
+  });
+
+  // Layer 3: Sample Structure / Assumptions
+  // Compare continuous -> sample structure
+  const compareContinuousStructure = [
+    { id: "compare-independent", label: "Independent Samples", parent: "compare-continuous", x: -200 },
+    { id: "compare-paired", label: "Paired/Matched", parent: "compare-continuous", x: -50 },
+    { id: "compare-repeated", label: "Repeated Measures", parent: "compare-continuous", x: 100 },
+  ];
+
+  compareContinuousStructure.forEach((structure) => {
+    nodes.push({
+      id: structure.id,
+      type: "decisionNode",
+      position: { x: structure.x, y: layerGap * 3 },
+      data: { label: structure.label },
+    });
+    edges.push({
+      id: `compare-continuous-to-${structure.id}`,
+      source: "compare-continuous",
+      target: structure.id,
+      style: edgeStyle,
+    });
+  });
+
+  // Relationship -> correlation types
+  const correlationTypes = [
+    { id: "corr-parametric", label: "Parametric", parent: "relationship-type", x: 150 },
+    { id: "corr-nonparametric", label: "Non-parametric", parent: "relationship-type", x: 280 },
+  ];
+
+  correlationTypes.forEach((type) => {
+    nodes.push({
+      id: type.id,
+      type: "decisionNode",
+      position: { x: type.x, y: layerGap * 3 },
+      data: { label: type.label },
+    });
+    edges.push({
+      id: `relationship-type-to-${type.id}`,
+      source: "relationship-type",
+      target: type.id,
+      style: edgeStyle,
+    });
+  });
+
+  // Predict continuous -> regression types
+  const regressionTypes = [
+    { id: "reg-linear", label: "Linear Models", parent: "predict-continuous", x: 300 },
+    { id: "reg-regularized", label: "Regularized", parent: "predict-continuous", x: 420 },
+  ];
+
+  regressionTypes.forEach((type) => {
+    nodes.push({
+      id: type.id,
+      type: "decisionNode",
+      position: { x: type.x, y: layerGap * 3 },
+      data: { label: type.label },
+    });
+    edges.push({
+      id: `predict-continuous-to-${type.id}`,
+      source: "predict-continuous",
+      target: type.id,
+      style: edgeStyle,
+    });
+  });
+
+  // Predict categorical -> classification types
+  const classificationTypes = [
+    { id: "class-traditional", label: "Traditional", parent: "predict-categorical", x: 500 },
+    { id: "class-ml", label: "Machine Learning", parent: "predict-categorical", x: 620 },
+  ];
+
+  classificationTypes.forEach((type) => {
+    nodes.push({
+      id: type.id,
+      type: "decisionNode",
+      position: { x: type.x, y: layerGap * 3 },
+      data: { label: type.label },
+    });
+    edges.push({
+      id: `predict-categorical-to-${type.id}`,
+      source: "predict-categorical",
+      target: type.id,
+      style: edgeStyle,
+    });
+  });
+
+  // Layer 4: Assumptions (parametric vs non-parametric for comparison)
+  const comparisonAssumptions = [
+    { id: "ind-parametric", label: "Parametric", parent: "compare-independent", x: -280 },
+    { id: "ind-nonparametric", label: "Non-parametric", parent: "compare-independent", x: -150 },
+    { id: "paired-parametric", label: "Parametric", parent: "compare-paired", x: -50 },
+    { id: "paired-nonparametric", label: "Non-parametric", parent: "compare-paired", x: 50 },
+  ];
+
+  comparisonAssumptions.forEach((assumption) => {
+    nodes.push({
+      id: assumption.id,
+      type: "decisionNode",
+      position: { x: assumption.x, y: layerGap * 4 },
+      data: { label: assumption.label },
+    });
+    edges.push({
+      id: `${assumption.parent}-to-${assumption.id}`,
+      source: assumption.parent,
+      target: assumption.id,
+      style: edgeStyle,
+    });
+  });
+
+  // Layer 5: Final Test Nodes
+  const testNodeY = layerGap * 5;
+  
+  // Comparison tests
+  const testNodes = [
+    // Independent parametric
+    { id: "test-ttest", label: "t-Test / ANOVA", testIds: ["t-test-independent", "one-way-anova", "two-way-anova", "welch-t-test", "welch-anova"], parent: "ind-parametric", x: -320 },
+    // Independent non-parametric
+    { id: "test-mann-whitney", label: "Mann-Whitney / Kruskal-Wallis", testIds: ["mann-whitney", "kruskal-wallis", "brown-forsythe"], parent: "ind-nonparametric", x: -150 },
+    // Paired parametric
+    { id: "test-paired-t", label: "Paired t-Test", testIds: ["paired-t-test", "repeated-measures-anova"], parent: "paired-parametric", x: -30 },
+    // Paired non-parametric
+    { id: "test-wilcoxon", label: "Wilcoxon / Friedman", testIds: ["wilcoxon-signed-rank", "friedman-test"], parent: "paired-nonparametric", x: 80 },
+    // Repeated measures
+    { id: "test-repeated", label: "Mixed Models", testIds: ["linear-mixed-model", "glmm", "repeated-measures-anova"], parent: "compare-repeated", x: 180 },
+    // Categorical comparison
+    { id: "test-chi-square", label: "Chi-Square Tests", testIds: ["chi-square", "fisher-exact", "mcnemar-test", "cochran-q"], parent: "compare-categorical", x: 100 },
+
+    // Correlation tests
+    { id: "test-pearson", label: "Pearson / Partial", testIds: ["pearson-correlation", "partial-correlation", "point-biserial", "intraclass-correlation"], parent: "corr-parametric", x: 150 },
+    { id: "test-spearman", label: "Spearman / Kendall", testIds: ["spearman-correlation", "kendall-tau"], parent: "corr-nonparametric", x: 280 },
+
+    // Regression tests
+    { id: "test-linear-reg", label: "Linear Regression", testIds: ["linear-regression", "multiple-regression", "robust-regression"], parent: "reg-linear", x: 300 },
+    { id: "test-regularized", label: "Lasso / Ridge / Elastic Net", testIds: ["lasso-ridge", "elastic-net"], parent: "reg-regularized", x: 420 },
+
+    // Classification tests
+    { id: "test-logistic", label: "Logistic / Ordinal", testIds: ["logistic-regression", "ordinal-regression", "probit-regression"], parent: "class-traditional", x: 500 },
+    { id: "test-ml-class", label: "ML Classifiers", testIds: ["random-forest", "svm", "xgboost", "lightgbm", "catboost", "knn", "naive-bayes", "decision-tree", "neural-network-mlp"], parent: "class-ml", x: 640 },
+
+    // Time series tests
+    { id: "test-timeseries", label: "ARIMA / Prophet", testIds: ["arima", "exponential-smoothing", "prophet", "var", "granger-causality"], parent: "time-series", x: 550 },
+    
+    // Survival tests
+    { id: "test-survival", label: "Survival Analysis", testIds: ["kaplan-meier", "log-rank-test", "cox-regression", "accelerated-failure-time", "competing-risks", "random-survival-forest"], parent: "survival", x: 700 },
+
+    // Clustering tests
+    { id: "test-clustering", label: "Clustering Methods", testIds: ["kmeans", "hierarchical-clustering", "dbscan", "gaussian-mixture"], parent: "clustering", x: 800 },
+
+    // Dimension reduction tests
+    { id: "test-dimension", label: "PCA / Factor Analysis", testIds: ["pca", "factor-analysis", "tsne", "umap"], parent: "dimension", x: 950 },
+
+    // Planning tests (directly from goal)
+    { id: "test-planning", label: "Power & Sample Size", testIds: ["power-analysis"], parent: "goal-planning", x: 1050 },
+  ];
+
+  testNodes.forEach((testNode) => {
+    nodes.push({
+      id: testNode.id,
+      type: "testNode",
+      position: { x: testNode.x, y: testNodeY },
+      data: {
+        label: testNode.label,
+        testIds: testNode.testIds,
+        category: testNode.label,
       },
     });
     edges.push({
-      id: `start-${nodeId}`,
-      source: "start",
-      target: nodeId,
-      animated: false,
-      style: { stroke: "hsl(var(--primary))", strokeWidth: 2 },
+      id: `${testNode.parent}-to-${testNode.id}`,
+      source: testNode.parent,
+      target: testNode.id,
+      style: { ...edgeStyle, stroke: "hsl(var(--primary))" },
     });
   });
 
-  const testMappings: Record<string, { tests: string[]; label: string; x: number; y: number }> = {
-    "compare-continuous-parametric": {
-      tests: ["t-test-independent", "one-way-anova", "paired-t-test", "welch-t-test"],
-      label: "Parametric Comparison",
-      x: -200,
-      y: 360,
-    },
-    "compare-continuous-nonparametric": {
-      tests: ["mann-whitney", "kruskal-wallis", "wilcoxon-signed-rank", "friedman-test"],
-      label: "Non-parametric Comparison",
-      x: 0,
-      y: 360,
-    },
-    "compare-categorical": {
-      tests: ["chi-square", "fisher-exact", "mcnemar-test"],
-      label: "Categorical Comparison",
-      x: 200,
-      y: 360,
-    },
-    "relationship-continuous": {
-      tests: ["pearson-correlation", "spearman-correlation", "partial-correlation", "kendall-tau"],
-      label: "Correlation Analysis",
-      x: 400,
-      y: 360,
-    },
-    "predict-continuous": {
-      tests: ["linear-regression", "multiple-regression", "lasso-ridge", "elastic-net"],
-      label: "Continuous Prediction",
-      x: 600,
-      y: 360,
-    },
-    "predict-binary": {
-      tests: ["logistic-regression", "random-forest", "svm", "xgboost"],
-      label: "Binary Classification",
-      x: 800,
-      y: 360,
-    },
-    "time-series": {
-      tests: ["arima", "exponential-smoothing", "prophet", "var"],
-      label: "Time Series",
-      x: 1000,
-      y: 360,
-    },
-    "survival": {
-      tests: ["kaplan-meier", "log-rank-test", "cox-regression"],
-      label: "Survival Analysis",
-      x: 1200,
-      y: 360,
-    },
-    "unsupervised-clustering": {
-      tests: ["kmeans", "hierarchical-clustering", "dbscan", "gaussian-mixture"],
-      label: "Clustering",
-      x: 1400,
-      y: 360,
-    },
-    "unsupervised-dimension": {
-      tests: ["pca", "factor-analysis", "tsne", "umap"],
-      label: "Dimension Reduction",
-      x: 1600,
-      y: 360,
-    },
-  };
+  // Supplementary test nodes (connected to multiple parents via dashed lines)
+  const supplementaryY = testNodeY + 120;
+  
+  const supplementaryNodes = [
+    { id: "test-assumptions", label: "Assumption Tests", testIds: ["levene-test", "shapiro-wilk", "bartlett-test", "kolmogorov-smirnov", "anderson-darling", "durbin-watson", "vif", "fligner-killeen"], x: -200 },
+    { id: "test-posthoc", label: "Post-hoc Tests", testIds: ["tukey-hsd", "bonferroni", "holm-bonferroni", "dunnett-test", "games-howell", "scheffe-test", "dunn-test", "benjamini-hochberg"], x: 0 },
+    { id: "test-effect", label: "Effect Sizes", testIds: ["cohens-d", "hedges-g", "eta-squared", "odds-ratio", "cramers-v", "cohens-kappa", "fleiss-kappa"], x: 200 },
+    { id: "test-bayesian", label: "Bayesian Methods", testIds: ["bayesian-t-test", "bayesian-regression", "bayesian-anova"], x: 400 },
+    { id: "test-resampling", label: "Resampling", testIds: ["bootstrap", "permutation-test"], x: 600 },
+  ];
 
-  edges.push(
-    { id: "goal-compare-to-parametric", source: "goal-compare", target: "compare-continuous-parametric", style: { stroke: "hsl(var(--muted-foreground))" } },
-    { id: "goal-compare-to-nonparametric", source: "goal-compare", target: "compare-continuous-nonparametric", style: { stroke: "hsl(var(--muted-foreground))" } },
-    { id: "goal-compare-to-categorical", source: "goal-compare", target: "compare-categorical", style: { stroke: "hsl(var(--muted-foreground))" } },
-    { id: "goal-relationship-to-correlation", source: "goal-relationship", target: "relationship-continuous", style: { stroke: "hsl(var(--muted-foreground))" } },
-    { id: "goal-predict-to-continuous", source: "goal-predict", target: "predict-continuous", style: { stroke: "hsl(var(--muted-foreground))" } },
-    { id: "goal-predict-to-binary", source: "goal-predict", target: "predict-binary", style: { stroke: "hsl(var(--muted-foreground))" } },
-    { id: "goal-time-to-timeseries", source: "goal-time", target: "time-series", style: { stroke: "hsl(var(--muted-foreground))" } },
-    { id: "goal-time-to-survival", source: "goal-time", target: "survival", style: { stroke: "hsl(var(--muted-foreground))" } },
-    { id: "goal-unsupervised-to-clustering", source: "goal-unsupervised", target: "unsupervised-clustering", style: { stroke: "hsl(var(--muted-foreground))" } },
-    { id: "goal-unsupervised-to-dimension", source: "goal-unsupervised", target: "unsupervised-dimension", style: { stroke: "hsl(var(--muted-foreground))" } },
-  );
-
-  Object.entries(testMappings).forEach(([id, mapping]) => {
+  supplementaryNodes.forEach((node) => {
     nodes.push({
-      id,
+      id: node.id,
       type: "testNode",
-      position: { x: mapping.x, y: mapping.y },
+      position: { x: node.x, y: supplementaryY },
       data: {
-        label: mapping.label,
-        testIds: mapping.tests,
-        category: mapping.label,
+        label: node.label,
+        testIds: node.testIds,
+        category: node.label,
       },
     });
   });
 
-  const assumptionTests: Node = {
-    id: "assumption-tests",
-    type: "testNode",
-    position: { x: 100, y: 520 },
-    data: {
-      label: "Assumption Testing",
-      testIds: ["levene-test", "shapiro-wilk", "bartlett-test", "kolmogorov-smirnov"],
-      category: "Assumption Testing",
-    },
-  };
-  nodes.push(assumptionTests);
-
-  const posthocTests: Node = {
-    id: "posthoc-tests",
-    type: "testNode",
-    position: { x: 350, y: 520 },
-    data: {
-      label: "Post-hoc Tests",
-      testIds: ["tukey-hsd", "bonferroni", "holm-bonferroni", "benjamini-hochberg"],
-      category: "Post-hoc Tests",
-    },
-  };
-  nodes.push(posthocTests);
-
-  const effectSizes: Node = {
-    id: "effect-sizes",
-    type: "testNode",
-    position: { x: 600, y: 520 },
-    data: {
-      label: "Effect Sizes",
-      testIds: ["cohens-d", "hedges-g", "eta-squared", "odds-ratio"],
-      category: "Effect Size",
-    },
-  };
-  nodes.push(effectSizes);
-
-  const bayesianMethods: Node = {
-    id: "bayesian-methods",
-    type: "testNode",
-    position: { x: 850, y: 520 },
-    data: {
-      label: "Bayesian Methods",
-      testIds: ["bayesian-t-test", "bayesian-regression", "bayesian-anova"],
-      category: "Bayesian",
-    },
-  };
-  nodes.push(bayesianMethods);
-
-  const mlAdvanced: Node = {
-    id: "ml-advanced",
-    type: "testNode",
-    position: { x: 1100, y: 520 },
-    data: {
-      label: "Advanced ML",
-      testIds: ["neural-network-mlp", "lightgbm", "catboost", "decision-tree"],
-      category: "Machine Learning",
-    },
-  };
-  nodes.push(mlAdvanced);
-
+  // Add dashed edges from comparison tests to supplementary nodes
   edges.push(
-    { id: "parametric-to-assumption", source: "compare-continuous-parametric", target: "assumption-tests", style: { stroke: "hsl(var(--muted-foreground))", strokeDasharray: "5,5" } },
-    { id: "parametric-to-posthoc", source: "compare-continuous-parametric", target: "posthoc-tests", style: { stroke: "hsl(var(--muted-foreground))", strokeDasharray: "5,5" } },
-    { id: "parametric-to-effect", source: "compare-continuous-parametric", target: "effect-sizes", style: { stroke: "hsl(var(--muted-foreground))", strokeDasharray: "5,5" } },
+    { id: "ttest-to-assumptions", source: "test-ttest", target: "test-assumptions", style: { ...edgeStyle, strokeDasharray: "5,5" } },
+    { id: "ttest-to-posthoc", source: "test-ttest", target: "test-posthoc", style: { ...edgeStyle, strokeDasharray: "5,5" } },
+    { id: "ttest-to-effect", source: "test-ttest", target: "test-effect", style: { ...edgeStyle, strokeDasharray: "5,5" } },
+    { id: "mann-whitney-to-effect", source: "test-mann-whitney", target: "test-effect", style: { ...edgeStyle, strokeDasharray: "5,5" } },
+    { id: "pearson-to-effect", source: "test-pearson", target: "test-effect", style: { ...edgeStyle, strokeDasharray: "5,5" } },
+    { id: "linear-reg-to-assumptions", source: "test-linear-reg", target: "test-assumptions", style: { ...edgeStyle, strokeDasharray: "5,5" } },
+    { id: "linear-reg-to-bayesian", source: "test-linear-reg", target: "test-bayesian", style: { ...edgeStyle, strokeDasharray: "5,5" } },
+    { id: "ml-to-resampling", source: "test-ml-class", target: "test-resampling", style: { ...edgeStyle, strokeDasharray: "5,5" } },
   );
 
   return { nodes, edges };
@@ -402,28 +564,24 @@ export default function Flowchart() {
   return (
     <div className="h-screen flex flex-col bg-background">
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="max-w-full px-4 h-14 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2 font-semibold">
-            <BarChart3 className="w-5 h-5 text-primary" />
-            <span>StatGuide</span>
-          </Link>
+        <div className="flex items-center justify-between gap-4 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <Link href="/">
+              <Button variant="ghost" size="icon" data-testid="button-home">
+                <Home className="h-4 w-4" />
+              </Button>
+            </Link>
+            <div className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-primary" />
+              <h1 className="text-lg font-semibold">Decision Flowchart</h1>
+            </div>
+          </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/" data-testid="link-home">
-                <Home className="w-4 h-4 mr-1" />
-                Home
-              </Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/wizard" data-testid="link-wizard">
-                Wizard
-              </Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/tests" data-testid="link-tests">
-                All Tests
-              </Link>
-            </Button>
+            <Link href="/wizard">
+              <Button variant="outline" size="sm" data-testid="button-wizard-nav">
+                Use Wizard
+              </Button>
+            </Link>
             <ThemeToggle />
           </div>
         </div>
@@ -437,45 +595,41 @@ export default function Flowchart() {
           onEdgesChange={onEdgesChange}
           nodeTypes={nodeTypes}
           fitView
-          minZoom={0.2}
+          fitViewOptions={{ padding: 0.2 }}
+          minZoom={0.1}
           maxZoom={2}
-          defaultViewport={{ x: 0, y: 0, zoom: 0.6 }}
+          defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
           proOptions={{ hideAttribution: true }}
         >
-          <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
           <Controls 
-            className="!bg-card !border !rounded-md !shadow-sm" 
+            className="!bg-background !border !shadow-md"
             showInteractive={false}
           />
           <MiniMap 
-            className="!bg-card !border !rounded-md"
+            className="!bg-background !border !shadow-md"
             nodeColor={(node) => {
               if (node.type === "startNode") return "hsl(var(--primary))";
               if (node.type === "testNode") return "hsl(var(--primary) / 0.3)";
               return "hsl(var(--muted))";
             }}
+            maskColor="hsl(var(--background) / 0.8)"
+          />
+          <Background 
+            variant={BackgroundVariant.Dots} 
+            gap={20} 
+            size={1}
+            color="hsl(var(--muted-foreground) / 0.2)"
           />
         </ReactFlow>
-        
-        <div className="absolute bottom-4 left-4 bg-card/90 backdrop-blur rounded-md border p-3 shadow-sm max-w-xs">
-          <h3 className="font-medium text-sm mb-2">Interactive Flowchart</h3>
-          <p className="text-xs text-muted-foreground">
-            Click on test nodes to view details. Drag to pan, scroll to zoom.
-          </p>
-          <div className="flex flex-wrap gap-2 mt-2">
-            <Badge variant="outline" className="text-xs">
-              <span className="w-2 h-2 rounded-full bg-primary mr-1" />
-              Start
-            </Badge>
-            <Badge variant="outline" className="text-xs">
-              <span className="w-2 h-2 rounded-full bg-muted mr-1" />
-              Decision
-            </Badge>
-            <Badge variant="outline" className="text-xs">
-              <span className="w-2 h-2 rounded-full bg-primary/30 mr-1" />
-              Tests
-            </Badge>
-          </div>
+
+        <div className="absolute bottom-4 left-4 bg-background/95 border rounded-md p-3 shadow-sm text-xs text-muted-foreground max-w-xs">
+          <p className="font-medium text-foreground mb-1">How to use:</p>
+          <ul className="space-y-1">
+            <li>- Follow the decision path from top to bottom</li>
+            <li>- Click colored test nodes to view details</li>
+            <li>- Dashed lines show related supplementary tests</li>
+            <li>- Use scroll wheel to zoom, drag to pan</li>
+          </ul>
         </div>
       </div>
 
