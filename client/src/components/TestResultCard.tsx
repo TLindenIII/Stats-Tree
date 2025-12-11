@@ -7,8 +7,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { CheckCircle, AlertCircle, Info, ArrowRight, Eye, GitCompare } from "lucide-react";
-import { statisticalTests, type StatTest } from "@/lib/statsData";
+import { CheckCircle, AlertCircle, Info, ArrowRight, Eye, GitCompare, ExternalLink } from "lucide-react";
+import { statisticalTests, type StatTest, getWikipediaUrl } from "@/lib/statsData";
 
 interface TestResultCardProps {
   test: StatTest;
@@ -64,7 +64,7 @@ export function TestResultCard({
       <CardContent className="space-y-4">
         <p className="text-muted-foreground">{test.description}</p>
 
-        {(test.outcomeScale || test.design || test.predictorStructure) && (
+        {(test.outcomeScale || test.design || test.predictorStructure || getWikipediaUrl(test.id)) && (
           <div className="flex gap-4 text-sm text-muted-foreground flex-wrap">
             {test.outcomeScale && (
               <span><strong>Outcome:</strong> {test.outcomeScale}</span>
@@ -74,6 +74,18 @@ export function TestResultCard({
             )}
             {test.predictorStructure && (
               <span><strong>Predictors:</strong> {test.predictorStructure}</span>
+            )}
+            {getWikipediaUrl(test.id) && (
+              <a
+                href={getWikipediaUrl(test.id)!}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-primary hover:underline"
+                data-testid={`link-learn-more-${test.id}`}
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                Learn More
+              </a>
             )}
           </div>
         )}

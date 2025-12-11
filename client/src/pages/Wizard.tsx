@@ -19,6 +19,17 @@ export default function Wizard() {
 
   const handleSelect = (value: string) => {
     setSelections((prev) => ({ ...prev, [step.id]: value }));
+    
+    // Auto-advance to next step after selection (with small delay for visual feedback)
+    // Check against wizardSteps length directly since isLastStep uses stale closure
+    setTimeout(() => {
+      setCurrentStep((prev) => {
+        if (prev < wizardSteps.length - 1) {
+          return prev + 1;
+        }
+        return prev;
+      });
+    }, 150);
   };
 
   const handleNext = () => {

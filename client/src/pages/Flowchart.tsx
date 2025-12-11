@@ -26,8 +26,8 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { BarChart3, CheckCircle2, AlertCircle, Lightbulb, ArrowRight, RotateCcw, ChevronRight } from "lucide-react";
-import { statisticalTests, StatTest } from "@/lib/statsData";
+import { BarChart3, CheckCircle2, AlertCircle, Lightbulb, ArrowRight, RotateCcw, ChevronRight, ExternalLink } from "lucide-react";
+import { statisticalTests, StatTest, getWikipediaUrl } from "@/lib/statsData";
 import { useWizardContext } from "@/contexts/WizardContext";
 
 interface FlowNode {
@@ -201,7 +201,27 @@ function TestDetailPanel({ tests, open, onClose, onAlternativeClick }: { tests: 
                 <div>
                   <h3 className="font-semibold font-mono text-base">{test.name}</h3>
                   <p className="text-sm text-muted-foreground mt-1">{test.description}</p>
-                  <Badge variant="outline" className="mt-2">{test.category}</Badge>
+                  <div className="flex gap-3 mt-2 flex-wrap items-center">
+                    <Badge variant="outline">{test.category}</Badge>
+                    {test.outcomeScale && (
+                      <span className="text-xs text-muted-foreground"><strong>Outcome:</strong> {test.outcomeScale}</span>
+                    )}
+                    {test.design && (
+                      <span className="text-xs text-muted-foreground"><strong>Design:</strong> {test.design}</span>
+                    )}
+                    {getWikipediaUrl(test.id) && (
+                      <a
+                        href={getWikipediaUrl(test.id)!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                        data-testid={`link-learn-more-${test.id}`}
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        Learn More
+                      </a>
+                    )}
+                  </div>
                 </div>
                 
                 <div>
