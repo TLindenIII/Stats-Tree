@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Link, useSearch } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { TestResultCard } from "@/components/TestResultCard";
 import { DecisionSummary } from "@/components/DecisionSummary";
-import { statisticalTests, wizardSteps } from "@/lib/statsData";
+import { CompareSheet } from "@/components/CompareSheet";
+import { statisticalTests, wizardSteps, StatTest } from "@/lib/statsData";
 import { ArrowLeft, RotateCcw, BarChart3 } from "lucide-react";
 
 export default function Results() {
@@ -12,9 +14,28 @@ export default function Results() {
   const testIds = params.get("tests")?.split(",") || [];
   const selections = JSON.parse(decodeURIComponent(params.get("selections") || "{}"));
 
+  const [compareTests, setCompareTests] = useState<StatTest[]>([]);
+  const [showCompare, setShowCompare] = useState(false);
+
   const recommendedTests = testIds
     .map((id) => statisticalTests.find((t) => t.id === id))
     .filter(Boolean);
+
+  const handleAlternativeClick = (currentTest: StatTest, altId: string) => {
+    const altTest = statisticalTests.find(t => t.id === altId);
+    if (altTest) {
+      setCompareTests([currentTest, altTest]);
+      setShowCompare(true);
+    }
+  };
+
+  const removeFromCompare = (testId: string) => {
+    const updated = compareTests.filter(t => t.id !== testId);
+    setCompareTests(updated);
+    if (updated.length === 0) {
+      setShowCompare(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -53,6 +74,7 @@ export default function Results() {
                     key={test!.id}
                     test={test!}
                     isPrimary={index === 0}
+                    onAlternativeClick={(altId) => handleAlternativeClick(test!, altId)}
                   />
                 ))
               ) : (
@@ -89,6 +111,13 @@ export default function Results() {
           </div>
         </div>
       </main>
+
+      <CompareSheet
+        tests={compareTests}
+        open={showCompare}
+        onClose={() => setShowCompare(false)}
+        onRemoveTest={removeFromCompare}
+      />
     </div>
   );
 }
