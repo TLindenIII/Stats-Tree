@@ -174,7 +174,7 @@ export default function AllTests() {
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2 font-semibold">
             <BarChart3 className="w-5 h-5 text-primary" />
-            <span>StatGuide</span>
+            <span>StatsTree</span>
           </Link>
           <div className="flex items-center gap-2">
             {compareTests.length > 0 && (

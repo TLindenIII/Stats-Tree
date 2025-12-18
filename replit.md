@@ -1,8 +1,8 @@
-# StatGuide - Statistical Test Selection Tool
+# StatsTree - Statistical Test Selection Tool
 
 ## Overview
 
-StatGuide is an interactive web application that helps researchers select the appropriate statistical test based on their research goals, data structure, and study design. The tool guides users through a multi-step wizard interface, asking questions about their analysis needs and recommending suitable statistical tests with detailed information about assumptions, use cases, and alternatives.
+StatsTree is an interactive web application that helps researchers select the appropriate statistical test based on their research goals, data structure, and study design. The tool guides users through a multi-step wizard interface, asking questions about their analysis needs and recommending suitable statistical tests with detailed information about assumptions, use cases, and alternatives.
 
 ## User Preferences
 

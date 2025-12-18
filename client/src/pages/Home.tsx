@@ -35,7 +35,7 @@ export default function Home() {
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2 font-semibold">
             <BarChart3 className="w-5 h-5 text-primary" />
-            <span>StatGuide</span>
+            <span>StatsTree</span>
           </Link>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" asChild>
@@ -133,7 +133,7 @@ export default function Home() {
 
       <footer className="border-t py-8 px-4">
         <div className="max-w-5xl mx-auto text-center text-sm text-muted-foreground">
-          <p>StatGuide - Statistical Test Selection Tool</p>
+          <p>StatsTree - Statistical Test Selection Tool</p>
         </div>
       </footer>
     </div>
