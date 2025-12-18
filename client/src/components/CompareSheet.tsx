@@ -63,10 +63,10 @@ export function CompareSheet({
                 data-testid={`compare-card-${test.id}`}
               >
                 {context === "wizard" && index === 0 && (
-                  <Badge className="absolute -top-2 left-4">Recommended</Badge>
+                  <Badge className="absolute -top-2 left-3">Recommended</Badge>
                 )}
                 {context === "wizard" && index === 1 && (
-                  <Badge variant="secondary" className="absolute -top-2 left-4">Alternative</Badge>
+                  <Badge variant="secondary" className="absolute -top-2 left-3">Alternative</Badge>
                 )}
                 <CardHeader className="pb-3 pt-6">
                   <CardTitle className="font-mono text-base leading-tight min-h-[2.5rem]">{test.name}</CardTitle>
