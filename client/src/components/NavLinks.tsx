@@ -65,15 +65,15 @@ export function NavLinks({ currentPage }: NavLinksProps) {
           </Link>
         );
       })}
-      <span
-        className={`absolute bottom-0 h-0.5 bg-primary rounded-full ${
-          isInitialized ? "transition-all duration-300 ease-out" : ""
-        }`}
-        style={{
-          left: indicatorStyle.left,
-          width: indicatorStyle.width,
-        }}
-      />
+      {isInitialized && (
+        <span
+          className="absolute bottom-0 h-0.5 bg-primary rounded-full transition-all duration-300 ease-out"
+          style={{
+            left: indicatorStyle.left,
+            width: indicatorStyle.width,
+          }}
+        />
+      )}
     </div>
   );
 }
