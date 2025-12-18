@@ -9,50 +9,105 @@ import { CompareSheet } from "@/components/CompareSheet";
 import { statisticalTests, categoryGroups, StatTest } from "@/lib/statsData";
 import { Search, Route, X, GitCompare } from "lucide-react";
 
-// Simple fuzzy search scoring - returns score (higher = better match)
-function fuzzyScore(text: string, query: string): number {
+// Smart search with weighted scoring and typo tolerance
+function levenshteinDistance(a: string, b: string): number {
+  if (a.length === 0) return b.length;
+  if (b.length === 0) return a.length;
+  const matrix: number[][] = [];
+  for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+  for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      const cost = a[j - 1] === b[i - 1] ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,
+        matrix[i][j - 1] + 1,
+        matrix[i - 1][j - 1] + cost
+      );
+    }
+  }
+  return matrix[b.length][a.length];
+}
+
+function scoreText(text: string, query: string): number {
   const lowerText = text.toLowerCase();
-  const lowerQuery = query.toLowerCase();
+  const lowerQuery = query.toLowerCase().trim();
+  if (!lowerQuery) return 0;
   
-  // Exact match gets highest score
-  if (lowerText.includes(lowerQuery)) return 100;
+  // Exact match - highest score
+  if (lowerText === lowerQuery) return 1000;
   
-  // Check for word-start matches
-  const words = lowerText.split(/\s+/);
+  // Starts with query - very high
+  if (lowerText.startsWith(lowerQuery)) return 800;
+  
+  // Contains exact query as substring
+  if (lowerText.includes(lowerQuery)) return 600;
+  
+  // Word-level matching
+  const textWords = lowerText.split(/\s+/);
   const queryWords = lowerQuery.split(/\s+/);
-  let wordMatchScore = 0;
+  let wordScore = 0;
+  
   for (const qWord of queryWords) {
-    for (const word of words) {
-      if (word.startsWith(qWord)) wordMatchScore += 50;
-      else if (word.includes(qWord)) wordMatchScore += 25;
+    let bestWordMatch = 0;
+    for (const word of textWords) {
+      // Exact word match
+      if (word === qWord) { bestWordMatch = Math.max(bestWordMatch, 400); continue; }
+      // Word starts with query word
+      if (word.startsWith(qWord)) { bestWordMatch = Math.max(bestWordMatch, 300); continue; }
+      // Word contains query word
+      if (word.includes(qWord)) { bestWordMatch = Math.max(bestWordMatch, 200); continue; }
+      // Fuzzy match with typo tolerance (for words 4+ chars)
+      if (qWord.length >= 3 && word.length >= 3) {
+        const distance = levenshteinDistance(word.slice(0, Math.max(qWord.length, 5)), qWord);
+        const maxAllowedDistance = qWord.length <= 4 ? 1 : 2;
+        if (distance <= maxAllowedDistance) {
+          bestWordMatch = Math.max(bestWordMatch, 150 - distance * 30);
+        }
+      }
     }
-  }
-  if (wordMatchScore > 0) return wordMatchScore;
-  
-  // Character sequence matching (fuzzy)
-  let queryIdx = 0;
-  let consecutiveBonus = 0;
-  let score = 0;
-  for (let i = 0; i < lowerText.length && queryIdx < lowerQuery.length; i++) {
-    if (lowerText[i] === lowerQuery[queryIdx]) {
-      score += 1 + consecutiveBonus;
-      consecutiveBonus += 0.5;
-      queryIdx++;
-    } else {
-      consecutiveBonus = 0;
-    }
+    wordScore += bestWordMatch;
   }
   
-  // Return score only if all query characters were found
-  return queryIdx === lowerQuery.length ? score : 0;
+  return wordScore;
+}
+
+function getSearchScore(test: StatTest, query: string): number {
+  if (!query.trim()) return 1; // No query = show all equally
+  
+  // Field weights - name is most important
+  const weights = {
+    name: 10,
+    description: 4,
+    whenToUse: 3,
+    assumptions: 2,
+    alternatives: 1,
+    category: 2,
+    methodFamily: 2
+  };
+  
+  let totalScore = 0;
+  
+  totalScore += scoreText(test.name, query) * weights.name;
+  totalScore += scoreText(test.description, query) * weights.description;
+  totalScore += scoreText(test.category, query) * weights.category;
+  totalScore += scoreText(test.methodFamily, query) * weights.methodFamily;
+  
+  // Array fields - take best match
+  const whenToUseScore = test.whenToUse.reduce((max, t) => Math.max(max, scoreText(t, query)), 0);
+  totalScore += whenToUseScore * weights.whenToUse;
+  
+  const assumptionScore = test.assumptions.reduce((max, a) => Math.max(max, scoreText(a, query)), 0);
+  totalScore += assumptionScore * weights.assumptions;
+  
+  const altScore = test.alternatives.reduce((max, a) => Math.max(max, scoreText(a, query)), 0);
+  totalScore += altScore * weights.alternatives;
+  
+  return totalScore;
 }
 
 function matchesSearch(test: StatTest, query: string): boolean {
-  if (!query) return true;
-  const nameScore = fuzzyScore(test.name, query);
-  const descScore = fuzzyScore(test.description, query);
-  const assumptionScore = test.assumptions.reduce((max, a) => Math.max(max, fuzzyScore(a, query)), 0);
-  return nameScore > 0 || descScore > 0 || assumptionScore > 0;
+  return getSearchScore(test, query) > 0;
 }
 
 import { Badge } from "@/components/ui/badge";
@@ -171,27 +226,36 @@ export default function AllTests() {
     }
   }, [levels, selectedLevel]);
 
-  const filteredTests = statisticalTests.filter((test) => {
-    const searchMatches = matchesSearch(test, searchQuery);
+  const filteredTests = useMemo(() => {
+    const filtered = statisticalTests.filter((test) => {
+      const searchMatches = matchesSearch(test, searchQuery);
+      
+      const matchesCat = selectedCategory === null || 
+        categoryGroups.find(g => g.id === selectedCategory)?.tests.includes(test.id);
+      
+      const matchesMethodFamily = selectedMethodFamily === null ||
+        test.methodFamily === selectedMethodFamily;
+      
+      const matchesOutcomeScale = selectedOutcomeScale === null ||
+        test.outcomeScale === selectedOutcomeScale;
+      
+      const matchesDesign = selectedDesign === null ||
+        test.design === selectedDesign;
+      
+      const matchesLevel = selectedLevel === null ||
+        test.level === selectedLevel;
+      
+      return searchMatches && matchesCat && matchesMethodFamily && 
+             matchesOutcomeScale && matchesDesign && matchesLevel;
+    });
     
-    const matchesCat = selectedCategory === null || 
-      categoryGroups.find(g => g.id === selectedCategory)?.tests.includes(test.id);
+    // Sort by relevance when there's a search query
+    if (searchQuery.trim()) {
+      return filtered.sort((a, b) => getSearchScore(b, searchQuery) - getSearchScore(a, searchQuery));
+    }
     
-    const matchesMethodFamily = selectedMethodFamily === null ||
-      test.methodFamily === selectedMethodFamily;
-    
-    const matchesOutcomeScale = selectedOutcomeScale === null ||
-      test.outcomeScale === selectedOutcomeScale;
-    
-    const matchesDesign = selectedDesign === null ||
-      test.design === selectedDesign;
-    
-    const matchesLevel = selectedLevel === null ||
-      test.level === selectedLevel;
-    
-    return searchMatches && matchesCat && matchesMethodFamily && 
-           matchesOutcomeScale && matchesDesign && matchesLevel;
-  });
+    return filtered;
+  }, [searchQuery, selectedCategory, selectedMethodFamily, selectedOutcomeScale, selectedDesign, selectedLevel]);
 
   const hasActiveFilters = selectedCategory !== null || selectedMethodFamily !== null ||
     selectedOutcomeScale !== null || selectedDesign !== null || selectedLevel !== null;
