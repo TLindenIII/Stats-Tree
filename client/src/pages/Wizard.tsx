@@ -118,7 +118,7 @@ export default function Wizard() {
             </div>
 
             <div className="lg:col-span-1">
-              <DecisionSummary steps={wizardSteps} selections={selections} />
+              <DecisionSummary steps={wizardSteps} selections={selections} onStepClick={handleStepClick} />
             </div>
           </div>
         </div>
