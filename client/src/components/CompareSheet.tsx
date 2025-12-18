@@ -5,9 +5,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CheckCircle, AlertCircle, ArrowRight, GitCompare } from "lucide-react";
+import { CheckCircle, AlertCircle, ArrowRight, GitCompare, ChevronLeft, ChevronRight } from "lucide-react";
 import type { StatTest } from "@/lib/statsData";
 
 interface CompareSheetProps {
@@ -15,9 +16,22 @@ interface CompareSheetProps {
   open: boolean;
   onClose: () => void;
   onRemoveTest: (testId: string) => void;
+  onPrev?: () => void;
+  onNext?: () => void;
+  hasPrev?: boolean;
+  hasNext?: boolean;
 }
 
-export function CompareSheet({ tests, open, onClose, onRemoveTest }: CompareSheetProps) {
+export function CompareSheet({ 
+  tests, 
+  open, 
+  onClose, 
+  onRemoveTest,
+  onPrev,
+  onNext,
+  hasPrev = false,
+  hasNext = false
+}: CompareSheetProps) {
   if (tests.length === 0) return null;
 
   const levelColors: Record<string, string> = {
@@ -25,6 +39,8 @@ export function CompareSheet({ tests, open, onClose, onRemoveTest }: CompareShee
     intermediate: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100",
     advanced: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100",
   };
+
+  const showNavigation = onPrev && onNext && (hasPrev || hasNext);
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
@@ -36,7 +52,7 @@ export function CompareSheet({ tests, open, onClose, onRemoveTest }: CompareShee
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[calc(85vh-80px)]">
+        <ScrollArea className="max-h-[calc(85vh-140px)]">
           <div className="p-6 grid gap-6 grid-cols-1 md:grid-cols-2">
             {tests.map((test, index) => (
               <Card 
@@ -130,6 +146,31 @@ export function CompareSheet({ tests, open, onClose, onRemoveTest }: CompareShee
             ))}
           </div>
         </ScrollArea>
+
+        {showNavigation && (
+          <div className="border-t px-6 py-4 flex justify-end gap-2 bg-muted/30">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onPrev}
+              disabled={!hasPrev}
+              data-testid="button-prev-alternative"
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onNext}
+              disabled={!hasNext}
+              data-testid="button-next-alternative"
+            >
+              Next
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

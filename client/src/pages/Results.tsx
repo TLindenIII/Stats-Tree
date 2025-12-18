@@ -16,6 +16,9 @@ export default function Results() {
 
   const [compareTests, setCompareTests] = useState<StatTest[]>([]);
   const [showCompare, setShowCompare] = useState(false);
+  const [currentBaseTest, setCurrentBaseTest] = useState<StatTest | null>(null);
+  const [alternativesList, setAlternativesList] = useState<string[]>([]);
+  const [currentAltIndex, setCurrentAltIndex] = useState(0);
 
   const recommendedTests = testIds
     .map((id) => statisticalTests.find((t) => t.id === id))
@@ -24,8 +27,36 @@ export default function Results() {
   const handleAlternativeClick = (currentTest: StatTest, altId: string) => {
     const altTest = statisticalTests.find(t => t.id === altId);
     if (altTest) {
+      const alternatives = currentTest.alternativeLinks || [];
+      const altIndex = alternatives.indexOf(altId);
+      
+      setCurrentBaseTest(currentTest);
+      setAlternativesList(alternatives);
+      setCurrentAltIndex(altIndex >= 0 ? altIndex : 0);
       setCompareTests([currentTest, altTest]);
       setShowCompare(true);
+    }
+  };
+
+  const handlePrevAlt = () => {
+    if (currentAltIndex > 0 && currentBaseTest) {
+      const newIndex = currentAltIndex - 1;
+      const altTest = statisticalTests.find(t => t.id === alternativesList[newIndex]);
+      if (altTest) {
+        setCurrentAltIndex(newIndex);
+        setCompareTests([currentBaseTest, altTest]);
+      }
+    }
+  };
+
+  const handleNextAlt = () => {
+    if (currentAltIndex < alternativesList.length - 1 && currentBaseTest) {
+      const newIndex = currentAltIndex + 1;
+      const altTest = statisticalTests.find(t => t.id === alternativesList[newIndex]);
+      if (altTest) {
+        setCurrentAltIndex(newIndex);
+        setCompareTests([currentBaseTest, altTest]);
+      }
     }
   };
 
@@ -117,6 +148,10 @@ export default function Results() {
         open={showCompare}
         onClose={() => setShowCompare(false)}
         onRemoveTest={removeFromCompare}
+        onPrev={handlePrevAlt}
+        onNext={handleNextAlt}
+        hasPrev={currentAltIndex > 0}
+        hasNext={currentAltIndex < alternativesList.length - 1}
       />
     </div>
   );
