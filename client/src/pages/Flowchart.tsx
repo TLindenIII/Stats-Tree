@@ -19,12 +19,12 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Badge } from "@/components/ui/badge";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { BarChart3, CheckCircle2, AlertCircle, Lightbulb, ArrowRight, RotateCcw, ChevronRight, ExternalLink, GitCompare } from "lucide-react";
 import { statisticalTests, StatTest, getWikipediaUrl } from "@/lib/statsData";
@@ -182,21 +182,21 @@ function TestDetailPanel({ tests, open, onClose, onCompareClick }: { tests: Stat
   const [, setLocation] = useLocation();
   
   return (
-    <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <SheetContent className="w-full sm:max-w-lg">
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="max-w-2xl max-h-[85vh] p-0 overflow-hidden" data-testid="flowchart-test-detail">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b bg-muted/30">
+          <DialogTitle className="flex items-center gap-2 text-xl">
             <BarChart3 className="w-5 h-5 text-primary" />
             {tests.length === 1 ? tests[0].name : `${tests.length} Related Tests`}
-          </SheetTitle>
-          <SheetDescription>
+          </DialogTitle>
+          <DialogDescription>
             {tests.length === 1 
               ? tests[0].description 
               : "Click on a test to view details or use the wizard for recommendations."}
-          </SheetDescription>
-        </SheetHeader>
-        <ScrollArea className="h-[calc(100vh-180px)] mt-4">
-          <div className="space-y-6 pr-4">
+          </DialogDescription>
+        </DialogHeader>
+        <ScrollArea className="max-h-[calc(85vh-140px)]">
+          <div className="p-6 space-y-6">
             {tests.map((test) => (
               <div key={test.id} className="space-y-4 p-4 bg-muted/50 rounded-md">
                 <div>
@@ -306,8 +306,8 @@ function TestDetailPanel({ tests, open, onClose, onCompareClick }: { tests: Stat
             </Button>
           </div>
         </ScrollArea>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 }
 
