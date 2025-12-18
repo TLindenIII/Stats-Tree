@@ -29,6 +29,7 @@ export default function AllTests() {
   const [selectedTest, setSelectedTest] = useState<StatTest | null>(null);
   const [compareTests, setCompareTests] = useState<StatTest[]>([]);
   const [showCompare, setShowCompare] = useState(false);
+  const [compareStartIndex, setCompareStartIndex] = useState(0);
 
   // Handle test query parameter to auto-open test detail
   useEffect(() => {
@@ -180,6 +181,44 @@ export default function AllTests() {
       setSelectedTest(test);
     }
   };
+
+  // Get the current comparison tests based on index
+  const getCompareTestsFromIndex = (startIndex: number) => {
+    const numToCompare = Math.min(2, filteredTests.length);
+    const tests: StatTest[] = [];
+    for (let i = 0; i < numToCompare; i++) {
+      const idx = (startIndex + i) % filteredTests.length;
+      tests.push(filteredTests[idx]);
+    }
+    return tests;
+  };
+
+  const handleOpenCompare = () => {
+    if (filteredTests.length >= 2) {
+      setCompareStartIndex(0);
+      setCompareTests(getCompareTestsFromIndex(0));
+      setShowCompare(true);
+    }
+  };
+
+  const handlePrevCompare = () => {
+    if (compareStartIndex > 0) {
+      const newIndex = compareStartIndex - 1;
+      setCompareStartIndex(newIndex);
+      setCompareTests(getCompareTestsFromIndex(newIndex));
+    }
+  };
+
+  const handleNextCompare = () => {
+    if (compareStartIndex < filteredTests.length - 2) {
+      const newIndex = compareStartIndex + 1;
+      setCompareStartIndex(newIndex);
+      setCompareTests(getCompareTestsFromIndex(newIndex));
+    }
+  };
+
+  const hasPrevCompare = compareStartIndex > 0;
+  const hasNextCompare = compareStartIndex < filteredTests.length - 2;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -347,7 +386,12 @@ export default function AllTests() {
               <Button 
                 variant="default" 
                 size="sm" 
-                onClick={() => setShowCompare(true)}
+                onClick={() => {
+                  // Find the index of the first selected test in the filtered list
+                  const firstTestIndex = filteredTests.findIndex(t => t.id === compareTests[0]?.id);
+                  setCompareStartIndex(firstTestIndex >= 0 ? firstTestIndex : 0);
+                  setShowCompare(true);
+                }}
                 data-testid="button-compare"
               >
                 <GitCompare className="w-4 h-4 mr-1" />
@@ -397,6 +441,10 @@ export default function AllTests() {
         open={showCompare}
         onClose={() => setShowCompare(false)}
         onRemoveTest={(testId: string) => setCompareTests(compareTests.filter(t => t.id !== testId))}
+        onPrev={handlePrevCompare}
+        onNext={handleNextCompare}
+        hasPrev={hasPrevCompare}
+        hasNext={hasNextCompare}
       />
     </div>
   );
