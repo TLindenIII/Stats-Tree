@@ -46,7 +46,7 @@ export function CompareSheet({
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 overflow-hidden" data-testid="compare-sheet">
+      <DialogContent className={`max-h-[90vh] p-0 overflow-hidden ${tests.length === 3 ? 'max-w-[90vw]' : 'max-w-4xl'}`} data-testid="compare-sheet">
         <DialogHeader className="px-6 pt-6 pb-4 border-b bg-muted/30">
           <DialogTitle className="flex items-center gap-2 text-xl">
             <GitCompare className="w-5 h-5 text-primary" />
