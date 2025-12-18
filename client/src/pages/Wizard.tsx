@@ -6,7 +6,7 @@ import { StepProgress } from "@/components/StepProgress";
 import { WizardQuestion } from "@/components/WizardQuestion";
 import { DecisionSummary } from "@/components/DecisionSummary";
 import { wizardSteps, getRecommendedTests } from "@/lib/statsData";
-import { ArrowLeft, ArrowRight, RotateCcw, BarChart3 } from "lucide-react";
+import { ArrowLeft, ArrowRight, RotateCcw, Route } from "lucide-react";
 
 export default function Wizard() {
   const [, setLocation] = useLocation();
@@ -64,7 +64,7 @@ export default function Wizard() {
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2 font-semibold">
-            <BarChart3 className="w-5 h-5 text-primary" />
+            <Route className="w-5 h-5 text-primary" />
             <span>StatsTree</span>
           </Link>
           <div className="flex items-center gap-2">
