@@ -174,10 +174,13 @@ export default function AllTests() {
     setSelectedTest(test);
   };
 
-  const handleAlternativeClick = (testId: string) => {
-    const test = statisticalTests.find(t => t.id === testId);
-    if (test) {
-      setSelectedTest(test);
+  const handleAlternativeClick = (altId: string) => {
+    const altTest = statisticalTests.find(t => t.id === altId);
+    if (altTest && selectedTest) {
+      // Open comparison modal with current test and alternative
+      setCompareTests([selectedTest, altTest]);
+      setSelectedTest(null); // Close detail sheet
+      setShowCompare(true);
     }
   };
 
