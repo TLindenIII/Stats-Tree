@@ -25,6 +25,7 @@ export default defineConfig({
     cssCodeSplit: false,
     assetsInlineLimit: 100000000,
     rollupOptions: {
+      input: path.resolve(import.meta.dirname, "client", "index-offline.html"),
       output: {
         inlineDynamicImports: true,
       },
