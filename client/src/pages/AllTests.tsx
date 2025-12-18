@@ -190,17 +190,6 @@ export default function AllTests() {
             <span>StatsTree</span>
           </Link>
           <div className="flex items-center gap-2">
-            {compareTests.length > 0 && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setShowCompare(true)}
-                data-testid="button-compare"
-              >
-                <GitCompare className="w-4 h-4 mr-2" />
-                Compare ({compareTests.length})
-              </Button>
-            )}
             <Button variant="ghost" size="sm" asChild>
               <Link href="/wizard" data-testid="link-use-wizard">
                 Use Wizard
@@ -354,6 +343,15 @@ export default function AllTests() {
               >
                 <X className="w-4 h-4 mr-1" />
                 Clear All
+              </Button>
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={() => setShowCompare(true)}
+                data-testid="button-compare"
+              >
+                <GitCompare className="w-4 h-4 mr-1" />
+                Compare ({compareTests.length})
               </Button>
             </div>
           )}
