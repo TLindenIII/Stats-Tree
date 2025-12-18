@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight, Pencil } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import type { WizardStep } from "@/lib/statsData";
 
 interface DecisionSummaryProps {
@@ -27,7 +27,7 @@ export function DecisionSummary({ steps, selections, onStepClick }: DecisionSumm
             return (
               <div 
                 key={step.id} 
-                className={`flex items-center gap-2 flex-wrap group ${isClickable ? 'cursor-pointer hover-elevate rounded-md p-2 -m-2' : ''}`}
+                className={`flex items-center gap-2 flex-wrap ${isClickable ? 'cursor-pointer hover-elevate rounded-md p-2 -m-2' : ''}`}
                 onClick={() => isClickable && onStepClick(stepIndex)}
                 data-testid={`selection-${step.id}`}
               >
@@ -36,9 +36,6 @@ export function DecisionSummary({ steps, selections, onStepClick }: DecisionSumm
                 </Badge>
                 <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm font-medium flex-1">{option?.label}</span>
-                {isClickable && (
-                  <Pencil className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                )}
                 {index < selectedSteps.length - 1 && (
                   <div className="w-full h-px bg-border my-1" />
                 )}
