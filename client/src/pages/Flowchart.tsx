@@ -26,9 +26,10 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { BarChart3, CheckCircle2, AlertCircle, Lightbulb, ArrowRight, RotateCcw, ChevronRight, ExternalLink } from "lucide-react";
+import { BarChart3, CheckCircle2, AlertCircle, Lightbulb, ArrowRight, RotateCcw, ChevronRight, ExternalLink, GitCompare } from "lucide-react";
 import { statisticalTests, StatTest, getWikipediaUrl } from "@/lib/statsData";
 import { useWizardContext } from "@/contexts/WizardContext";
+import { CompareSheet } from "@/components/CompareSheet";
 
 interface FlowNode {
   id: string;
@@ -177,7 +178,7 @@ function StartNode({ data }: { data: { label: string } }) {
   );
 }
 
-function TestDetailPanel({ tests, open, onClose, onAlternativeClick }: { tests: StatTest[]; open: boolean; onClose: () => void; onAlternativeClick: (testId: string) => void }) {
+function TestDetailPanel({ tests, open, onClose, onCompareClick }: { tests: StatTest[]; open: boolean; onClose: () => void; onCompareClick: (currentTest: StatTest, altId: string) => void }) {
   const [, setLocation] = useLocation();
   
   return (
@@ -276,9 +277,10 @@ function TestDetailPanel({ tests, open, onClose, onAlternativeClick }: { tests: 
                               key={altId}
                               variant="outline"
                               size="sm"
-                              onClick={() => onAlternativeClick(altId)}
+                              onClick={() => onCompareClick(test, altId)}
                               data-testid={`alt-link-${altId}`}
                             >
+                              <GitCompare className="w-3 h-3 mr-1" />
                               {altTest.name}
                             </Button>
                           );
@@ -317,7 +319,25 @@ function FlowchartInner() {
   const { selections, addSelection, removeSelectionsAfter, clearSelections } = useWizardContext();
   const [selectedTests, setSelectedTests] = useState<StatTest[]>([]);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [compareTests, setCompareTests] = useState<StatTest[]>([]);
+  const [showCompare, setShowCompare] = useState(false);
   const { fitView } = useReactFlow();
+
+  const handleCompareClick = (currentTest: StatTest, altId: string) => {
+    const altTest = statisticalTests.find(t => t.id === altId);
+    if (altTest) {
+      setCompareTests([currentTest, altTest]);
+      setShowCompare(true);
+    }
+  };
+
+  const removeFromCompare = (testId: string) => {
+    const updated = compareTests.filter(t => t.id !== testId);
+    setCompareTests(updated);
+    if (updated.length === 0) {
+      setShowCompare(false);
+    }
+  };
 
   const selectedIds = useMemo(() => selections.map(s => s.nodeId), [selections]);
 
@@ -561,12 +581,14 @@ function FlowchartInner() {
         tests={selectedTests} 
         open={detailOpen} 
         onClose={() => setDetailOpen(false)}
-        onAlternativeClick={(testId) => {
-          const test = statisticalTests.find(t => t.id === testId);
-          if (test) {
-            setSelectedTests([test]);
-          }
-        }}
+        onCompareClick={handleCompareClick}
+      />
+
+      <CompareSheet
+        tests={compareTests}
+        open={showCompare}
+        onClose={() => setShowCompare(false)}
+        onRemoveTest={removeFromCompare}
       />
     </div>
   );
