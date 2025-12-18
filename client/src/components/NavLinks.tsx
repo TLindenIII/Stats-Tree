@@ -1,4 +1,5 @@
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
+import { useRef, useEffect, useState } from "react";
 
 interface NavLinksProps {
   currentPage: "wizard" | "flowchart" | "browse";
@@ -11,14 +12,48 @@ const navItems = [
 ] as const;
 
 export function NavLinks({ currentPage }: NavLinksProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<Map<string, HTMLAnchorElement>>(new Map());
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    const updateIndicator = () => {
+      const activeEl = itemRefs.current.get(currentPage);
+      const container = containerRef.current;
+      
+      if (activeEl && container) {
+        const containerRect = container.getBoundingClientRect();
+        const activeRect = activeEl.getBoundingClientRect();
+        
+        setIndicatorStyle({
+          left: activeRect.left - containerRect.left,
+          width: activeRect.width,
+        });
+        
+        if (!isInitialized) {
+          requestAnimationFrame(() => setIsInitialized(true));
+        }
+      }
+    };
+
+    updateIndicator();
+    
+    window.addEventListener("resize", updateIndicator);
+    return () => window.removeEventListener("resize", updateIndicator);
+  }, [currentPage, isInitialized]);
+
   return (
-    <div className="flex items-center gap-1 relative">
+    <div ref={containerRef} className="flex items-center relative">
       {navItems.map((item) => {
         const isActive = item.id === currentPage;
         return (
           <Link
             key={item.id}
             href={item.href}
+            ref={(el: HTMLAnchorElement | null) => {
+              if (el) itemRefs.current.set(item.id, el);
+            }}
             data-testid={`nav-${item.id}`}
             className={`relative px-3 py-1.5 text-sm font-medium transition-colors ${
               isActive 
@@ -27,14 +62,18 @@ export function NavLinks({ currentPage }: NavLinksProps) {
             }`}
           >
             {item.label}
-            <span
-              className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-primary rounded-full transition-all duration-300 ease-out ${
-                isActive ? "w-[calc(100%-12px)]" : "w-0"
-              }`}
-            />
           </Link>
         );
       })}
+      <span
+        className={`absolute bottom-0 h-0.5 bg-primary rounded-full ${
+          isInitialized ? "transition-all duration-300 ease-out" : ""
+        }`}
+        style={{
+          left: indicatorStyle.left,
+          width: indicatorStyle.width,
+        }}
+      />
     </div>
   );
 }
