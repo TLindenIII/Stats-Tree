@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CheckCircle, AlertCircle, ArrowRight, BookOpen, Layers, Target, GraduationCap, ExternalLink, Info } from "lucide-react";
+import { CheckCircle, AlertCircle, ArrowRight, BookOpen, Layers, Target, GraduationCap, ExternalLink, Info, Code } from "lucide-react";
 import { statisticalTests, type StatTest, getWikipediaUrl } from "@/lib/statsData";
 
 interface TestDetailSheetProps {
@@ -54,7 +54,7 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick }: TestDetai
               data-testid="link-wikipedia"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              Learn more on Wikipedia
+              Wikipedia
             </a>
           )}
         </DialogHeader>
@@ -171,6 +171,33 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick }: TestDetai
                   ))}
                 </div>
               )}
+            </div>
+
+            <Separator />
+
+            <div className="space-y-3">
+              <h4 className="font-medium flex items-center gap-2">
+                <Code className="w-4 h-4 text-purple-500" />
+                Code Examples
+              </h4>
+              <div className="space-y-4">
+                <div>
+                  <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">Python</Badge>
+                  </h5>
+                  <pre className="bg-muted p-3 rounded-md text-xs overflow-x-auto">
+                    <code className="text-muted-foreground"># Python code example coming soon{"\n"}# import scipy.stats as stats{"\n"}# result = stats.{test.id.replace(/-/g, '_')}(...)</code>
+                  </pre>
+                </div>
+                <div>
+                  <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">R</Badge>
+                  </h5>
+                  <pre className="bg-muted p-3 rounded-md text-xs overflow-x-auto">
+                    <code className="text-muted-foreground"># R code example coming soon{"\n"}# library(stats){"\n"}# result &lt;- {test.id.replace(/-/g, '.')}(...)</code>
+                  </pre>
+                </div>
+              </div>
             </div>
           </div>
         </ScrollArea>

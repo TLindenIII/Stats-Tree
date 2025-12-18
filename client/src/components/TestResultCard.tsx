@@ -7,7 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { CheckCircle, AlertCircle, Info, ArrowRight, Eye, GitCompare, ExternalLink } from "lucide-react";
+import { CheckCircle, AlertCircle, Info, ArrowRight, Eye, GitCompare, ExternalLink, Code } from "lucide-react";
 import { statisticalTests, type StatTest, getWikipediaUrl } from "@/lib/statsData";
 
 interface TestResultCardProps {
@@ -84,7 +84,7 @@ export function TestResultCard({
                 data-testid={`link-learn-more-${test.id}`}
               >
                 <ExternalLink className="w-3.5 h-3.5" />
-                Learn More
+                Wikipedia
               </a>
             )}
           </div>
@@ -182,6 +182,35 @@ export function TestResultCard({
                     </Badge>
                   ))
                 )}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="code-examples">
+            <AccordionTrigger className="text-sm font-medium">
+              <span className="flex items-center gap-2">
+                <Code className="w-4 h-4" />
+                Code Examples
+              </span>
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-4">
+                <div>
+                  <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">Python</Badge>
+                  </h5>
+                  <pre className="bg-muted p-3 rounded-md text-xs overflow-x-auto">
+                    <code className="text-muted-foreground"># Python code example coming soon{"\n"}# import scipy.stats as stats{"\n"}# result = stats.{test.id.replace(/-/g, '_')}(...)</code>
+                  </pre>
+                </div>
+                <div>
+                  <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">R</Badge>
+                  </h5>
+                  <pre className="bg-muted p-3 rounded-md text-xs overflow-x-auto">
+                    <code className="text-muted-foreground"># R code example coming soon{"\n"}# library(stats){"\n"}# result &lt;- {test.id.replace(/-/g, '.')}(...)</code>
+                  </pre>
+                </div>
               </div>
             </AccordionContent>
           </AccordionItem>
