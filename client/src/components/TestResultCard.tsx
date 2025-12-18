@@ -159,9 +159,20 @@ export function TestResultCard({
                         {altTest.name}
                       </Button>
                     ) : (
-                      <Badge key={altId} variant="outline">
-                        {altTest.name}
-                      </Badge>
+                      <a
+                        key={altId}
+                        href={`/tests?test=${altId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        data-testid={`alt-link-${altId}`}
+                      >
+                        <Button
+                          variant="outline"
+                          size="sm"
+                        >
+                          {altTest.name}
+                        </Button>
+                      </a>
                     );
                   })
                 ) : (

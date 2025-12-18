@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link } from "wouter";
+import { Link, useSearch } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 
 export default function AllTests() {
+  const searchString = useSearch();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedMethodFamily, setSelectedMethodFamily] = useState<string | null>(null);
@@ -28,6 +29,18 @@ export default function AllTests() {
   const [selectedTest, setSelectedTest] = useState<StatTest | null>(null);
   const [compareTests, setCompareTests] = useState<StatTest[]>([]);
   const [showCompare, setShowCompare] = useState(false);
+
+  // Handle test query parameter to auto-open test detail
+  useEffect(() => {
+    const params = new URLSearchParams(searchString);
+    const testId = params.get("test");
+    if (testId) {
+      const test = statisticalTests.find(t => t.id === testId);
+      if (test) {
+        setSelectedTest(test);
+      }
+    }
+  }, [searchString]);
 
   const getFilteredTests = (excludeFilter?: string) => {
     return statisticalTests.filter((test) => {
