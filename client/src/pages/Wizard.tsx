@@ -5,6 +5,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { StepProgress } from "@/components/StepProgress";
 import { WizardQuestion } from "@/components/WizardQuestion";
 import { DecisionSummary } from "@/components/DecisionSummary";
+import { NavLinks } from "@/components/NavLinks";
 import { wizardSteps, getRecommendedTests } from "@/lib/statsData";
 import { ArrowLeft, ArrowRight, RotateCcw, Route } from "lucide-react";
 
@@ -83,16 +84,7 @@ export default function Wizard() {
                 Start Over
               </Button>
             )}
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/flowchart" data-testid="link-flowchart">
-                Flowchart
-              </Link>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/tests" data-testid="link-browse">
-                Browse
-              </Link>
-            </Button>
+            <NavLinks currentPage="wizard" />
             <ThemeToggle />
           </div>
         </div>

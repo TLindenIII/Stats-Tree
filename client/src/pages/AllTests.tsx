@@ -8,6 +8,7 @@ import { TestDetailSheet } from "@/components/TestDetailSheet";
 import { CompareSheet } from "@/components/CompareSheet";
 import { statisticalTests, categoryGroups, StatTest } from "@/lib/statsData";
 import { Search, Route, X, GitCompare } from "lucide-react";
+import { NavLinks } from "@/components/NavLinks";
 
 // Smart search with weighted scoring and typo tolerance
 function levenshteinDistance(a: string, b: string): number {
@@ -309,16 +310,7 @@ export default function AllTests() {
             <span>StatsTree</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/wizard" data-testid="link-wizard">
-                Wizard
-              </Link>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/flowchart" data-testid="link-flowchart">
-                Flowchart
-              </Link>
-            </Button>
+            <NavLinks currentPage="browse" />
             <ThemeToggle />
           </div>
         </div>

@@ -30,6 +30,7 @@ import { Route, CheckCircle2, AlertCircle, Lightbulb, ArrowRight, RotateCcw, Che
 import { statisticalTests, StatTest, getWikipediaUrl } from "@/lib/statsData";
 import { useWizardContext } from "@/contexts/WizardContext";
 import { CompareSheet } from "@/components/CompareSheet";
+import { NavLinks } from "@/components/NavLinks";
 
 interface FlowNode {
   id: string;
@@ -570,16 +571,7 @@ function FlowchartInner() {
                 Start Over
               </Button>
             )}
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/wizard" data-testid="link-wizard">
-                Wizard
-              </Link>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/tests" data-testid="link-browse">
-                Browse
-              </Link>
-            </Button>
+            <NavLinks currentPage="flowchart" />
             <ThemeToggle />
           </div>
         </div>

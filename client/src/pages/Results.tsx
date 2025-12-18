@@ -7,6 +7,7 @@ import { DecisionSummary } from "@/components/DecisionSummary";
 import { CompareSheet } from "@/components/CompareSheet";
 import { statisticalTests, wizardSteps, StatTest } from "@/lib/statsData";
 import { RotateCcw, Route } from "lucide-react";
+import { NavLinks } from "@/components/NavLinks";
 
 export default function Results() {
   const [, setLocation] = useLocation();
@@ -83,16 +84,7 @@ export default function Results() {
             <span>StatsTree</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/flowchart" data-testid="link-flowchart">
-                Flowchart
-              </Link>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/tests" data-testid="link-browse">
-                Browse
-              </Link>
-            </Button>
+            <NavLinks currentPage="wizard" />
             <ThemeToggle />
           </div>
         </div>
