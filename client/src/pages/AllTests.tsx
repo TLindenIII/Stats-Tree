@@ -370,6 +370,13 @@ export default function AllTests() {
                   onCompare={() => toggleCompare(test)}
                   isComparing={compareTests.some(t => t.id === test.id)}
                   canCompare={compareTests.length < 3 || compareTests.some(t => t.id === test.id)}
+                  onAlternativeClick={(altId) => {
+                    const altTest = statisticalTests.find(t => t.id === altId);
+                    if (altTest) {
+                      setCompareTests([test, altTest]);
+                      setShowCompare(true);
+                    }
+                  }}
                 />
               ))
             ) : (
