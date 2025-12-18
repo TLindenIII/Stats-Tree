@@ -79,10 +79,10 @@ export function CompareSheet({
                     )}
                   </div>
                 </CardHeader>
-                <CardContent className="flex-1 flex flex-col space-y-4 text-sm">
-                  <p className="text-muted-foreground text-xs min-h-[3rem]">{test.description}</p>
+                <CardContent className="space-y-4 text-sm">
+                  <p className="text-muted-foreground text-xs h-[3rem] overflow-hidden">{test.description}</p>
 
-                  <div className="grid grid-cols-1 gap-1 text-xs bg-muted/50 p-2 rounded-md min-h-[4rem]">
+                  <div className="grid grid-cols-1 gap-1 text-xs bg-muted/50 p-2 rounded-md h-[4.5rem]">
                     {test.outcomeScale && (
                       <div>
                         <span className="text-muted-foreground font-medium">Outcome: </span>
@@ -103,7 +103,7 @@ export function CompareSheet({
                     )}
                   </div>
 
-                  <div className="space-y-2 flex-1">
+                  <div className="space-y-2 h-[7rem] overflow-hidden">
                     <h5 className="font-medium flex items-center gap-1 text-xs">
                       <AlertCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                       Assumptions
@@ -123,7 +123,7 @@ export function CompareSheet({
                     </ul>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2 h-[5.5rem] overflow-hidden">
                     <h5 className="font-medium flex items-center gap-1 text-xs">
                       <ArrowRight className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                       When to Use
