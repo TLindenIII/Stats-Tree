@@ -186,7 +186,7 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick }: TestDetai
                     <Badge variant="outline" className="text-xs">Python</Badge>
                   </h5>
                   <pre className="bg-muted p-3 rounded-md text-xs overflow-x-auto">
-                    <code className="text-muted-foreground"># Python code example coming soon{"\n"}# import scipy.stats as stats{"\n"}# result = stats.{test.id.replace(/-/g, '_')}(...)</code>
+                    <code className="text-muted-foreground">{test.pythonCode || `# Python code example coming soon\n# import scipy.stats as stats\n# result = stats.${test.id.replace(/-/g, '_')}(...)`}</code>
                   </pre>
                 </div>
                 <div>
@@ -194,7 +194,7 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick }: TestDetai
                     <Badge variant="outline" className="text-xs">R</Badge>
                   </h5>
                   <pre className="bg-muted p-3 rounded-md text-xs overflow-x-auto">
-                    <code className="text-muted-foreground"># R code example coming soon{"\n"}# library(stats){"\n"}# result &lt;- {test.id.replace(/-/g, '.')}(...)</code>
+                    <code className="text-muted-foreground">{test.rCode || `# R code example coming soon\n# library(stats)\n# result <- ${test.id.replace(/-/g, '.')}(...)`}</code>
                   </pre>
                 </div>
               </div>

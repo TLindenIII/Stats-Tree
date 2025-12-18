@@ -305,7 +305,7 @@ function TestDetailPanel({ tests, open, onClose, onCompareClick }: { tests: Stat
                         <Badge variant="outline" className="text-[10px]">Python</Badge>
                       </h5>
                       <pre className="bg-background p-2 rounded text-[10px] overflow-x-auto">
-                        <code className="text-muted-foreground"># Python code example coming soon{"\n"}# import scipy.stats as stats{"\n"}# result = stats.{test.id.replace(/-/g, '_')}(...)</code>
+                        <code className="text-muted-foreground">{test.pythonCode || `# Python code example coming soon\n# import scipy.stats as stats\n# result = stats.${test.id.replace(/-/g, '_')}(...)`}</code>
                       </pre>
                     </div>
                     <div>
@@ -313,7 +313,7 @@ function TestDetailPanel({ tests, open, onClose, onCompareClick }: { tests: Stat
                         <Badge variant="outline" className="text-[10px]">R</Badge>
                       </h5>
                       <pre className="bg-background p-2 rounded text-[10px] overflow-x-auto">
-                        <code className="text-muted-foreground"># R code example coming soon{"\n"}# library(stats){"\n"}# result &lt;- {test.id.replace(/-/g, '.')}(...)</code>
+                        <code className="text-muted-foreground">{test.rCode || `# R code example coming soon\n# library(stats)\n# result <- ${test.id.replace(/-/g, '.')}(...)`}</code>
                       </pre>
                     </div>
                   </div>
