@@ -182,43 +182,29 @@ export default function AllTests() {
     }
   };
 
-  // Get the current comparison tests based on index
-  const getCompareTestsFromIndex = (startIndex: number) => {
-    const numToCompare = Math.min(2, filteredTests.length);
-    const tests: StatTest[] = [];
-    for (let i = 0; i < numToCompare; i++) {
-      const idx = (startIndex + i) % filteredTests.length;
-      tests.push(filteredTests[idx]);
+  // Get visible tests from selected compareTests based on window index
+  const getVisibleCompareTests = () => {
+    if (compareTests.length <= 2) {
+      return compareTests;
     }
-    return tests;
-  };
-
-  const handleOpenCompare = () => {
-    if (filteredTests.length >= 2) {
-      setCompareStartIndex(0);
-      setCompareTests(getCompareTestsFromIndex(0));
-      setShowCompare(true);
-    }
+    return compareTests.slice(compareStartIndex, compareStartIndex + 2);
   };
 
   const handlePrevCompare = () => {
     if (compareStartIndex > 0) {
-      const newIndex = compareStartIndex - 1;
-      setCompareStartIndex(newIndex);
-      setCompareTests(getCompareTestsFromIndex(newIndex));
+      setCompareStartIndex(compareStartIndex - 1);
     }
   };
 
   const handleNextCompare = () => {
-    if (compareStartIndex < filteredTests.length - 2) {
-      const newIndex = compareStartIndex + 1;
-      setCompareStartIndex(newIndex);
-      setCompareTests(getCompareTestsFromIndex(newIndex));
+    if (compareStartIndex < compareTests.length - 2) {
+      setCompareStartIndex(compareStartIndex + 1);
     }
   };
 
-  const hasPrevCompare = compareStartIndex > 0;
-  const hasNextCompare = compareStartIndex < filteredTests.length - 2;
+  // Only show navigation if 3 tests are selected
+  const hasPrevCompare = compareTests.length > 2 && compareStartIndex > 0;
+  const hasNextCompare = compareTests.length > 2 && compareStartIndex < compareTests.length - 2;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -387,9 +373,7 @@ export default function AllTests() {
                 variant="default" 
                 size="sm" 
                 onClick={() => {
-                  // Find the index of the first selected test in the filtered list
-                  const firstTestIndex = filteredTests.findIndex(t => t.id === compareTests[0]?.id);
-                  setCompareStartIndex(firstTestIndex >= 0 ? firstTestIndex : 0);
+                  setCompareStartIndex(0);
                   setShowCompare(true);
                 }}
                 data-testid="button-compare"
@@ -437,10 +421,17 @@ export default function AllTests() {
       />
 
       <CompareSheet
-        tests={getCompareTestsFromIndex(compareStartIndex)}
+        tests={getVisibleCompareTests()}
         open={showCompare}
         onClose={() => setShowCompare(false)}
-        onRemoveTest={(testId: string) => setCompareTests(compareTests.filter(t => t.id !== testId))}
+        onRemoveTest={(testId: string) => {
+          const newTests = compareTests.filter(t => t.id !== testId);
+          setCompareTests(newTests);
+          // Clamp window index if needed
+          if (compareStartIndex > 0 && compareStartIndex >= newTests.length - 1) {
+            setCompareStartIndex(Math.max(0, newTests.length - 2));
+          }
+        }}
         onPrev={handlePrevCompare}
         onNext={handleNextCompare}
         hasPrev={hasPrevCompare}
