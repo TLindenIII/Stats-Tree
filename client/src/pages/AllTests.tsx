@@ -346,6 +346,15 @@ export default function AllTests() {
                   <X className="w-3 h-3 ml-1" />
                 </Badge>
               ))}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setCompareTests([])}
+                data-testid="button-clear-compare"
+              >
+                <X className="w-4 h-4 mr-1" />
+                Clear All
+              </Button>
             </div>
           )}
 
