@@ -2,7 +2,11 @@
 
 **StatsTree** is an interactive, web-based decision tool designed to help researchers, students, and analysts select the most appropriate statistical test based on their research goals, data structure, and study design.
 
-🌐 **Live site:** https://stats-tree.replit.app
+🌐 **Site:** https://stats-tree.replit.app
+  - May or may not be live at the time of reading
+
+📦 **Offline package:** [./dist-offline/statstree-offline.html](./dist-offline/statstree-offline.html)
+  - Download the HTML file and open it in any browser offline
 
 ---
 
