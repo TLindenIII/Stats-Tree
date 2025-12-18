@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useSearch } from "wouter";
+import { Link, useSearch, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { TestResultCard } from "@/components/TestResultCard";
@@ -9,12 +9,18 @@ import { statisticalTests, wizardSteps, StatTest } from "@/lib/statsData";
 import { ArrowLeft, RotateCcw, Route } from "lucide-react";
 
 export default function Results() {
+  const [, setLocation] = useLocation();
   const searchString = useSearch();
   const params = new URLSearchParams(searchString);
   const testIds = params.get("tests")?.split(",") || [];
   const selections = JSON.parse(decodeURIComponent(params.get("selections") || "{}"));
 
   const [compareTests, setCompareTests] = useState<StatTest[]>([]);
+  
+  const handleStepClick = (stepIndex: number) => {
+    // Navigate to wizard with the step and current selections preserved
+    setLocation(`/wizard?step=${stepIndex}&selections=${encodeURIComponent(JSON.stringify(selections))}`);
+  };
   const [showCompare, setShowCompare] = useState(false);
   const [currentBaseTest, setCurrentBaseTest] = useState<StatTest | null>(null);
   const [alternativesList, setAlternativesList] = useState<string[]>([]);
@@ -123,7 +129,7 @@ export default function Results() {
             </div>
 
             <div className="lg:col-span-1 space-y-6">
-              <DecisionSummary steps={wizardSteps} selections={selections} />
+              <DecisionSummary steps={wizardSteps} selections={selections} onStepClick={handleStepClick} />
               
               <div className="flex flex-col gap-3">
                 <Button variant="outline" asChild>

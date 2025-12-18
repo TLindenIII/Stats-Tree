@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { StepProgress } from "@/components/StepProgress";
@@ -10,8 +10,17 @@ import { ArrowLeft, ArrowRight, RotateCcw, Route } from "lucide-react";
 
 export default function Wizard() {
   const [, setLocation] = useLocation();
-  const [currentStep, setCurrentStep] = useState(0);
-  const [selections, setSelections] = useState<Record<string, string>>({});
+  const searchString = useSearch();
+  const params = new URLSearchParams(searchString);
+  
+  // Initialize from URL params if coming from Results page
+  const initialStep = parseInt(params.get("step") || "0", 10);
+  const initialSelections = params.get("selections") 
+    ? JSON.parse(decodeURIComponent(params.get("selections")!)) 
+    : {};
+  
+  const [currentStep, setCurrentStep] = useState(initialStep);
+  const [selections, setSelections] = useState<Record<string, string>>(initialSelections);
 
   const step = wizardSteps[currentStep];
   const isLastStep = currentStep === wizardSteps.length - 1;
