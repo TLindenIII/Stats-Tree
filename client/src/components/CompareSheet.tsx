@@ -46,7 +46,7 @@ export function CompareSheet({
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[85vh] p-0 overflow-hidden" data-testid="compare-sheet">
+      <DialogContent className="max-w-5xl max-h-[85vh] p-0 overflow-hidden" data-testid="compare-sheet">
         <DialogHeader className="px-6 pt-6 pb-4 border-b bg-muted/30">
           <DialogTitle className="flex items-center gap-2 text-xl">
             <GitCompare className="w-5 h-5 text-primary" />
@@ -55,7 +55,7 @@ export function CompareSheet({
         </DialogHeader>
 
         <ScrollArea className="max-h-[calc(85vh-140px)]">
-          <div className="p-6 grid gap-6 grid-cols-1 md:grid-cols-2">
+          <div className={`p-6 grid gap-6 grid-cols-1 ${tests.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
             {tests.map((test, index) => (
               <Card 
                 key={test.id} 

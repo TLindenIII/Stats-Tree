@@ -29,7 +29,6 @@ export default function AllTests() {
   const [selectedTest, setSelectedTest] = useState<StatTest | null>(null);
   const [compareTests, setCompareTests] = useState<StatTest[]>([]);
   const [showCompare, setShowCompare] = useState(false);
-  const [compareStartIndex, setCompareStartIndex] = useState(0);
 
   // Handle test query parameter to auto-open test detail
   useEffect(() => {
@@ -182,29 +181,6 @@ export default function AllTests() {
     }
   };
 
-  // Get visible tests from selected compareTests based on window index
-  const getVisibleCompareTests = () => {
-    if (compareTests.length <= 2) {
-      return compareTests;
-    }
-    return compareTests.slice(compareStartIndex, compareStartIndex + 2);
-  };
-
-  const handlePrevCompare = () => {
-    if (compareStartIndex > 0) {
-      setCompareStartIndex(compareStartIndex - 1);
-    }
-  };
-
-  const handleNextCompare = () => {
-    if (compareStartIndex < compareTests.length - 2) {
-      setCompareStartIndex(compareStartIndex + 1);
-    }
-  };
-
-  // Only show navigation if 3 tests are selected
-  const hasPrevCompare = compareTests.length > 2 && compareStartIndex > 0;
-  const hasNextCompare = compareTests.length > 2 && compareStartIndex < compareTests.length - 2;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -372,10 +348,7 @@ export default function AllTests() {
               <Button 
                 variant="default" 
                 size="sm" 
-                onClick={() => {
-                  setCompareStartIndex(0);
-                  setShowCompare(true);
-                }}
+                onClick={() => setShowCompare(true)}
                 data-testid="button-compare"
               >
                 <GitCompare className="w-4 h-4 mr-1" />
@@ -421,21 +394,10 @@ export default function AllTests() {
       />
 
       <CompareSheet
-        tests={getVisibleCompareTests()}
+        tests={compareTests}
         open={showCompare}
         onClose={() => setShowCompare(false)}
-        onRemoveTest={(testId: string) => {
-          const newTests = compareTests.filter(t => t.id !== testId);
-          setCompareTests(newTests);
-          // Clamp window index if needed
-          if (compareStartIndex > 0 && compareStartIndex >= newTests.length - 1) {
-            setCompareStartIndex(Math.max(0, newTests.length - 2));
-          }
-        }}
-        onPrev={handlePrevCompare}
-        onNext={handleNextCompare}
-        hasPrev={hasPrevCompare}
-        hasNext={hasNextCompare}
+        onRemoveTest={(testId: string) => setCompareTests(compareTests.filter(t => t.id !== testId))}
         context="browse"
       />
     </div>
