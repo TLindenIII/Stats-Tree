@@ -25,6 +25,8 @@ export interface StatTest {
   level?: string | null;
   alternativeLinks?: string[];
   wikipediaUrl?: string | null;
+  pythonCode?: string;
+  rCode?: string;
 }
 
 export const wikipediaUrls: Record<string, string> = {
