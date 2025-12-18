@@ -5,10 +5,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X, CheckCircle, AlertCircle, ArrowRight, GitCompare } from "lucide-react";
+import { CheckCircle, AlertCircle, ArrowRight, GitCompare } from "lucide-react";
 import type { StatTest } from "@/lib/statsData";
 
 interface CompareSheetProps {
@@ -51,17 +50,8 @@ export function CompareSheet({ tests, open, onClose, onRemoveTest }: CompareShee
                 {index === 1 && (
                   <Badge variant="secondary" className="absolute -top-2 left-4">Alternative</Badge>
                 )}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-2 right-2"
-                  onClick={() => onRemoveTest(test.id)}
-                  data-testid={`remove-compare-${test.id}`}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
                 <CardHeader className="pb-3 pt-6">
-                  <CardTitle className="font-mono text-lg pr-8">{test.name}</CardTitle>
+                  <CardTitle className="font-mono text-lg">{test.name}</CardTitle>
                   <div className="flex gap-1 flex-wrap mt-2">
                     <Badge variant="outline" className="text-xs">{test.category}</Badge>
                     <Badge variant="secondary" className="text-xs">{test.methodFamily}</Badge>
