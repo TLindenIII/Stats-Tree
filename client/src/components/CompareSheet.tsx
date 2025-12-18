@@ -20,6 +20,7 @@ interface CompareSheetProps {
   onNext?: () => void;
   hasPrev?: boolean;
   hasNext?: boolean;
+  context?: "wizard" | "browse";
 }
 
 export function CompareSheet({ 
@@ -30,7 +31,8 @@ export function CompareSheet({
   onPrev,
   onNext,
   hasPrev = false,
-  hasNext = false
+  hasNext = false,
+  context = "wizard"
 }: CompareSheetProps) {
   if (tests.length === 0) return null;
 
@@ -57,13 +59,13 @@ export function CompareSheet({
             {tests.map((test, index) => (
               <Card 
                 key={test.id} 
-                className={`relative ${index === 0 ? 'border-primary' : ''}`} 
+                className={`relative ${context === "wizard" && index === 0 ? 'border-primary' : ''}`} 
                 data-testid={`compare-card-${test.id}`}
               >
-                {index === 0 && (
+                {context === "wizard" && index === 0 && (
                   <Badge className="absolute -top-2 left-4">Recommended</Badge>
                 )}
-                {index === 1 && (
+                {context === "wizard" && index === 1 && (
                   <Badge variant="secondary" className="absolute -top-2 left-4">Alternative</Badge>
                 )}
                 <CardHeader className="pb-3 pt-6">

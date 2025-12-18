@@ -437,7 +437,7 @@ export default function AllTests() {
       />
 
       <CompareSheet
-        tests={compareTests}
+        tests={getCompareTestsFromIndex(compareStartIndex)}
         open={showCompare}
         onClose={() => setShowCompare(false)}
         onRemoveTest={(testId: string) => setCompareTests(compareTests.filter(t => t.id !== testId))}
@@ -445,6 +445,7 @@ export default function AllTests() {
         onNext={handleNextCompare}
         hasPrev={hasPrevCompare}
         hasNext={hasNextCompare}
+        context="browse"
       />
     </div>
   );
