@@ -6,7 +6,7 @@ import { TestResultCard } from "@/components/TestResultCard";
 import { DecisionSummary } from "@/components/DecisionSummary";
 import { CompareSheet } from "@/components/CompareSheet";
 import { statisticalTests, wizardSteps, StatTest } from "@/lib/statsData";
-import { ArrowLeft, RotateCcw, Route } from "lucide-react";
+import { RotateCcw, Route } from "lucide-react";
 
 export default function Results() {
   const [, setLocation] = useLocation();
@@ -82,15 +82,7 @@ export default function Results() {
             <Route className="w-5 h-5 text-primary" />
             <span>StatsTree</span>
           </Link>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/wizard" data-testid="link-new-selection">
-                <RotateCcw className="w-4 h-4 mr-1" />
-                New Selection
-              </Link>
-            </Button>
-            <ThemeToggle />
-          </div>
+          <ThemeToggle />
         </div>
       </header>
 
@@ -133,9 +125,9 @@ export default function Results() {
               
               <div className="flex flex-col gap-3">
                 <Button variant="outline" asChild>
-                  <Link href="/wizard" data-testid="button-modify-selections">
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Modify Selections
+                  <Link href="/wizard" data-testid="button-reset-wizard">
+                    <RotateCcw className="w-4 h-4 mr-2" />
+                    Reset Wizard
                   </Link>
                 </Button>
                 <Button variant="outline" asChild>
