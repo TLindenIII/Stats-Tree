@@ -77,10 +77,12 @@ export default function Wizard() {
             <span>StatsTree</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={handleReset} data-testid="button-start-over">
-              <RotateCcw className="w-4 h-4 mr-1" />
-              Start Over
-            </Button>
+            {Object.keys(selections).length > 0 && (
+              <Button variant="ghost" size="sm" onClick={handleReset} data-testid="button-start-over">
+                <RotateCcw className="w-4 h-4 mr-1" />
+                Start Over
+              </Button>
+            )}
             <Button variant="ghost" size="sm" asChild>
               <Link href="/flowchart" data-testid="link-use-flowchart">
                 Use Flowchart

@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { ArrowRight, Target, Layers, CheckSquare, Route, GitBranch, BookOpen, Network } from "lucide-react";
+import { ArrowRight, Target, Layers, CheckSquare, Route, GitBranch, BookOpen, Network, Wand2 } from "lucide-react";
 import { statisticalTests, categoryGroups } from "@/lib/statsData";
 
 export default function Home() {
@@ -37,14 +37,7 @@ export default function Home() {
             <Route className="w-5 h-5 text-primary" />
             <span>StatsTree</span>
           </Link>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/wizard" data-testid="link-start-wizard-header">
-                Start Wizard
-              </Link>
-            </Button>
-            <ThemeToggle />
-          </div>
+          <ThemeToggle />
         </div>
       </header>
 
@@ -61,8 +54,8 @@ export default function Home() {
             <div className="flex justify-center gap-4 pt-4 flex-wrap">
               <Button size="lg" asChild>
                 <Link href="/wizard" data-testid="button-start-wizard">
+                  <Wand2 className="mr-2 h-5 w-5" />
                   Start Selection Wizard
-                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
@@ -133,7 +126,7 @@ export default function Home() {
 
       <footer className="border-t py-8 px-4">
         <div className="max-w-5xl mx-auto text-center text-sm text-muted-foreground">
-          <p>StatsTree - Statistical Test Selection Tool</p>
+          <p>StatsTree - Statistical Selection Tool</p>
         </div>
       </footer>
     </div>

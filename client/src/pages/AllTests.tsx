@@ -7,7 +7,54 @@ import { TestResultCard } from "@/components/TestResultCard";
 import { TestDetailSheet } from "@/components/TestDetailSheet";
 import { CompareSheet } from "@/components/CompareSheet";
 import { statisticalTests, categoryGroups, StatTest } from "@/lib/statsData";
-import { Search, Route, Filter, X, GitCompare } from "lucide-react";
+import { Search, Route, X, GitCompare } from "lucide-react";
+
+// Simple fuzzy search scoring - returns score (higher = better match)
+function fuzzyScore(text: string, query: string): number {
+  const lowerText = text.toLowerCase();
+  const lowerQuery = query.toLowerCase();
+  
+  // Exact match gets highest score
+  if (lowerText.includes(lowerQuery)) return 100;
+  
+  // Check for word-start matches
+  const words = lowerText.split(/\s+/);
+  const queryWords = lowerQuery.split(/\s+/);
+  let wordMatchScore = 0;
+  for (const qWord of queryWords) {
+    for (const word of words) {
+      if (word.startsWith(qWord)) wordMatchScore += 50;
+      else if (word.includes(qWord)) wordMatchScore += 25;
+    }
+  }
+  if (wordMatchScore > 0) return wordMatchScore;
+  
+  // Character sequence matching (fuzzy)
+  let queryIdx = 0;
+  let consecutiveBonus = 0;
+  let score = 0;
+  for (let i = 0; i < lowerText.length && queryIdx < lowerQuery.length; i++) {
+    if (lowerText[i] === lowerQuery[queryIdx]) {
+      score += 1 + consecutiveBonus;
+      consecutiveBonus += 0.5;
+      queryIdx++;
+    } else {
+      consecutiveBonus = 0;
+    }
+  }
+  
+  // Return score only if all query characters were found
+  return queryIdx === lowerQuery.length ? score : 0;
+}
+
+function matchesSearch(test: StatTest, query: string): boolean {
+  if (!query) return true;
+  const nameScore = fuzzyScore(test.name, query);
+  const descScore = fuzzyScore(test.description, query);
+  const assumptionScore = test.assumptions.reduce((max, a) => Math.max(max, fuzzyScore(a, query)), 0);
+  return nameScore > 0 || descScore > 0 || assumptionScore > 0;
+}
+
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -44,6 +91,7 @@ export default function AllTests() {
 
   const getFilteredTests = (excludeFilter?: string) => {
     return statisticalTests.filter((test) => {
+      const searchMatches = excludeFilter === 'search' || matchesSearch(test, searchQuery);
       const matchesCategory = excludeFilter === 'category' || selectedCategory === null || 
         categoryGroups.find(g => g.id === selectedCategory)?.tests.includes(test.id);
       const matchesMethodFamily = excludeFilter === 'methodFamily' || selectedMethodFamily === null ||
@@ -54,31 +102,31 @@ export default function AllTests() {
         test.design === selectedDesign;
       const matchesLevel = excludeFilter === 'level' || selectedLevel === null ||
         test.level === selectedLevel;
-      return matchesCategory && matchesMethodFamily && matchesOutcomeScale && matchesDesign && matchesLevel;
+      return searchMatches && matchesCategory && matchesMethodFamily && matchesOutcomeScale && matchesDesign && matchesLevel;
     });
   };
 
   const methodFamilies = useMemo(() => {
     const availableTests = getFilteredTests('methodFamily');
     return Array.from(new Set(availableTests.map(t => t.methodFamily))).sort();
-  }, [selectedCategory, selectedOutcomeScale, selectedDesign, selectedLevel]);
+  }, [searchQuery, selectedCategory, selectedOutcomeScale, selectedDesign, selectedLevel]);
 
   const outcomeScales = useMemo(() => {
     const availableTests = getFilteredTests('outcomeScale');
     return Array.from(new Set(availableTests.map(t => t.outcomeScale).filter(Boolean))).sort() as string[];
-  }, [selectedCategory, selectedMethodFamily, selectedDesign, selectedLevel]);
+  }, [searchQuery, selectedCategory, selectedMethodFamily, selectedDesign, selectedLevel]);
 
   const designs = useMemo(() => {
     const availableTests = getFilteredTests('design');
     return Array.from(new Set(availableTests.map(t => t.design).filter(Boolean))).sort() as string[];
-  }, [selectedCategory, selectedMethodFamily, selectedOutcomeScale, selectedLevel]);
+  }, [searchQuery, selectedCategory, selectedMethodFamily, selectedOutcomeScale, selectedLevel]);
 
   const levels = useMemo(() => {
     const order = ["basic", "intermediate", "advanced"];
     const availableTests = getFilteredTests('level');
     const unique = Array.from(new Set(availableTests.map(t => t.level).filter(Boolean))) as string[];
     return unique.sort((a, b) => order.indexOf(a) - order.indexOf(b));
-  }, [selectedCategory, selectedMethodFamily, selectedOutcomeScale, selectedDesign]);
+  }, [searchQuery, selectedCategory, selectedMethodFamily, selectedOutcomeScale, selectedDesign]);
 
   const filteredCategories = useMemo(() => {
     const availableTests = getFilteredTests('category');
@@ -91,7 +139,7 @@ export default function AllTests() {
       });
     });
     return categoryGroups.filter(g => categoryIdsWithTests.has(g.id));
-  }, [selectedMethodFamily, selectedOutcomeScale, selectedDesign, selectedLevel]);
+  }, [searchQuery, selectedMethodFamily, selectedOutcomeScale, selectedDesign, selectedLevel]);
 
   useEffect(() => {
     if (selectedCategory !== null && !filteredCategories.some(c => c.id === selectedCategory)) {
@@ -124,14 +172,9 @@ export default function AllTests() {
   }, [levels, selectedLevel]);
 
   const filteredTests = statisticalTests.filter((test) => {
-    const matchesSearch =
-      searchQuery === "" ||
-      test.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      test.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      test.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      test.methodFamily.toLowerCase().includes(searchQuery.toLowerCase());
+    const searchMatches = matchesSearch(test, searchQuery);
     
-    const matchesCategory = selectedCategory === null || 
+    const matchesCat = selectedCategory === null || 
       categoryGroups.find(g => g.id === selectedCategory)?.tests.includes(test.id);
     
     const matchesMethodFamily = selectedMethodFamily === null ||
@@ -146,7 +189,7 @@ export default function AllTests() {
     const matchesLevel = selectedLevel === null ||
       test.level === selectedLevel;
     
-    return matchesSearch && matchesCategory && matchesMethodFamily && 
+    return searchMatches && matchesCat && matchesMethodFamily && 
            matchesOutcomeScale && matchesDesign && matchesLevel;
   });
 
