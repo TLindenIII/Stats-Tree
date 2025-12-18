@@ -309,9 +309,14 @@ export default function AllTests() {
             <span>StatsTree</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/wizard" data-testid="link-use-wizard">
-                Use Wizard
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/wizard" data-testid="link-wizard">
+                Wizard
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/flowchart" data-testid="link-flowchart">
+                Flowchart
               </Link>
             </Button>
             <ThemeToggle />

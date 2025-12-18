@@ -570,9 +570,14 @@ function FlowchartInner() {
                 Start Over
               </Button>
             )}
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/wizard" data-testid="button-wizard-nav">
-                Use Wizard
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/wizard" data-testid="link-wizard">
+                Wizard
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/tests" data-testid="link-browse">
+                Browse
               </Link>
             </Button>
             <ThemeToggle />

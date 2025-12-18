@@ -83,9 +83,14 @@ export default function Results() {
             <span>StatsTree</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/flowchart" data-testid="link-use-flowchart">
-                Use Flowchart
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/flowchart" data-testid="link-flowchart">
+                Flowchart
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/tests" data-testid="link-browse">
+                Browse
               </Link>
             </Button>
             <ThemeToggle />
