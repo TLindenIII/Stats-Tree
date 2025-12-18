@@ -559,7 +559,14 @@ function FlowchartInner() {
             <span className="text-xs text-muted-foreground">Path:</span>
             {selections.map((sel, i) => (
               <div key={sel.nodeId} className="flex items-center gap-1">
-                <Badge variant="secondary" className="text-xs">
+                <Badge 
+                  variant="secondary" 
+                  className="text-xs cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                  onClick={() => {
+                    removeSelectionsAfter(i + 1);
+                  }}
+                  data-testid={`path-step-${sel.nodeId}`}
+                >
                   {sel.label}
                 </Badge>
                 {i < selections.length - 1 && (
