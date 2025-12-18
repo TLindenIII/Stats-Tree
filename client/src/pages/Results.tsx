@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, useSearch, useLocation } from "wouter";
+import { useSearch, useLocation } from "wouter";
+import { Link } from "@/lib/OfflineLink";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { TestResultCard } from "@/components/TestResultCard";

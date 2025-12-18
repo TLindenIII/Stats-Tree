@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link } from "@/lib/OfflineLink";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ArrowRight, Target, Layers, CheckSquare, Route, GitBranch, BookOpen, Network, Wand2 } from "lucide-react";

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, useLocation, useSearch } from "wouter";
+import { useLocation, useSearch } from "wouter";
+import { Link } from "@/lib/OfflineLink";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { StepProgress } from "@/components/StepProgress";

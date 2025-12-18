@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link } from "@/lib/OfflineLink";
 import { useRef, useEffect, useState } from "react";
 import { useNavContext } from "@/contexts/NavContext";
 
@@ -14,7 +14,7 @@ const navItems = [
 
 export function NavLinks({ currentPage }: NavLinksProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const itemRefs = useRef<Map<string, HTMLAnchorElement>>(new Map());
+  const itemRefs = useRef<Map<string, HTMLElement>>(new Map());
   const { previousPosition, setPreviousPosition } = useNavContext();
   
   const [startPos, setStartPos] = useState<{ left: number; width: number } | null>(null);
@@ -101,21 +101,24 @@ export function NavLinks({ currentPage }: NavLinksProps) {
       {navItems.map((item) => {
         const isActive = item.id === currentPage;
         return (
-          <Link
+          <span
             key={item.id}
-            href={item.href}
-            ref={(el: HTMLAnchorElement | null) => {
+            ref={(el: HTMLSpanElement | null) => {
               if (el) itemRefs.current.set(item.id, el);
             }}
-            data-testid={`nav-${item.id}`}
-            className={`relative px-3 py-1.5 text-sm font-medium transition-colors duration-200 ${
-              isActive 
-                ? "text-foreground" 
-                : "text-muted-foreground hover:text-foreground"
-            }`}
           >
-            {item.label}
-          </Link>
+            <Link
+              href={item.href}
+              data-testid={`nav-${item.id}`}
+              className={`relative px-3 py-1.5 text-sm font-medium transition-colors duration-200 inline-block ${
+                isActive 
+                  ? "text-foreground" 
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {item.label}
+            </Link>
+          </span>
         );
       })}
       {displayPos && (

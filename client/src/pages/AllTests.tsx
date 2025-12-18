@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link, useSearch } from "wouter";
+import { useSearch } from "wouter";
+import { Link } from "@/lib/OfflineLink";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ThemeToggle";

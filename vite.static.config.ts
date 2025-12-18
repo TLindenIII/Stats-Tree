@@ -8,6 +8,9 @@ export default defineConfig({
     react(),
     viteSingleFile(),
   ],
+  define: {
+    'import.meta.env.VITE_OFFLINE_MODE': JSON.stringify('true'),
+  },
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),

@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
-import { Link, useLocation } from "wouter";
+import { useLocation } from "wouter";
+import { Link } from "@/lib/OfflineLink";
 import {
   ReactFlow,
   Controls,
