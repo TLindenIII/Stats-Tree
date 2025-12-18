@@ -78,12 +78,6 @@ export default function Wizard() {
             <span>StatsTree</span>
           </Link>
           <div className="flex items-center gap-2">
-            {Object.keys(selections).length > 0 && (
-              <Button variant="ghost" size="sm" onClick={handleReset} data-testid="button-start-over">
-                <RotateCcw className="w-4 h-4 mr-1" />
-                Start Over
-              </Button>
-            )}
             <NavLinks currentPage="wizard" />
             <ThemeToggle />
           </div>
@@ -130,8 +124,15 @@ export default function Wizard() {
               </div>
             </div>
 
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 space-y-4">
               <DecisionSummary steps={wizardSteps} selections={selections} onStepClick={handleStepClick} />
+              
+              {Object.keys(selections).length > 0 && (
+                <Button variant="outline" className="w-full" onClick={handleReset} data-testid="button-reset-wizard">
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  Reset Wizard
+                </Button>
+              )}
             </div>
           </div>
         </div>
