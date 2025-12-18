@@ -40,15 +40,22 @@ function scoreText(text: string, query: string): number {
   // Starts with query - very high
   if (lowerText.startsWith(lowerQuery)) return 800;
   
-  // Contains exact query as substring
-  if (lowerText.includes(lowerQuery)) return 600;
+  // Contains exact query phrase as substring - high priority for multi-word queries
+  if (lowerText.includes(lowerQuery)) {
+    // Bonus points based on query length (longer phrases = more specific = higher score)
+    return 600 + Math.min(lowerQuery.length * 10, 200);
+  }
   
   // Word-level matching
   const textWords = lowerText.split(/\s+/);
-  const queryWords = lowerQuery.split(/\s+/);
+  const queryWords = lowerQuery.split(/\s+/).filter(w => w.length > 0);
   let wordScore = 0;
+  let matchedWords = 0;
   
   for (const qWord of queryWords) {
+    // Skip single-character words for individual scoring (but they count in phrase match above)
+    if (qWord.length === 1) continue;
+    
     let bestWordMatch = 0;
     for (const word of textWords) {
       // Exact word match
@@ -57,7 +64,7 @@ function scoreText(text: string, query: string): number {
       if (word.startsWith(qWord)) { bestWordMatch = Math.max(bestWordMatch, 300); continue; }
       // Word contains query word
       if (word.includes(qWord)) { bestWordMatch = Math.max(bestWordMatch, 200); continue; }
-      // Fuzzy match with typo tolerance (for words 4+ chars)
+      // Fuzzy match with typo tolerance (for words 3+ chars)
       if (qWord.length >= 3 && word.length >= 3) {
         const distance = levenshteinDistance(word.slice(0, Math.max(qWord.length, 5)), qWord);
         const maxAllowedDistance = qWord.length <= 4 ? 1 : 2;
@@ -66,6 +73,7 @@ function scoreText(text: string, query: string): number {
         }
       }
     }
+    if (bestWordMatch > 0) matchedWords++;
     wordScore += bestWordMatch;
   }
   
