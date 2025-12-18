@@ -230,7 +230,7 @@ function TestDetailPanel({ tests, open, onClose, onAlternativeClick }: { tests: 
                     Assumptions
                   </h4>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    {test.assumptions.map((a, i) => (
+                    {[...test.assumptions].sort((a, b) => a.localeCompare(b)).map((a, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <span className="text-muted-foreground/50">-</span>
                         {a}
@@ -245,7 +245,7 @@ function TestDetailPanel({ tests, open, onClose, onAlternativeClick }: { tests: 
                     When to Use
                   </h4>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    {test.whenToUse.map((w, i) => (
+                    {[...test.whenToUse].sort((a, b) => a.localeCompare(b)).map((w, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <span className="text-muted-foreground/50">-</span>
                         {w}

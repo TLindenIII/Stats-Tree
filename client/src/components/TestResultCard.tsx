@@ -100,7 +100,7 @@ export function TestResultCard({
             </AccordionTrigger>
             <AccordionContent>
               <ul className="space-y-2">
-                {test.assumptions.map((assumption, i) => (
+                {[...test.assumptions].sort((a, b) => a.localeCompare(b)).map((assumption, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm">
                     <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                     <span>{assumption}</span>
@@ -119,7 +119,7 @@ export function TestResultCard({
             </AccordionTrigger>
             <AccordionContent>
               <ul className="space-y-2">
-                {test.whenToUse.map((use, i) => (
+                {[...test.whenToUse].sort((a, b) => a.localeCompare(b)).map((use, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm">
                     <ArrowRight className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                     <span>{use}</span>

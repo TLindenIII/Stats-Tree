@@ -92,7 +92,7 @@ export function CompareSheet({ tests, open, onClose, onRemoveTest }: CompareShee
                       Assumptions
                     </h5>
                     <ul className="space-y-1.5 pl-1">
-                      {test.assumptions.slice(0, 4).map((assumption, i) => (
+                      {[...test.assumptions].sort((a, b) => a.localeCompare(b)).slice(0, 4).map((assumption, i) => (
                         <li key={i} className="flex items-start gap-2 text-xs">
                           <CheckCircle className="w-3.5 h-3.5 text-primary mt-0.5 flex-shrink-0" />
                           <span>{assumption}</span>
@@ -112,7 +112,7 @@ export function CompareSheet({ tests, open, onClose, onRemoveTest }: CompareShee
                       When to Use
                     </h5>
                     <ul className="space-y-1.5 pl-1">
-                      {test.whenToUse.slice(0, 3).map((use, i) => (
+                      {[...test.whenToUse].sort((a, b) => a.localeCompare(b)).slice(0, 3).map((use, i) => (
                         <li key={i} className="flex items-start gap-2 text-xs">
                           <ArrowRight className="w-3.5 h-3.5 text-muted-foreground mt-0.5 flex-shrink-0" />
                           <span>{use}</span>
