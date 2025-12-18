@@ -1,4 +1,6 @@
-# StatsTree — Find the Right Statistical Test
+# StatsTree
+
+![](./readme-images/front-page.png)
 
 **StatsTree** is an interactive, web-based decision tool designed to help researchers, students, and analysts select the most appropriate statistical test based on their research goals, data structure, and study design.
 
@@ -20,6 +22,8 @@ The platform is designed to be intuitive, educational, and completely free to us
 
 ## How It Works
 
+![](./readme-images/how-it-works.png)
+
 ### Goal-Oriented Selection
 Users begin with their research question—such as comparing groups, testing relationships, or analyzing repeated measures—and are guided toward the appropriate class of statistical methods.
 
@@ -40,9 +44,23 @@ Rather than treating statistical tests as interchangeable, StatsTree emphasizes 
 
 ## Platform Features
 
-- **Selection Wizard** — guided, question-based test selection  
-- **Flowchart** — visual representation of statistical decision logic  
-- **Browse All Tests** — complete catalog of supported methods  
+### **Selection Wizard** — guided, question-based test selection
+
+![](./readme-images/wizard.png)
+
+### **Flowchart** — visual representation of statistical decision logic  
+
+![](./readme-images/flowchart.png)
+
+### **Browse All Tests** — complete catalog of supported methods  
+
+![](./readme-images/browse-all.png)
+
+### **Compare** - recommendation alternatives or up to 3 tests of your choice
+
+![](./readme-images/compare-alternatives.png)
+
+![](./readme-images/compare-tests.png)
 
 ---
 
@@ -50,9 +68,7 @@ Rather than treating statistical tests as interchangeable, StatsTree emphasizes 
 
 StatsTree currently includes:
 
-- **101 statistical tests**
-- **16 methodological categories**
-- **100% free to use**
+![](./readme-images/coverage.png)
 
 Covered scenarios include:
 - Parametric and non-parametric group comparisons
