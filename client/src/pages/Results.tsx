@@ -82,7 +82,14 @@ export default function Results() {
             <Route className="w-5 h-5 text-primary" />
             <span>StatsTree</span>
           </Link>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/flowchart" data-testid="link-use-flowchart">
+                Use Flowchart
+              </Link>
+            </Button>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 

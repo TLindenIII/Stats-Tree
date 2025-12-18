@@ -81,6 +81,11 @@ export default function Wizard() {
               <RotateCcw className="w-4 h-4 mr-1" />
               Start Over
             </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/flowchart" data-testid="link-use-flowchart">
+                Use Flowchart
+              </Link>
+            </Button>
             <ThemeToggle />
           </div>
         </div>
