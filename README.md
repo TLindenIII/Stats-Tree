@@ -92,7 +92,7 @@ StatsTree is intended for:
 
 ### Data Layer
 - Drizzle ORM (configured for PostgreSQL)
-- Currently using in-memory storage (MemStorage)
+- Currently using in-memory storage (`MemStorage`)
 
 ### Styling & Theming
 - Tailwind CSS
@@ -101,6 +101,26 @@ StatsTree is intended for:
   - DM Sans
   - Inter
   - Fira Code
+
+### Offline Packaging & Distribution
+The application supports a fully offline, single-file deployment suitable for `file://` usage and air-gapped environments.
+
+- **Vite**  
+  Used as the primary bundler with a dedicated offline build configuration (`vite.static.config.ts`) that:
+  - Uses a separate entry point (`main-offline.tsx`)
+  - Sets a `VITE_OFFLINE_MODE` environment variable
+  - Inlines all assets with a 100 MB limit
+  - Outputs the build to `dist-offline/`
+
+- **vite-plugin-singlefile**  
+  A Vite plugin that inlines all JavaScript, CSS, and static assets into a single HTML file.  
+  No external files or web server are required.
+
+- **Wouter (`useHashLocation`)**  
+  Uses Wouter’s built-in hash-based routing to enable client-side navigation via `#/path` URLs.  
+  This routing strategy is compatible with the `file://` protocol, unlike traditional path-based routing.
+
+This configuration enables the application to run entirely from a single HTML file while preserving full client-side routing and application functionality.
 
 ---
 
