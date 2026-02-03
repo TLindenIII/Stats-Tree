@@ -1,6 +1,6 @@
 import { build as esbuild } from "esbuild";
 import { build as viteBuild } from "vite";
-import { rm, readFile } from "fs/promises";
+import { rm, readFile, rename } from "fs/promises";
 
 // server deps to bundle to reduce openat(2) syscalls
 // which helps cold start times
@@ -37,6 +37,13 @@ async function buildAll() {
 
   console.log("building client...");
   await viteBuild();
+
+  console.log("building static site for GitHub Pages...");
+  await viteBuild({ configFile: "vite.static.config.ts" });
+  
+  // Rename index-offline.html to index.html for GitHub Pages
+  await rename("docs/index-offline.html", "docs/index.html");
+  console.log("renamed index-offline.html → index.html");
 
   console.log("building server...");
   const pkg = JSON.parse(await readFile("package.json", "utf-8"));

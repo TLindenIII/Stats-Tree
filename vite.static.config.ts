@@ -15,7 +15,6 @@ export default defineConfig({
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
       "@shared": path.resolve(import.meta.dirname, "shared"),
-      "@assets": path.resolve(import.meta.dirname, "attached_assets"),
     },
   },
   root: path.resolve(import.meta.dirname, "client"),
@@ -28,6 +27,7 @@ export default defineConfig({
       input: path.resolve(import.meta.dirname, "client", "index-offline.html"),
       output: {
         inlineDynamicImports: true,
+        assetFileNames: '[name][extname]',
       },
     },
   },
