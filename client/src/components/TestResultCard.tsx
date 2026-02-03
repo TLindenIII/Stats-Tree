@@ -8,7 +8,10 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { CheckCircle, AlertCircle, Info, ArrowRight, Eye, GitCompare, ExternalLink, Code } from "lucide-react";
-import { statisticalTests, type StatTest, getWikipediaUrl } from "@/lib/statsData";
+import { statisticalTests, type StatTest } from "@/lib/statsData";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 
 interface TestResultCardProps {
   test: StatTest;
@@ -62,9 +65,16 @@ export function TestResultCard({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-muted-foreground">{test.description}</p>
+        <div className="text-muted-foreground">
+          <ReactMarkdown 
+            remarkPlugins={[remarkMath]} 
+            rehypePlugins={[rehypeKatex]}
+          >
+            {test.description}
+          </ReactMarkdown>
+        </div>
 
-        {(test.outcomeScale || test.design || test.predictorStructure || getWikipediaUrl(test.id)) && (
+        {(test.outcomeScale || test.design || test.predictorStructure || test.wikipediaUrl) && (
           <div className="flex gap-4 text-sm text-muted-foreground flex-wrap">
             {test.outcomeScale && (
               <span><strong>Outcome:</strong> {test.outcomeScale}</span>
@@ -75,9 +85,9 @@ export function TestResultCard({
             {test.predictorStructure && (
               <span><strong>Predictors:</strong> {test.predictorStructure}</span>
             )}
-            {getWikipediaUrl(test.id) && (
+            {test.wikipediaUrl && (
               <a
-                href={getWikipediaUrl(test.id)!}
+                href={test.wikipediaUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-primary hover:underline"
@@ -100,10 +110,17 @@ export function TestResultCard({
             </AccordionTrigger>
             <AccordionContent>
               <ul className="space-y-2">
-                {[...test.assumptions].sort((a, b) => a.localeCompare(b)).map((assumption, i) => (
+                {test.assumptions.map((assumption, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm">
                     <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>{assumption}</span>
+                    <div className="markdown-inline">
+                      <ReactMarkdown 
+                        remarkPlugins={[remarkMath]} 
+                        rehypePlugins={[rehypeKatex]}
+                      >
+                        {assumption}
+                      </ReactMarkdown>
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -119,10 +136,17 @@ export function TestResultCard({
             </AccordionTrigger>
             <AccordionContent>
               <ul className="space-y-2">
-                {[...test.whenToUse].sort((a, b) => a.localeCompare(b)).map((use, i) => (
+                {test.whenToUse.map((use, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm">
                     <ArrowRight className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <span>{use}</span>
+                    <div className="markdown-inline">
+                      <ReactMarkdown 
+                        remarkPlugins={[remarkMath]} 
+                        rehypePlugins={[rehypeKatex]}
+                      >
+                        {use}
+                      </ReactMarkdown>
+                    </div>
                   </li>
                 ))}
               </ul>

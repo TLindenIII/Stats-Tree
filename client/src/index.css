@@ -1,3 +1,10 @@
+@import "katex/dist/katex.min.css";
+
+/* Fix for KaTeX double rendering (hide MathML) */
+.katex-mathml {
+  display: none;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

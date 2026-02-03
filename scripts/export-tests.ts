@@ -1,4 +1,4 @@
-import { statisticalTests, categoryGroups, getWikipediaUrl } from "../client/src/lib/statsData";
+import { statisticalTests, categoryGroups } from "../client/src/lib/statsData";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -10,6 +10,7 @@ const exportData = {
   categoryGroups: categoryGroups.map(g => ({
     id: g.id,
     label: g.label,
+    tests: g.tests,
     testCount: g.tests.length
   })),
   tests: statisticalTests.map(test => ({
@@ -27,7 +28,10 @@ const exportData = {
     design: test.design ?? null,
     level: test.level ?? null,
     alternativeLinks: test.alternativeLinks ?? [],
-    wikipediaUrl: getWikipediaUrl(test.id)
+    wikipediaUrl: test.wikipediaUrl ?? null,
+    pythonCode: test.pythonCode ?? null,
+    rCode: test.rCode ?? null,
+    verified: test.verified ?? false
   })),
   schemaVersion: 2
 };

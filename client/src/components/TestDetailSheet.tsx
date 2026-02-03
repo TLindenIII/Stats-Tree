@@ -9,8 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CheckCircle2, AlertCircle, Lightbulb, ExternalLink, GitCompare, Code, Route, ArrowRight } from "lucide-react";
-import { statisticalTests, type StatTest, getWikipediaUrl } from "@/lib/statsData";
+import { statisticalTests, type StatTest } from "@/lib/statsData";
 import { useLocation } from "wouter";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 
 interface TestDetailSheetProps {
   test: StatTest | null;
@@ -32,7 +35,12 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick }: TestDetai
             {test.name}
           </DialogTitle>
           <DialogDescription>
-            {test.description}
+            <ReactMarkdown 
+              remarkPlugins={[remarkMath]} 
+              rehypePlugins={[rehypeKatex]}
+            >
+              {test.description}
+            </ReactMarkdown>
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="max-h-[calc(85vh-140px)]">
@@ -40,7 +48,14 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick }: TestDetai
             <div className="space-y-4 p-4 bg-muted/50 rounded-md">
               <div>
                 <h3 className="font-semibold font-mono text-base">{test.name}</h3>
-                <p className="text-sm text-muted-foreground mt-1">{test.description}</p>
+                <div className="text-sm text-muted-foreground mt-1">
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkMath]} 
+                    rehypePlugins={[rehypeKatex]}
+                  >
+                    {test.description}
+                  </ReactMarkdown>
+                </div>
                 <div className="flex gap-3 mt-2 flex-wrap items-center">
                   <Badge variant="outline">{test.category}</Badge>
                   {test.outcomeScale && (
@@ -49,9 +64,9 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick }: TestDetai
                   {test.design && (
                     <span className="text-xs text-muted-foreground"><strong>Design:</strong> {test.design}</span>
                   )}
-                  {getWikipediaUrl(test.id) && (
+                  {test.wikipediaUrl && (
                     <a
-                      href={getWikipediaUrl(test.id)!}
+                      href={test.wikipediaUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
@@ -70,10 +85,17 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick }: TestDetai
                   Assumptions
                 </h4>
                 <ul className="text-sm text-muted-foreground space-y-1">
-                  {[...test.assumptions].sort((a, b) => a.localeCompare(b)).map((a, i) => (
+                  {test.assumptions.map((a, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <span className="text-muted-foreground/50">-</span>
-                      {a}
+                      <div className="markdown-inline">
+                        <ReactMarkdown 
+                          remarkPlugins={[remarkMath]} 
+                          rehypePlugins={[rehypeKatex]}
+                        >
+                          {a}
+                        </ReactMarkdown>
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -85,10 +107,17 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick }: TestDetai
                   When to Use
                 </h4>
                 <ul className="text-sm text-muted-foreground space-y-1">
-                  {[...test.whenToUse].sort((a, b) => a.localeCompare(b)).map((w, i) => (
+                  {test.whenToUse.map((w, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <span className="text-muted-foreground/50">-</span>
-                      {w}
+                      <div className="markdown-inline">
+                        <ReactMarkdown 
+                          remarkPlugins={[remarkMath]} 
+                          rehypePlugins={[rehypeKatex]}
+                        >
+                          {w}
+                        </ReactMarkdown>
+                      </div>
                     </li>
                   ))}
                 </ul>

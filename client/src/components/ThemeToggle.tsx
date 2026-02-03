@@ -5,7 +5,10 @@ import { Button } from "@/components/ui/button";
 export function ThemeToggle() {
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window !== "undefined") {
-      return (localStorage.getItem("theme") as "light" | "dark") || "light";
+      const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
+      if (savedTheme) return savedTheme;
+      
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     }
     return "light";
   });
@@ -19,6 +22,21 @@ export function ThemeToggle() {
     }
     localStorage.setItem("theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = (e: MediaQueryListEvent) => {
+      // Only auto-update if the user hasn't manually set a preference in this session
+      // Or we can just always follow system if we want. 
+      // Most robust is to check if 'theme' exists in localStorage.
+      if (!localStorage.getItem("theme")) {
+        setTheme(e.matches ? "dark" : "light");
+      }
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "light" ? "dark" : "light"));

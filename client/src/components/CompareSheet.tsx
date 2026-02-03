@@ -10,6 +10,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CheckCircle, AlertCircle, ArrowRight, GitCompare, ChevronLeft, ChevronRight } from "lucide-react";
 import type { StatTest } from "@/lib/statsData";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 
 interface CompareSheetProps {
   tests: StatTest[];
@@ -80,7 +83,14 @@ export function CompareSheet({
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm">
-                  <p className="text-muted-foreground text-xs min-h-[3rem]">{test.description}</p>
+                  <div className="text-muted-foreground text-xs min-h-[3rem]">
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkMath]} 
+                      rehypePlugins={[rehypeKatex]}
+                    >
+                      {test.description}
+                    </ReactMarkdown>
+                  </div>
 
                   <div className="grid grid-cols-1 gap-1 text-xs bg-muted/50 p-2 rounded-md min-h-[4.5rem]">
                     {test.outcomeScale && (
@@ -109,10 +119,17 @@ export function CompareSheet({
                       Assumptions
                     </h5>
                     <ul className="space-y-1 pl-1">
-                      {[...test.assumptions].sort((a, b) => a.localeCompare(b)).slice(0, 4).map((assumption, i) => (
+                      {test.assumptions.slice(0, 4).map((assumption, i) => (
                         <li key={i} className="flex items-start gap-1.5 text-xs">
                           <CheckCircle className="w-3 h-3 text-primary mt-0.5 flex-shrink-0" />
-                          <span>{assumption}</span>
+                          <div className="markdown-inline">
+                            <ReactMarkdown 
+                              remarkPlugins={[remarkMath]} 
+                              rehypePlugins={[rehypeKatex]}
+                            >
+                              {assumption}
+                            </ReactMarkdown>
+                          </div>
                         </li>
                       ))}
                       {test.assumptions.length > 4 && (
@@ -129,10 +146,17 @@ export function CompareSheet({
                       When to Use
                     </h5>
                     <ul className="space-y-1 pl-1">
-                      {[...test.whenToUse].sort((a, b) => a.localeCompare(b)).slice(0, 3).map((use, i) => (
+                      {test.whenToUse.slice(0, 3).map((use, i) => (
                         <li key={i} className="flex items-start gap-1.5 text-xs">
                           <ArrowRight className="w-3 h-3 text-muted-foreground mt-0.5 flex-shrink-0" />
-                          <span>{use}</span>
+                          <div className="markdown-inline">
+                            <ReactMarkdown 
+                              remarkPlugins={[remarkMath]} 
+                              rehypePlugins={[rehypeKatex]}
+                            >
+                              {use}
+                            </ReactMarkdown>
+                          </div>
                         </li>
                       ))}
                       {test.whenToUse.length > 3 && (
