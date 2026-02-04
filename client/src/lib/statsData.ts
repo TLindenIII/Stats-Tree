@@ -168,16 +168,18 @@ print(t_pooled)
     design: "paired/repeated measures",
     level: "basic",
     alternativeLinks: ["wilcoxon-signed-rank"],
-    verified: false,
+    verified: true,
     pythonCode: `
 from scipy import stats
 
-# x and y are 1D arrays of observations
+# x and y are paired1D arrays: each position i is the same subject/unit measured twice
+# (e.g., pre vs post, or condition A vs condition B), so length(x) == length(y).
 t_paired, p_val = stats.ttest_rel(x, y)
 print("t =", t_paired, "p =", p_val)
     `.trim(),
     rCode: `
-# x and y are numeric vectors of observations
+# x and y are paired numeric vectors: each position i is the same subject/unit measured twice
+# (e.g., pre vs post, or condition A vs condition B), so length(x) == length(y).
 t_paired <- t.test(x, y, paired = TRUE)
 print(t_paired)
     `.trim(),

@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/accordion";
 import { CheckCircle, AlertCircle, Info, ArrowRight, Eye, GitCompare, ExternalLink, Code } from "lucide-react";
 import { statisticalTests, type StatTest } from "@/lib/statsData";
+import { CodeBlock } from "@/components/ui/CodeBlock";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -223,17 +224,13 @@ export function TestResultCard({
                   <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
                     <Badge variant="outline" className="text-xs">Python</Badge>
                   </h5>
-                  <pre className="bg-muted p-3 rounded-md text-xs overflow-x-auto">
-                    <code className="text-muted-foreground">{test.pythonCode || `# Python code example coming soon`}</code>
-                  </pre>
+                  <CodeBlock code={test.pythonCode || `# Python code example coming soon`} lang="python" />
                 </div>
                 <div>
                   <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
                     <Badge variant="outline" className="text-xs">R</Badge>
                   </h5>
-                  <pre className="bg-muted p-3 rounded-md text-xs overflow-x-auto">
-                    <code className="text-muted-foreground">{test.rCode || `# R code example coming soon`}</code>
-                  </pre>
+                  <CodeBlock code={test.rCode || `# R code example coming soon`} lang="r" />
                 </div>
               </div>
             </AccordionContent>

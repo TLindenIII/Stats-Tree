@@ -11,6 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { CheckCircle2, AlertCircle, Lightbulb, ExternalLink, GitCompare, Code, Route, ArrowRight } from "lucide-react";
 import { statisticalTests, type StatTest } from "@/lib/statsData";
 import { useLocation } from "wouter";
+import { CodeBlock } from "@/components/ui/CodeBlock";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -172,17 +173,13 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick }: TestDetai
                     <h5 className="text-xs font-medium mb-1 flex items-center gap-2">
                       <Badge variant="outline" className="text-[10px]">Python</Badge>
                     </h5>
-                    <pre className="bg-background p-2 rounded text-[10px] overflow-x-auto">
-                      <code className="text-muted-foreground">{test.pythonCode || `# Python code example coming soon`}</code>
-                    </pre>
+                    <CodeBlock code={test.pythonCode || `# Python code example coming soon`} lang="python" />
                   </div>
                   <div>
                     <h5 className="text-xs font-medium mb-1 flex items-center gap-2">
                       <Badge variant="outline" className="text-[10px]">R</Badge>
                     </h5>
-                    <pre className="bg-background p-2 rounded text-[10px] overflow-x-auto">
-                      <code className="text-muted-foreground">{test.rCode || `# R code example coming soon`}</code>
-                    </pre>
+                    <CodeBlock code={test.rCode || `# R code example coming soon`} lang="r" />
                   </div>
                 </div>
               </div>
