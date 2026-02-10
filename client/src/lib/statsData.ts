@@ -131,16 +131,12 @@ export const statisticalTests: StatTest[] = [
     alternativeLinks: ["mann-whitney", "welch-t-test", "bayesian-t-test"],
     verified: true,
     pythonCode: `
-from scipy import stats
-
-# x and y are 1D arrays of observations
-t_pooled, p_val = stats.ttest_ind(x, y, equal_var=True)
-print("t =", t_pooled, "p =", p_val)
+# a and b are 1D arrays of observations
+t_pooled, p_val = scipy.stats.ttest_ind(a, b, equal_var=True)
 `.trim(),
     rCode: `
-# x and y are numeric vectors of observations
-t_pooled <- t.test(x, y, var.equal = TRUE)
-print(t_pooled)
+# a and b are numeric vectors of observations
+t_pooled <- t.test(a, b, var.equal = TRUE)
 `.trim(),
   },
   {
@@ -170,18 +166,14 @@ print(t_pooled)
     alternativeLinks: ["wilcoxon-signed-rank"],
     verified: true,
     pythonCode: `
-from scipy import stats
-
-# x and y are paired1D arrays: each position i is the same subject/unit measured twice
-# (e.g., pre vs post, or condition A vs condition B), so length(x) == length(y).
-t_paired, p_val = stats.ttest_rel(x, y)
-print("t =", t_paired, "p =", p_val)
-    `.trim(),
+# a and b are paired 1D arrays: each position i is the same subject/unit measured twice
+# (e.g., pre vs post, or condition A vs condition B), so length(a) == length(b).
+t_paired, p_val = scipy.stats.ttest_rel(a, b)
+`.trim(),
     rCode: `
-# x and y are paired numeric vectors: each position i is the same subject/unit measured twice
-# (e.g., pre vs post, or condition A vs condition B), so length(x) == length(y).
-t_paired <- t.test(x, y, paired = TRUE)
-print(t_paired)
+# a and b are paired numeric vectors: each position i is the same subject/unit measured twice
+# (e.g., pre vs post, or condition A vs condition B), so length(a) == length(b).
+t_paired <- t.test(a, b, paired = TRUE)
     `.trim(),
   },
   {
@@ -1329,8 +1321,14 @@ print(t_paired)
     level: "basic",
     alternativeLinks: ["t-test-independent", "mann-whitney"],
     verified: false,
-    pythonCode: "",
-    rCode: "",
+    pythonCode: `
+# a and b are 1D arrays of observations
+t_welch, p_val = scipy.stats.ttest_ind(a, b, equal_var=False)
+    `.trim(),
+    rCode: `
+# a and b are numeric vectors of observations
+t_welch <- t.test(a, b, var.equal = FALSE)
+    `.trim(),
   },
   {
     id: "welch-anova",
