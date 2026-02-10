@@ -20,9 +20,10 @@ interface TestDetailSheetProps {
   test: StatTest | null;
   onClose: () => void;
   onAlternativeClick: (testId: string) => void;
+  showWizardButton?: boolean;
 }
 
-export function TestDetailSheet({ test, onClose, onAlternativeClick }: TestDetailSheetProps) {
+export function TestDetailSheet({ test, onClose, onAlternativeClick, showWizardButton = true }: TestDetailSheetProps) {
   const [, setLocation] = useLocation();
   
   if (!test) return null;
@@ -185,14 +186,16 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick }: TestDetai
               </div>
             </div>
             
-            <Button 
-              className="w-full" 
-              onClick={() => setLocation("/wizard")}
-              data-testid="button-use-wizard"
-            >
-              Use Wizard for Recommendations
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
+            {showWizardButton && (
+              <Button 
+                className="w-full" 
+                onClick={() => setLocation("/wizard")}
+                data-testid="button-use-wizard"
+              >
+                Use Wizard for Recommendations
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
+            )}
           </div>
         </ScrollArea>
       </DialogContent>

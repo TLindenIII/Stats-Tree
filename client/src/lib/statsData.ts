@@ -189,7 +189,7 @@ export const wizardSteps: WizardStep[] = [
       { value: "clustered", label: "Clustered / hierarchical", description: "Nested data like students in schools" },
       { value: "time-series", label: "Time series", description: "Sequential observations over time" },
     ],
-    askWhen: (ctx) => ctx.goal === "compare" || ctx.goal === "model",
+    askWhen: (ctx) => ctx.goal === "compare" || ctx.goal === "model" || ctx.goal === "associate",
   },
 
   // Normality — compare + continuous
@@ -715,7 +715,6 @@ t_paired <- t.test(a, b, paired = TRUE)
     boosts: {
       modelingFocus: { inference: 3, prediction: 1 },
       stance: { parametric: 2, unsure: 1 },
-      predictorsCount: { "1": 3 },
       mixedEffects: { no: 1 },
     },
   },
@@ -744,7 +743,6 @@ t_paired <- t.test(a, b, paired = TRUE)
     boosts: {
       modelingFocus: { inference: 3, prediction: 1 },
       stance: { parametric: 2, unsure: 1 },
-      predictorsCount: { many: 3 },
       mixedEffects: { no: 1 },
     },
   },
@@ -854,10 +852,39 @@ t_paired <- t.test(a, b, paired = TRUE)
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "categorical_assoc" },
+    requires: { tableType: "rxc" },
     boosts: {
-      tableType: { "2x2": 2, rxc: 3 },
-      stance: { parametric: 1, unsure: 1 },
+      goal: { categorical_assoc: 3, compare: 3 },
+      tableType: { rxc: 3 },
+      stance: { nonparametric: 2, unsure: 1 },
+    },
+  },
+  },
+  {
+    id: "chi-square-2x2",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Chi-squared_test",
+    name: "Chi-Square Test (2x2)",
+    description: "Tests association between two binary variables (large sample).",
+    assumptions: ["Expected cell count >= 5", "Independent observations", "2x2 table"],
+    whenToUse: ["Testing association in 2x2 tables", "Sample size sufficient"],
+    alternatives: ["Fisher's exact test (small samples)"],
+    methodFamily: "Nonparametric",
+    category: "Categorical",
+    categoryId: "categorical",
+    outcomeScale: "nominal",
+    predictorStructure: "single categorical",
+    design: "cross-sectional",
+    level: "basic",
+    alternativeLinks: ["fisher-exact", "mcnemar-test"],
+    verified: false,
+    pythonCode: "",
+    rCode: "",
+    rules: {
+    requires: { tableType: "2x2" },
+    boosts: {
+      goal: { categorical_assoc: 3, compare: 3 },
+      tableType: { "2x2": 3 },
+      stance: { nonparametric: 2, unsure: 1 },
     },
   },
   },
@@ -881,8 +908,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "categorical_assoc" },
+    requires: { tableType: "2x2" },
     boosts: {
+      goal: { categorical_assoc: 3, compare: 3 },
       tableType: { "2x2": 3 },
       stance: { nonparametric: 2, unsure: 1 },
     },
@@ -2117,7 +2145,7 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     rules: {
     requires: { goal: "associate" },
     boosts: {
-      outcomeScale: { binary: 3 },
+      outcomeScale: { continuous: 3 },
       stance: { parametric: 2, unsure: 1 },
     },
   },

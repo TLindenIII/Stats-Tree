@@ -41,7 +41,7 @@ export function TestResultCard({
 
   return (
     <Card
-      className={isPrimary ? "border-primary" : ""}
+      className={isPrimary ? "border-blue-500 border-2 shadow-md" : ""}
       data-testid={`test-result-${test.id}`}
     >
       <CardHeader className="pb-3">

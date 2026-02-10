@@ -3,7 +3,6 @@ import { useLocation, useSearch } from "wouter";
 import { Link } from "@/lib/OfflineLink";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { StepProgress } from "@/components/StepProgress";
 import { WizardQuestion } from "@/components/WizardQuestion";
 import { DecisionSummary } from "@/components/DecisionSummary";
 import { NavLinks } from "@/components/NavLinks";
@@ -38,22 +37,73 @@ export default function Wizard() {
   const [currentStepId, setCurrentStepId] = useState<string>("goal");
   const [tags, setTags] = useState<Record<string, any>>({});
 
-  // Restore state from URL if present (simplified for now, mostly for results -> back)
+  // Restore state from URL if present
   useEffect(() => {
-    const fromTags = params.get("tags");
-    const fromStep = params.get("step");
-    if (fromTags) {
+    const fromSelectionsStr = params.get("selections");
+    const targetStepId = params.get("step");
+
+    if (fromSelectionsStr) {
       try {
-        setTags(JSON.parse(decodeURIComponent(fromTags)));
+        const parsedSelections: Record<string, string> = JSON.parse(decodeURIComponent(fromSelectionsStr));
+        
+        // Rehydrate logic:
+        // We need to rebuild the history stack based on the selections provided.
+        // We start at "goal" and follow the selection path until we reach targetStepId 
+        // OR we run out of valid next steps.
+        
+        const restoredHistory: string[] = [];
+        let simStepId = "goal";
+        
+        // Safety / Loop limit
+        let stepsProcessed = 0;
+        const maxSteps = 100;
+
+        while (stepsProcessed < maxSteps) {
+             // If we reached the target step, stop (it becomes currentStepId)
+             if (targetStepId && simStepId === targetStepId) {
+                 break;
+             }
+
+             // Check if we have a selection for this step
+             const selectedValue = parsedSelections[simStepId];
+             if (!selectedValue) {
+                 // No selection for this step, so we stop here.
+                 // This step becomes the current one.
+                 break;
+             }
+
+             // Find the step definition
+             const stepDef = wizardLogic.steps.find(s => s.id === simStepId);
+             if (!stepDef) break; // Should not happen if logic is consistent
+
+             // Find the selected option
+             const option = stepDef.options.find(o => o.value === selectedValue);
+             if (!option) break; // Invalid selection value?
+
+             // Valid selection found.
+             // Add current step to history
+             restoredHistory.push(simStepId);
+             
+             // Move to next step
+             if (option.next === "leaf") {
+                 // End of wizard. Steps here is leaf?
+                 // If we are restoring, we likely want to review a previous step.
+                 // If the target was "leaf" (not really a step ID), we just stop.
+                 break;
+             } else {
+                 simStepId = option.next;
+             }
+             
+             stepsProcessed++;
+        }
+
+        setSelections(parsedSelections);
+        setHistory(restoredHistory);
+        setCurrentStepId(simStepId);
+
       } catch (e) {
-        console.error("Failed to parse tags", e);
+        console.error("Failed to parse selections or restore state", e);
       }
-    }
-    if (fromStep && fromStep !== "goal") {
-        // If we are restoring, we might need to reconstruct history.
-        // For now, let's just start fresh if it's too complex or just accept the tags.
-        // A robust implementation would need to replay the path or store the history in URL.
-        // Given the "hardcode" nature, let's keep it simple: any invalid state resets to start.
     }
   }, []);
 
@@ -78,7 +128,7 @@ export default function Wizard() {
     if (!selectedOption) return;
 
     // 1. Update tags
-    const newTags = structuredClone(tags); // Deep copy
+    const newTags = JSON.parse(JSON.stringify(tags)); // Deep copy (avoid structuredClone for broad compatibility)
     if (selectedOption.set_tags) {
         // Recursive merge helper or just simple merge? Use simple for now, but handle nesting.
         // The schema uses nested "assumption".
@@ -103,7 +153,7 @@ export default function Wizard() {
     }
   };
   
-  const finishWizard = (finalTags: Record<string, any>) => {
+  const finishWizard = (finalTags: Record<string, any>, finalSelections?: Record<string, string>) => {
       // Find matching rule
       const rule = wizardLogic.recommendation_rules.find(r => matchesRule(finalTags, r.when));
       
@@ -121,8 +171,10 @@ export default function Wizard() {
           console.warn("No rule matched tags:", finalTags);
       }
       
+      const selectionsToPass = finalSelections || selections;
+
       setLocation(
-        `/results?primary=${primaryIds}&alt=${altIds}&comp=${compIds}&tags=${encodeURIComponent(JSON.stringify(finalTags))}`
+        `/results?primary=${primaryIds}&alt=${altIds}&comp=${compIds}&tags=${encodeURIComponent(JSON.stringify(finalTags))}&selections=${encodeURIComponent(JSON.stringify(selectionsToPass))}`
       );
   };
 
@@ -205,7 +257,7 @@ export default function Wizard() {
       if (selectedOption?.next === "leaf") {
           // Calculate final tags including this last step
           // (copy-paste the merge logic or use a helper)
-          let finalTags = structuredClone(derivedTags);
+          let finalTags = JSON.parse(JSON.stringify(derivedTags));
            if (selectedOption.set_tags) {
               for (const [k, v] of Object.entries(selectedOption.set_tags)) {
                 if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
@@ -215,7 +267,7 @@ export default function Wizard() {
                 }
              }
           }
-          finishWizard(finalTags);
+          finishWizard(finalTags, newSelections);
       } else if (selectedOption?.next) {
           setHistory([...history, currentStepId]);
           setCurrentStepId(selectedOption.next);
@@ -294,17 +346,40 @@ export default function Wizard() {
       </header>
 
       <main className="flex-1 py-8 px-4">
-        <div className="max-w-5xl mx-auto space-y-8">
-          <StepProgress
-            steps={progressSteps}
-            currentStep={history.length} 
-            onStepClick={handleStepClick}
-          />
-
+        <div className="max-w-6xl mx-auto">
           {currentStep && (
-            <div className="grid lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                <div className="bg-card rounded-md border p-8">
+            <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+              
+              {/* Sidebar: History / Timeline */}
+              <div className="lg:col-span-4 lg:sticky lg:top-24 order-2 lg:order-1">
+                 <div className="bg-card/50 rounded-xl p-6 border shadow-sm">
+                    <DecisionSummary 
+                        steps={progressSteps} 
+                        selections={selections} 
+                        onStepClick={handleStepClick} 
+                    />
+                    
+                    <div className="mt-8 pt-6 border-t">
+                      <Button variant="outline" className="w-full justify-start text-muted-foreground hover:text-foreground" onClick={handleReset} data-testid="button-reset-wizard">
+                        <RotateCcw className="w-4 h-4 mr-2" />
+                        Restart Analysis
+                      </Button>
+                    </div>
+                 </div>
+              </div>
+
+              {/* Main: Question */}
+              <div className="lg:col-span-8 order-1 lg:order-2 space-y-6">
+                <div className="bg-card rounded-xl border shadow-sm p-6 md:p-10">
+                  <div className="mb-6">
+                     <div className="text-sm font-medium text-primary mb-2 uppercase tracking-wide">
+                        Step {history.length + 1}
+                     </div>
+                     <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+                        {currentStep.title}
+                     </h2>
+                  </div>
+                  
                   <WizardQuestion
                     question={currentStep.question}
                     options={currentStep.options}
@@ -313,42 +388,18 @@ export default function Wizard() {
                   />
                 </div>
 
-                <div className="flex justify-between mt-6 gap-4">
+                <div className="flex justify-start">
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     onClick={onBack}
                     disabled={history.length === 0}
+                    className="text-muted-foreground hover:text-foreground pl-0 hover:bg-transparent"
                     data-testid="button-back"
                   >
                     <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back
+                    Go Back
                   </Button>
-                  {/* Next button is technically redundant as selection auto-advances, but we can keep it if we want "confirm" style 
-                      Current WizardQuestion / Logic often auto-advances. 
-                      Let's rely on WizardQuestion's onSelect which calls our handler. 
-                      If we want a manual "Next", we'd track "pendingSelection".
-                      For now, the previous wizard auto-advanced. keeping that flow.
-                   */}
                 </div>
-              </div>
-
-               <div className="lg:col-span-1 space-y-4">
-                {/* Decision Summary needs to know the "steps" to show. 
-                    We can pass the history-based steps + current. 
-                    And the selections object.
-                */}
-                <DecisionSummary 
-                    steps={progressSteps} 
-                    selections={selections} 
-                    onStepClick={handleStepClick} 
-                />
-                
-                {history.length > 0 && (
-                  <Button variant="outline" className="w-full" onClick={handleReset} data-testid="button-reset-wizard">
-                    <RotateCcw className="w-4 h-4 mr-2" />
-                    Reset Wizard
-                  </Button>
-                )}
               </div>
             </div>
           )}

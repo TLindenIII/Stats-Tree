@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSearch, useLocation } from "wouter";
 import { Link } from "@/lib/OfflineLink";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { TestResultCard } from "@/components/TestResultCard";
+import { TestTile } from "@/components/TestTile";
+import { TestDetailSheet } from "@/components/TestDetailSheet";
 import { DecisionSummary } from "@/components/DecisionSummary";
 import { CompareSheet } from "@/components/CompareSheet";
-import { statisticalTests, wizardSteps, StatTest } from "@/lib/statsData";
-import type { WizardContext } from "@/lib/statsData";
+import { statisticalTests, StatTest } from "@/lib/statsData";
+import { wizardLogic } from "@/lib/wizardKeys";
 import { RotateCcw, Route } from "lucide-react";
 import { NavLinks } from "@/components/NavLinks";
 
@@ -24,7 +26,7 @@ export default function Results() {
 
   // Support both old format (?tests=) and new format (?primary=&alt=&comp=)
   const hasNewFormat = params.has("primary");
-  const selections: WizardContext = JSON.parse(
+  const selections: Record<string, string> = JSON.parse(
     decodeURIComponent(params.get("selections") || "{}")
   );
 
@@ -49,21 +51,51 @@ export default function Results() {
     );
   }
 
-  // Filter visible wizard steps for decision summary
-  const visibleSteps = wizardSteps.filter(
-    (s) => !s.askWhen || s.askWhen(selections)
-  );
+  // Trace the valid path from "goal" to ensure steps are ordered correctly
+  // and exclude any "ghost" selections from abandonded paths.
+  const visibleSteps = useMemo(() => {
+     const list: any[] = [];
+     let simStepId = "goal";
+     let stepsProcessed = 0;
+     const maxSteps = 100; // Safety break
+
+     while (stepsProcessed < maxSteps) {
+         const stepDef = wizardLogic.steps.find(s => s.id === simStepId);
+         if (!stepDef) break;
+
+         const selectedValue = selections[simStepId];
+         if (!selectedValue) break; // Path ends here (or incomplete)
+
+         const option = stepDef.options.find(o => o.value === selectedValue);
+         if (!option) break;
+
+         list.push(stepDef);
+
+         if (option.next === "leaf") {
+             break;
+         }
+         simStepId = option.next;
+         stepsProcessed++;
+     }
+     return list;
+  }, [selections]);
 
   const [compareTests, setCompareTests] = useState<StatTest[]>([]);
   const [showCompare, setShowCompare] = useState(false);
   const [currentBaseTest, setCurrentBaseTest] = useState<StatTest | null>(null);
   const [alternativesList, setAlternativesList] = useState<string[]>([]);
   const [currentAltIndex, setCurrentAltIndex] = useState(0);
+  const [selectedTest, setSelectedTest] = useState<StatTest | null>(null);
 
   const handleStepClick = (stepIndex: number) => {
-    setLocation(
-      `/wizard?step=${stepIndex}&selections=${encodeURIComponent(JSON.stringify(selections))}`
-    );
+    // visibleSteps contains the subset of steps that have been selected.
+    // The index passed here corresponds to the index in visibleSteps.
+    const targetStep = visibleSteps[stepIndex];
+    if (targetStep) {
+        setLocation(
+        `/wizard?step=${targetStep.id}&selections=${encodeURIComponent(JSON.stringify(selections))}`
+        );
+    }
   };
 
   const handleAlternativeClick = (currentTest: StatTest, altId: string) => {
@@ -147,30 +179,50 @@ export default function Results() {
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
+          {/* Compact Summary at Top */}
+          <DecisionSummary
+            variant="compact"
+            steps={visibleSteps}
+            selections={selections}
+            onStepClick={handleStepClick}
+          />
+
+          <div className="space-y-12">
               {allEmpty ? (
-                <div className="bg-card rounded-md border p-8 text-center">
-                  <p className="text-muted-foreground">
-                    No specific recommendations found. Try adjusting your
-                    selections.
+                <div className="bg-card rounded-xl border shadow-sm p-12 text-center max-w-2xl mx-auto">
+                  <div className="mb-4 text-4xl">🤔</div>
+                  <h3 className="text-xl font-semibold mb-2">No exact matches found</h3>
+                  <p className="text-muted-foreground mb-6">
+                    We couldn't find a test that perfectly matches all your criteria. 
+                    Try adjusting your last few selections or browse the full library.
                   </p>
-                  <Button className="mt-4" asChild>
-                    <Link href="/wizard" data-testid="button-try-again">
-                      Try Again
-                    </Link>
-                  </Button>
+                  <div className="flex justify-center gap-4">
+                    <Button asChild>
+                        <Link href="/wizard" data-testid="button-try-again">
+                            Adjust Selections
+                        </Link>
+                    </Button>
+                    <Button variant="outline" asChild>
+                        <Link href="/tests" data-testid="button-view-all-tests">
+                            Browse All Tests
+                        </Link>
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <>
                   {/* ── Primary Recommendations ─────────────────────── */}
                   {primaryTests.length > 0 && (
-                    <section>
-                      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                        <span className="inline-block w-2 h-2 rounded-full bg-green-500" />
-                        Best Matches
-                      </h2>
-                      <div className="space-y-6">
+                    <section className="space-y-6">
+                      <div className="flex items-center gap-3">
+                         <div className="h-8 w-1 bg-blue-500 rounded-full" />
+                         <div>
+                             <h2 className="text-2xl font-semibold">Best Matches</h2>
+                             <p className="text-sm text-muted-foreground">Recommended based on your specific scenario</p>
+                         </div>
+                      </div>
+                      
+                      <div className="grid gap-6">
                         {primaryTests.map((test, idx) => (
                           <TestResultCard
                             key={test.id}
@@ -187,19 +239,26 @@ export default function Results() {
 
                   {/* ── Alternatives ───────────────────────────────── */}
                   {alternativeTests.length > 0 && (
-                    <section>
-                      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                        <span className="inline-block w-2 h-2 rounded-full bg-blue-500" />
-                        Worth Considering
-                      </h2>
-                      <div className="space-y-6">
+                    <section className="space-y-6">
+                      <div className="flex items-center gap-3">
+                         <div className="h-8 w-1 bg-green-500 rounded-full" />
+                         <div>
+                             <h2 className="text-xl font-semibold">Worth Considering</h2>
+                             <p className="text-sm text-muted-foreground">Good alternatives if assumptions aren't met</p>
+                         </div>
+                      </div>
+                      
+                      <div className={`grid gap-4 ${
+                          alternativeTests.length === 1 ? 'grid-cols-1 max-w-md' : 
+                          alternativeTests.length === 2 ? 'grid-cols-1 md:grid-cols-2' : 
+                          'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+                      }`}>
                         {alternativeTests.map((test) => (
-                          <TestResultCard
+                          <TestTile
                             key={test.id}
                             test={test}
-                            onAlternativeClick={(altId) =>
-                              handleAlternativeClick(test, altId)
-                            }
+                            onClick={() => setSelectedTest(test)}
+                            hoverColor="green"
                           />
                         ))}
                       </div>
@@ -208,53 +267,47 @@ export default function Results() {
 
                   {/* ── Companions ─────────────────────────────────── */}
                   {companionTests.length > 0 && (
-                    <section>
-                      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                        <span className="inline-block w-2 h-2 rounded-full bg-amber-500" />
-                        Useful Companions
-                      </h2>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Diagnostics, post-hoc tests, and effect size measures
-                        that complement your primary analysis.
-                      </p>
-                      <div className="grid md:grid-cols-2 gap-4">
+                    <section className="space-y-6">
+                      <div className="flex items-center gap-3">
+                         <div className="h-8 w-1 bg-amber-500 rounded-full" />
+                         <div>
+                             <h2 className="text-xl font-semibold">Useful Companions</h2>
+                             <p className="text-sm text-muted-foreground">Post-hoc tests, effect sizes, and diagnostics</p>
+                         </div>
+                      </div>
+                      
+                      <div className={`grid gap-4 ${
+                          companionTests.length === 1 ? 'grid-cols-1 max-w-md' : 
+                          companionTests.length === 2 ? 'grid-cols-1 md:grid-cols-2' : 
+                          'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+                      }`}>
                         {companionTests.slice(0, 8).map((test) => (
-                          <TestResultCard
+                          <TestTile
                             key={test.id}
                             test={test}
-                            onAlternativeClick={(altId) =>
-                              handleAlternativeClick(test, altId)
-                            }
+                            onClick={() => setSelectedTest(test)}
+                            hoverColor="amber"
                           />
                         ))}
                       </div>
                     </section>
                   )}
+                  
+                  <div className="flex justify-center pt-8 gap-4 border-t">
+                     <Button variant="outline" asChild>
+                        <Link href="/wizard" data-testid="button-reset-wizard">
+                            <RotateCcw className="w-4 h-4 mr-2" />
+                            Restart Analysis
+                        </Link>
+                    </Button>
+                    <Button variant="ghost" asChild>
+                        <Link href="/tests">
+                            View All Tests →
+                        </Link>
+                    </Button>
+                  </div>
                 </>
               )}
-            </div>
-
-            <div className="lg:col-span-1 space-y-6">
-              <DecisionSummary
-                steps={visibleSteps}
-                selections={selections}
-                onStepClick={handleStepClick}
-              />
-
-              <div className="flex flex-col gap-3">
-                <Button variant="outline" asChild>
-                  <Link href="/wizard" data-testid="button-reset-wizard">
-                    <RotateCcw className="w-4 h-4 mr-2" />
-                    Reset Wizard
-                  </Link>
-                </Button>
-                <Button variant="outline" asChild>
-                  <Link href="/tests" data-testid="button-view-all-tests">
-                    View All Tests
-                  </Link>
-                </Button>
-              </div>
-            </div>
           </div>
         </div>
       </main>
@@ -268,6 +321,18 @@ export default function Results() {
         onNext={handleNextAlt}
         hasPrev={currentAltIndex > 0}
         hasNext={currentAltIndex < alternativesList.length - 1}
+      />
+      
+      <TestDetailSheet
+        test={selectedTest}
+        onClose={() => setSelectedTest(null)}
+        onAlternativeClick={(altId) => {
+            if (selectedTest) {
+                handleAlternativeClick(selectedTest, altId);
+                setSelectedTest(null);
+            }
+        }}
+        showWizardButton={false}
       />
     </div>
   );
