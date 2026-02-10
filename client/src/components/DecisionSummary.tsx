@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChevronRight } from "lucide-react";
-import type { WizardStep } from "@/lib/statsData";
+import type { WizardStep } from "@/lib/wizardKeys";
 
 interface DecisionSummaryProps {
   steps: WizardStep[];
@@ -10,7 +10,8 @@ interface DecisionSummaryProps {
 }
 
 export function DecisionSummary({ steps, selections, onStepClick }: DecisionSummaryProps) {
-  const selectedSteps = steps.filter((step) => selections[step.id]);
+  const sel = selections;
+  const selectedSteps = steps.filter((step) => sel[step.id]);
 
   return (
     <Card>
@@ -20,7 +21,7 @@ export function DecisionSummary({ steps, selections, onStepClick }: DecisionSumm
       <CardContent>
         <div className="space-y-3">
           {selectedSteps.map((step, index) => {
-            const option = step.options.find((o) => o.value === selections[step.id]);
+            const option = step.options.find((o) => o.value === sel[step.id]);
             const stepIndex = steps.findIndex((s) => s.id === step.id);
             const isClickable = onStepClick !== undefined;
             

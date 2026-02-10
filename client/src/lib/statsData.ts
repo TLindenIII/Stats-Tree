@@ -1,5 +1,71 @@
+// ── Union types for WizardContext ──────────────────────────────────────
+
+export type Goal =
+  | "compare"
+  | "associate"
+  | "model"
+  | "estimate"
+  | "categorical_assoc"
+  | "time_series"
+  | "survival"
+  | "unsupervised"
+  | "utilities"
+  | "power";
+
+export type OutcomeScale =
+  | "continuous"
+  | "binary"
+  | "count"
+  | "ordinal"
+  | "nominal"
+  | "time-to-event"
+  | "multivariate";
+
+export type SampleStructure =
+  | "independent"
+  | "paired"
+  | "repeated"
+  | "clustered"
+  | "time-series";
+
+export type AssumptionStance = "parametric" | "nonparametric" | "robust" | "bayesian" | "unsure";
+
+// ── WizardContext ──────────────────────────────────────────────────────
+
+export interface WizardContext {
+  goal?: Goal;
+  outcomeScale?: OutcomeScale;
+
+  // compare branch
+  nGroups?: "1" | "2" | "3plus";
+  sampleStructure?: SampleStructure;
+  equalVar?: "yes" | "no" | "unsure";
+  normality?: "yes" | "no" | "unsure";
+
+  // categorical assoc / compare
+  tableType?: "2x2" | "rxc" | "paired_binary_2" | "paired_binary_3plus";
+
+  // modeling / ml
+  modelingFocus?: "inference" | "prediction";
+  predictorsCount?: "1" | "many";
+  mixedEffects?: "yes" | "no";
+
+  // time series
+  tsTask?: "forecast" | "diagnostics" | "multivariate";
+
+  // survival
+  survivalTask?: "curve" | "compare" | "regression" | "competing" | "ml";
+
+  // unsupervised
+  unsupTask?: "clustering" | "dimred" | "embedding";
+
+  stance?: AssumptionStance;
+}
+
+// ── Wizard Step & Test interfaces ──────────────────────────────────────
+
 export interface WizardStep {
-  id: string;
+  id: keyof WizardContext;
   title: string;
   question: string;
   options: {
@@ -7,6 +73,18 @@ export interface WizardStep {
     label: string;
     description?: string;
   }[];
+  askWhen?: (ctx: WizardContext) => boolean;
+}
+
+export type TestKind = "primary" | "assumption" | "posthoc" | "diagnostic" | "effectsize" | "resampling" | "planning";
+
+export interface StatTestRule {
+  /** Hard constraints: must all pass if present */
+  requires?: Partial<WizardContext>;
+  /** Soft scoring boosts */
+  boosts?: Partial<Record<keyof WizardContext, Record<string, number>>>;
+  /** What kind of method this is */
+  kind?: TestKind;
 }
 
 export interface StatTest {
@@ -28,77 +106,220 @@ export interface StatTest {
   pythonCode?: string;
   rCode?: string;
   verified?: boolean;
+  rules: StatTestRule;
 }
+
+// ── Recommendation output ──────────────────────────────────────────────
+
+export interface Recommendation {
+  primary: StatTest[];
+  alternatives: StatTest[];
+  companions: StatTest[];
+}
+
+// ── Wizard Steps (conditional) ─────────────────────────────────────────
 
 export const wizardSteps: WizardStep[] = [
   {
-    id: "research-goal",
-    title: "Research Goal",
-    question: "What is your primary research goal?",
+    id: "goal",
+    title: "Goal",
+    question: "What are you trying to do?",
     options: [
-      { value: "estimate", label: "Estimate a parameter", description: "Confidence intervals, point estimates" },
-      { value: "compare", label: "Compare groups", description: "Test differences between two or more groups" },
-      { value: "relationship", label: "Assess relationships", description: "Correlation, association between variables" },
-      { value: "predict", label: "Predict outcomes", description: "Regression, classification models" },
-      { value: "independence", label: "Test independence / association", description: "Chi-square tests, contingency tables" },
-      { value: "time", label: "Model time or sequential structure", description: "Time series, survival analysis" },
-      { value: "unsupervised", label: "Discover patterns (unsupervised)", description: "Clustering, dimension reduction" },
-      { value: "power", label: "Plan sample size / power", description: "Power analysis, sample size calculation" },
+      { value: "compare", label: "Compare groups (differences)", description: "Test differences between two or more groups" },
+      { value: "associate", label: "Association / correlation", description: "Measure relationships between variables" },
+      { value: "model", label: "Model an outcome with predictors", description: "Regression, classification models" },
+      { value: "estimate", label: "Estimate a parameter", description: "Confidence intervals, effect sizes, resampling" },
+      { value: "categorical_assoc", label: "Categorical association (tables)", description: "Chi-square, Fisher's exact, contingency tables" },
+      { value: "time_series", label: "Time series", description: "Forecasting, diagnostics, sequential data" },
+      { value: "survival", label: "Survival / time-to-event", description: "Kaplan-Meier, Cox regression, competing risks" },
+      { value: "unsupervised", label: "Unsupervised learning", description: "Clustering, dimension reduction, embeddings" },
+
+      { value: "utilities", label: "Assumptions / diagnostics / post-hoc / effect size", description: "Normality tests, variance tests, pairwise comparisons" },
+      { value: "power", label: "Power / sample size planning", description: "Power analysis, sample size calculation" },
     ],
   },
+
+  // Outcome type — asked for most branches
   {
-    id: "outcome-type",
-    title: "Outcome Type",
-    question: "What type of outcome variable do you have?",
+    id: "outcomeScale",
+    title: "Outcome",
+    question: "What type of outcome do you have?",
     options: [
-      { value: "continuous", label: "Numeric (continuous)", description: "Measurements like height, weight, temperature" },
-      { value: "counts", label: "Numeric (counts/rates)", description: "Count data like number of events" },
-      { value: "ordinal", label: "Ordinal", description: "Ranked categories like Likert scales" },
-      { value: "categorical", label: "Categorical (nominal)", description: "Unordered categories like colors, types" },
+      { value: "continuous", label: "Continuous (numeric)", description: "Measurements like height, weight, temperature" },
+      { value: "ordinal", label: "Ordinal (rank / Likert)", description: "Ranked categories with natural order" },
+      { value: "nominal", label: "Categorical (nominal)", description: "Unordered categories like colors, types" },
       { value: "binary", label: "Binary", description: "Two outcomes like yes/no, success/failure" },
+      { value: "count", label: "Count", description: "Count data like number of events" },
       { value: "time-to-event", label: "Time-to-event", description: "Survival data with censoring" },
-      { value: "multivariate", label: "Multivariate", description: "Multiple outcome variables" },
-      { value: "high-dimensional", label: "High-dimensional (p >> n)", description: "More variables than observations" },
-      { value: "text", label: "Text data", description: "Natural language, documents" },
+      { value: "multivariate", label: "Multiple outcomes", description: "Multiple outcome variables simultaneously" },
     ],
+    askWhen: (ctx) =>
+      ctx.goal === "compare" ||
+      ctx.goal === "associate" ||
+      ctx.goal === "model" ||
+      ctx.goal === "estimate" ||
+      ctx.goal === "categorical_assoc" ||
+      ctx.goal === "survival",
   },
+
+  // Number of groups — compare branch with continuous/ordinal
   {
-    id: "sample-structure",
-    title: "Sample Structure",
-    question: "What is your sample structure?",
+    id: "nGroups",
+    title: "Groups",
+    question: "How many groups / conditions are you comparing?",
     options: [
-      { value: "independent", label: "Independent samples", description: "Different subjects in each group" },
-      { value: "paired", label: "Paired/matched samples", description: "Same subjects measured twice or matched pairs" },
-      { value: "clustered", label: "Clustered/hierarchical", description: "Nested data like students in schools" },
-      { value: "longitudinal", label: "Longitudinal/repeated measures", description: "Multiple measurements over time" },
+      { value: "1", label: "1 (vs a reference value)", description: "Comparing to a known or hypothesized value" },
+      { value: "2", label: "2", description: "Two groups or conditions" },
+      { value: "3plus", label: "3+", description: "Three or more groups" },
+    ],
+    askWhen: (ctx) =>
+      ctx.goal === "compare" &&
+      (ctx.outcomeScale === "continuous" || ctx.outcomeScale === "ordinal"),
+  },
+
+  // Sample structure — compare or model
+  {
+    id: "sampleStructure",
+    title: "Design",
+    question: "Are the measurements independent or paired/repeated?",
+    options: [
+      { value: "independent", label: "Independent groups", description: "Different subjects in each group" },
+      { value: "paired", label: "Paired (matched / pre-post)", description: "Same subjects measured twice or matched pairs" },
+      { value: "repeated", label: "Repeated measures (3+ within-subject)", description: "Multiple measurements per subject" },
+      { value: "clustered", label: "Clustered / hierarchical", description: "Nested data like students in schools" },
       { value: "time-series", label: "Time series", description: "Sequential observations over time" },
-      { value: "spatial", label: "Spatially indexed data", description: "Geographic or spatial locations" },
     ],
+    askWhen: (ctx) => ctx.goal === "compare" || ctx.goal === "model",
   },
+
+  // Normality — compare + continuous
   {
-    id: "study-design",
-    title: "Study Design",
-    question: "What type of study design are you using?",
+    id: "normality",
+    title: "Normality",
+    question: "Are you comfortable assuming approximate normality (or large n)?",
     options: [
-      { value: "randomized", label: "Randomized experiment", description: "Random assignment to groups" },
-      { value: "blocking", label: "Blocking/factorial design", description: "Controlled experimental design" },
-      { value: "crossover", label: "Crossover design", description: "Subjects receive all treatments" },
-      { value: "cross-sectional", label: "Cross-sectional observational", description: "Single time point observation" },
-      { value: "case-control", label: "Case-control", description: "Compare cases vs controls retrospectively" },
-      { value: "cohort", label: "Cohort", description: "Follow groups over time" },
+      { value: "yes", label: "Yes", description: "Data is roughly bell-shaped or sample is large" },
+      { value: "no", label: "No", description: "Data is skewed, has outliers, or sample is small" },
+      { value: "unsure", label: "Not sure", description: "Will suggest methods for both scenarios" },
     ],
+    askWhen: (ctx) =>
+      ctx.goal === "compare" && ctx.outcomeScale === "continuous",
   },
+
+  // Equal variances — compare + continuous + independent + 2+ groups
   {
-    id: "assumptions",
-    title: "Assumptions",
-    question: "What assumptions can your data meet?",
+    id: "equalVar",
+    title: "Variances",
+    question: "Do you expect equal variances across groups?",
     options: [
-      { value: "parametric", label: "Parametric assumptions met", description: "Normal distribution, equal variances, linearity" },
-      { value: "nonparametric", label: "Need non-parametric methods", description: "Skewed data, ordinal outcomes, small samples" },
-      { value: "robust", label: "Need robust/outlier-resistant", description: "Data has outliers or heavy tails" },
-      { value: "bayesian", label: "Prefer Bayesian approach", description: "Prior information, uncertainty quantification" },
-      { value: "unsure", label: "Not sure", description: "Will provide recommendations for multiple approaches" },
+      { value: "yes", label: "Yes", description: "Group spreads are roughly similar" },
+      { value: "no", label: "No / different variances", description: "Groups have noticeably different spreads" },
+      { value: "unsure", label: "Not sure", description: "Will suggest robust alternatives" },
     ],
+    askWhen: (ctx) =>
+      ctx.goal === "compare" &&
+      ctx.outcomeScale === "continuous" &&
+      ctx.nGroups !== "1" &&
+      ctx.sampleStructure === "independent",
+  },
+
+  // Categorical table routing
+  {
+    id: "tableType",
+    title: "Table Design",
+    question: "What best describes your categorical setup?",
+    options: [
+      { value: "2x2", label: "2×2 independent table", description: "Two groups with a binary outcome" },
+      { value: "rxc", label: "r×c independent table", description: "Multiple groups with multiple categories" },
+      { value: "paired_binary_2", label: "Paired binary (2 conditions) — McNemar", description: "Same subjects, binary outcome, before/after" },
+      { value: "paired_binary_3plus", label: "Paired binary (3+ conditions) — Cochran's Q", description: "Same subjects, binary outcome, 3+ conditions" },
+    ],
+    askWhen: (ctx) =>
+      ctx.goal === "categorical_assoc" ||
+      (ctx.goal === "compare" && (ctx.outcomeScale === "nominal" || ctx.outcomeScale === "binary")),
+  },
+
+  // Modeling focus
+  {
+    id: "modelingFocus",
+    title: "Model Focus",
+    question: "What do you care about most?",
+    options: [
+      { value: "inference", label: "Explain effects / inference", description: "Understand which predictors matter and how" },
+      { value: "prediction", label: "Predictive performance", description: "Maximize model accuracy on new data" },
+    ],
+    askWhen: (ctx) => ctx.goal === "model",
+  },
+
+  // Mixed effects
+  {
+    id: "mixedEffects",
+    title: "Random Effects",
+    question: "Do you need random effects for clustered/repeated observations?",
+    options: [
+      { value: "yes", label: "Yes", description: "Accounts for grouping structure in data" },
+      { value: "no", label: "No / standard model", description: "Simple fixed-effects model" },
+    ],
+    askWhen: (ctx) =>
+      ctx.goal === "model" &&
+      (ctx.sampleStructure === "clustered" || ctx.sampleStructure === "repeated"),
+  },
+
+  // Time series task
+  {
+    id: "tsTask",
+    title: "Time Series Task",
+    question: "What are you doing with the time series?",
+    options: [
+      { value: "forecast", label: "Forecasting", description: "Predict future values" },
+      { value: "diagnostics", label: "Diagnostics / tests", description: "Stationarity, autocorrelation, white noise" },
+      { value: "multivariate", label: "Multiple series modeling", description: "Model relationships between multiple time series" },
+    ],
+    askWhen: (ctx) => ctx.goal === "time_series",
+  },
+
+  // Survival task
+  {
+    id: "survivalTask",
+    title: "Survival Task",
+    question: "What do you need for time-to-event data?",
+    options: [
+      { value: "curve", label: "Estimate a survival curve", description: "Kaplan-Meier estimator" },
+      { value: "compare", label: "Compare survival curves", description: "Log-rank test between groups" },
+      { value: "regression", label: "Regression with covariates", description: "Cox proportional hazards" },
+      { value: "competing", label: "Competing risks", description: "Multiple possible event types" },
+      { value: "ml", label: "Prediction-focused survival ML", description: "Machine learning for survival" },
+    ],
+    askWhen: (ctx) =>
+      ctx.goal === "survival" || (ctx.goal === "compare" && ctx.outcomeScale === "time-to-event"),
+  },
+
+  // Unsupervised task
+  {
+    id: "unsupTask",
+    title: "Unsupervised Task",
+    question: "What do you want to do?",
+    options: [
+      { value: "clustering", label: "Clustering", description: "Group similar observations" },
+      { value: "dimred", label: "Dimension reduction / latent structure", description: "PCA, factor analysis" },
+      { value: "embedding", label: "Visualization embedding", description: "t-SNE, UMAP" },
+    ],
+    askWhen: (ctx) => ctx.goal === "unsupervised",
+  },
+
+  // Stance — preference for method style (asked for most goals)
+  {
+    id: "stance",
+    title: "Preference",
+    question: "Any preference for method style?",
+    options: [
+      { value: "parametric", label: "Parametric (if reasonable)", description: "Assumes distributions, often more powerful" },
+      { value: "nonparametric", label: "Nonparametric / rank-based", description: "Distribution-free, fewer assumptions" },
+      { value: "robust", label: "Robust / outlier-resistant", description: "Resistant to extreme values" },
+      { value: "bayesian", label: "Bayesian", description: "Incorporates prior information" },
+      { value: "unsure", label: "No preference", description: "Will recommend best default" },
+    ],
+    askWhen: (ctx) => ctx.goal !== "power" && ctx.goal !== "utilities",
   },
 ];
 
@@ -138,6 +359,14 @@ t_pooled, p_val = scipy.stats.ttest_ind(a, b, equal_var=True)
 # a and b are numeric vectors of observations
 t_pooled <- t.test(a, b, var.equal = TRUE)
 `.trim(),
+    rules: {
+      requires: { goal: "compare", outcomeScale: "continuous", nGroups: "2", sampleStructure: "independent" },
+      boosts: {
+        normality: { yes: 3, unsure: 1 },
+        equalVar: { yes: 3, unsure: 1 },
+        stance: { parametric: 2, unsure: 1 },
+      },
+    },
   },
   {
     id: "paired-t-test",
@@ -175,6 +404,13 @@ t_paired, p_val = scipy.stats.ttest_rel(a, b)
 # (e.g., pre vs post, or condition A vs condition B), so length(a) == length(b).
 t_paired <- t.test(a, b, paired = TRUE)
     `.trim(),
+    rules: {
+      requires: { goal: "compare", outcomeScale: "continuous", nGroups: "2", sampleStructure: "paired" },
+      boosts: {
+        normality: { yes: 3, unsure: 1 },
+        stance: { parametric: 2, unsure: 1 },
+      },
+    },
   },
   {
     id: "one-way-anova",
@@ -195,6 +431,14 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "compare", outcomeScale: "continuous", nGroups: "3plus", sampleStructure: "independent" },
+    boosts: {
+      normality: { yes: 3, unsure: 1 },
+      equalVar: { yes: 3, unsure: 1 },
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   {
     id: "two-way-anova",
@@ -215,6 +459,14 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "compare", outcomeScale: "continuous", nGroups: "3plus", sampleStructure: "independent" },
+    boosts: {
+      normality: { yes: 2, unsure: 1 },
+      equalVar: { yes: 2, unsure: 1 },
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   {
     id: "repeated-measures-anova",
@@ -235,6 +487,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "compare", outcomeScale: "continuous", nGroups: "3plus", sampleStructure: "repeated" },
+    boosts: {
+      normality: { yes: 2, unsure: 1 },
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   // Group Comparison - Non-parametric
   {
@@ -256,6 +515,14 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "compare", nGroups: "2", sampleStructure: "independent" },
+    boosts: {
+      outcomeScale: { continuous: 2, ordinal: 3 },
+      normality: { no: 3, unsure: 1 },
+      stance: { nonparametric: 3, unsure: 1 },
+    },
+  },
   },
   {
     id: "wilcoxon-signed-rank",
@@ -276,6 +543,14 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "compare", nGroups: "2", sampleStructure: "paired" },
+    boosts: {
+      outcomeScale: { continuous: 2, ordinal: 3 },
+      normality: { no: 3, unsure: 1 },
+      stance: { nonparametric: 3, unsure: 1 },
+    },
+  },
   },
   {
     id: "kruskal-wallis",
@@ -296,6 +571,14 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "compare", nGroups: "3plus", sampleStructure: "independent" },
+    boosts: {
+      outcomeScale: { continuous: 2, ordinal: 3 },
+      normality: { no: 3, unsure: 1 },
+      stance: { nonparametric: 3, unsure: 1 },
+    },
+  },
   },
   {
     id: "friedman-test",
@@ -316,6 +599,14 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "compare", nGroups: "3plus", sampleStructure: "repeated" },
+    boosts: {
+      outcomeScale: { continuous: 2, ordinal: 3 },
+      normality: { no: 3, unsure: 1 },
+      stance: { nonparametric: 3, unsure: 1 },
+    },
+  },
   },
   // Relationship/Correlation
   {
@@ -337,6 +628,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "associate" },
+    boosts: {
+      outcomeScale: { continuous: 3 },
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   {
     id: "spearman-correlation",
@@ -357,6 +655,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "associate" },
+    boosts: {
+      outcomeScale: { continuous: 2, ordinal: 3 },
+      stance: { nonparametric: 3, unsure: 1 },
+    },
+  },
   },
   {
     id: "partial-correlation",
@@ -377,6 +682,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "associate" },
+    boosts: {
+      outcomeScale: { continuous: 3 },
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   // Regression
   {
@@ -398,6 +710,15 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",  
+    rules: {
+    requires: { goal: "model", outcomeScale: "continuous" },
+    boosts: {
+      modelingFocus: { inference: 3, prediction: 1 },
+      stance: { parametric: 2, unsure: 1 },
+      predictorsCount: { "1": 3 },
+      mixedEffects: { no: 1 },
+    },
+  },
   },
   {
     id: "multiple-regression",
@@ -418,6 +739,15 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", outcomeScale: "continuous" },
+    boosts: {
+      modelingFocus: { inference: 3, prediction: 1 },
+      stance: { parametric: 2, unsure: 1 },
+      predictorsCount: { many: 3 },
+      mixedEffects: { no: 1 },
+    },
+  },
   },
   {
     id: "logistic-regression",
@@ -438,6 +768,14 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", outcomeScale: "binary" },
+    boosts: {
+      modelingFocus: { inference: 3, prediction: 1 },
+      stance: { parametric: 2, unsure: 1 },
+      mixedEffects: { no: 1 },
+    },
+  },
   },
   {
     id: "poisson-regression",
@@ -458,6 +796,14 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", outcomeScale: "count" },
+    boosts: {
+      modelingFocus: { inference: 3, prediction: 1 },
+      stance: { parametric: 2, unsure: 1 },
+      mixedEffects: { no: 1 },
+    },
+  },
   },
   {
     id: "ordinal-regression",
@@ -478,6 +824,14 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", outcomeScale: "ordinal" },
+    boosts: {
+      modelingFocus: { inference: 3, prediction: 1 },
+      stance: { parametric: 2, unsure: 1 },
+      mixedEffects: { no: 1 },
+    },
+  },
   },
   // Categorical Analysis
   {
@@ -499,6 +853,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "categorical_assoc" },
+    boosts: {
+      tableType: { "2x2": 2, rxc: 3 },
+      stance: { parametric: 1, unsure: 1 },
+    },
+  },
   },
   {
     id: "fisher-exact",
@@ -519,6 +880,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "categorical_assoc" },
+    boosts: {
+      tableType: { "2x2": 3 },
+      stance: { nonparametric: 2, unsure: 1 },
+    },
+  },
   },
   {
     id: "mcnemar-test",
@@ -539,6 +907,12 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "categorical_assoc", tableType: "paired_binary_2" },
+    boosts: {
+      stance: { nonparametric: 1, unsure: 1 },
+    },
+  },
   },
   // Mixed/Multilevel Models
   {
@@ -560,6 +934,15 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", mixedEffects: "yes" },
+    boosts: {
+      outcomeScale: { continuous: 3 },
+      sampleStructure: { clustered: 3, repeated: 2 },
+      modelingFocus: { inference: 2 },
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   {
     id: "glmm",
@@ -580,6 +963,15 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", mixedEffects: "yes" },
+    boosts: {
+      outcomeScale: { binary: 3, count: 3, ordinal: 2 },
+      sampleStructure: { clustered: 3, repeated: 2 },
+      modelingFocus: { inference: 2 },
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   // Time Series
   {
@@ -601,6 +993,12 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "time_series", tsTask: "forecast" },
+    boosts: {
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   {
     id: "exponential-smoothing",
@@ -621,6 +1019,12 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "time_series", tsTask: "forecast" },
+    boosts: {
+      stance: { parametric: 1, unsure: 1 },
+    },
+  },
   },
   // Survival Analysis
   {
@@ -642,6 +1046,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "survival", survivalTask: "curve" },
+    boosts: {
+      goal: { survival: 3, compare: 1 },
+      stance: { nonparametric: 2, unsure: 1 },
+    },
+  },
   },
   {
     id: "log-rank-test",
@@ -662,6 +1073,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "survival", survivalTask: "compare" },
+    boosts: {
+      goal: { survival: 3, compare: 1 },
+      stance: { nonparametric: 2, unsure: 1 },
+    },
+  },
   },
   {
     id: "cox-regression",
@@ -682,6 +1100,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "survival", survivalTask: "regression" },
+    boosts: {
+      goal: { survival: 3, compare: 1 },
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   // Unsupervised Learning
   {
@@ -703,6 +1128,12 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "unsupervised", unsupTask: "clustering" },
+    boosts: {
+      stance: { parametric: 1, unsure: 1 },
+    },
+  },
   },
   {
     id: "hierarchical-clustering",
@@ -723,6 +1154,12 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "unsupervised", unsupTask: "clustering" },
+    boosts: {
+      stance: { nonparametric: 1, unsure: 1 },
+    },
+  },
   },
   {
     id: "pca",
@@ -743,6 +1180,12 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "unsupervised", unsupTask: "dimred" },
+    boosts: {
+      stance: { parametric: 1, unsure: 1 },
+    },
+  },
   },
   {
     id: "factor-analysis",
@@ -763,6 +1206,12 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "unsupervised", unsupTask: "dimred" },
+    boosts: {
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   // Machine Learning
   {
@@ -784,6 +1233,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", modelingFocus: "prediction" },
+    boosts: {
+      outcomeScale: { continuous: 2, binary: 2 },
+      stance: { unsure: 1 },
+    },
+  },
   },
   {
     id: "gradient-boosting",
@@ -804,6 +1260,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", modelingFocus: "prediction" },
+    boosts: {
+      outcomeScale: { continuous: 2, binary: 2 },
+      stance: { unsure: 1 },
+    },
+  },
   },
   {
     id: "lasso-ridge",
@@ -824,6 +1287,14 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model" },
+    boosts: {
+      outcomeScale: { continuous: 3 },
+      modelingFocus: { inference: 1, prediction: 2 },
+      stance: { parametric: 1, unsure: 1 },
+    },
+  },
   },
   // Resampling/Bootstrap
   {
@@ -845,6 +1316,14 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      stance: { robust: 3, nonparametric: 2, unsure: 1 },
+      goal: { estimate: 3, compare: 1 },
+    },
+    kind: "resampling",
+  },
   },
   {
     id: "permutation-test",
@@ -865,6 +1344,14 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      stance: { nonparametric: 3, robust: 2, unsure: 1 },
+      goal: { estimate: 3, compare: 1 },
+    },
+    kind: "resampling",
+  },
   },
   // Power Analysis
   {
@@ -886,6 +1373,10 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "power" },
+    kind: "planning",
+  },
   },
   
   // === ASSUMPTION & DIAGNOSTIC TESTS ===
@@ -909,6 +1400,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 2, utilities: 3 },
+    },
+    kind: "assumption",
+  },
   },
   {
     id: "bartlett-test",
@@ -929,6 +1427,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 2, utilities: 3 },
+    },
+    kind: "assumption",
+  },
   },
   {
     id: "brown-forsythe",
@@ -949,6 +1454,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 2, utilities: 3 },
+    },
+    kind: "assumption",
+  },
   },
   {
     id: "fligner-killeen",
@@ -969,6 +1481,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 1, utilities: 3 },
+    },
+    kind: "assumption",
+  },
   },
   {
     id: "hartley-fmax",
@@ -989,6 +1508,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 1, utilities: 3 },
+    },
+    kind: "assumption",
+  },
   },
   // Normality Tests
   {
@@ -1010,6 +1536,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 2, model: 1, utilities: 3 },
+    },
+    kind: "assumption",
+  },
   },
   {
     id: "kolmogorov-smirnov",
@@ -1030,6 +1563,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 1, model: 1, utilities: 3 },
+    },
+    kind: "assumption",
+  },
   },
   {
     id: "anderson-darling",
@@ -1050,6 +1590,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 1, model: 1, utilities: 3 },
+    },
+    kind: "assumption",
+  },
   },
   {
     id: "dagostino-pearson",
@@ -1070,6 +1617,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 1, model: 1, utilities: 3 },
+    },
+    kind: "assumption",
+  },
   },
   // Regression Diagnostics
   {
@@ -1091,6 +1645,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { model: 2, utilities: 3 },
+    },
+    kind: "assumption",
+  },
   },
   {
     id: "breusch-pagan",
@@ -1111,6 +1672,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { model: 2, utilities: 3 },
+    },
+    kind: "assumption",
+  },
   },
   {
     id: "vif",
@@ -1131,6 +1699,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { model: 2, utilities: 3 },
+    },
+    kind: "assumption",
+  },
   },
   
   // === POST-HOC TESTS ===
@@ -1153,6 +1728,15 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 2, utilities: 3 },
+      nGroups: { "3plus": 2 },
+      equalVar: { yes: 2 },
+    },
+    kind: "posthoc",
+  },
   },
   {
     id: "bonferroni",
@@ -1173,6 +1757,14 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 2, utilities: 3 },
+      nGroups: { "3plus": 2 },
+    },
+    kind: "posthoc",
+  },
   },
   {
     id: "holm-bonferroni",
@@ -1193,6 +1785,14 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 2, utilities: 3 },
+      nGroups: { "3plus": 2 },
+    },
+    kind: "posthoc",
+  },
   },
   {
     id: "benjamini-hochberg",
@@ -1213,6 +1813,14 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 1, utilities: 3 },
+      nGroups: { "3plus": 2 },
+    },
+    kind: "posthoc",
+  },
   },
   {
     id: "dunnett-test",
@@ -1233,6 +1841,14 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 2, utilities: 3 },
+      nGroups: { "3plus": 2 },
+    },
+    kind: "posthoc",
+  },
   },
   {
     id: "games-howell",
@@ -1253,6 +1869,15 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 2, utilities: 3 },
+      nGroups: { "3plus": 2 },
+      equalVar: { no: 3, unsure: 1 },
+    },
+    kind: "posthoc",
+  },
   },
   {
     id: "scheffe-test",
@@ -1273,6 +1898,14 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 1, utilities: 3 },
+      nGroups: { "3plus": 2 },
+    },
+    kind: "posthoc",
+  },
   },
   {
     id: "dunn-test",
@@ -1293,6 +1926,15 @@ t_paired <- t.test(a, b, paired = TRUE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 2, utilities: 3 },
+      nGroups: { "3plus": 2 },
+      stance: { nonparametric: 3 },
+    },
+    kind: "posthoc",
+  },
   },
   
   // === ADDITIONAL GROUP COMPARISON ===
@@ -1329,6 +1971,14 @@ t_welch, p_val = scipy.stats.ttest_ind(a, b, equal_var=False)
 # a and b are numeric vectors of observations
 t_welch <- t.test(a, b, var.equal = FALSE)
     `.trim(),
+    rules: {
+      requires: { goal: "compare", outcomeScale: "continuous", nGroups: "2", sampleStructure: "independent" },
+      boosts: {
+        normality: { yes: 2, unsure: 1 },
+        equalVar: { no: 3, unsure: 2 },
+        stance: { parametric: 2, robust: 1, unsure: 2 },
+      },
+    },
   },
   {
     id: "welch-anova",
@@ -1349,6 +1999,14 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "compare", outcomeScale: "continuous", nGroups: "3plus", sampleStructure: "independent" },
+    boosts: {
+      normality: { yes: 2, unsure: 1 },
+      equalVar: { no: 3, unsure: 2 },
+      stance: { parametric: 2, robust: 1, unsure: 2 },
+    },
+  },
   },
   {
     id: "ancova",
@@ -1369,6 +2027,15 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "compare", outcomeScale: "continuous", sampleStructure: "independent" },
+    boosts: {
+      nGroups: { "2": 2, "3plus": 2 },
+      normality: { yes: 2, unsure: 1 },
+      equalVar: { yes: 2, unsure: 1 },
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   {
     id: "manova",
@@ -1389,6 +2056,15 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "compare", outcomeScale: "multivariate", sampleStructure: "independent" },
+    boosts: {
+      nGroups: { "2": 2, "3plus": 2 },
+      normality: { yes: 2 },
+      equalVar: { yes: 2 },
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   
   // === ADDITIONAL CORRELATION ===
@@ -1411,6 +2087,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "associate" },
+    boosts: {
+      outcomeScale: { ordinal: 3, continuous: 1 },
+      stance: { nonparametric: 3, unsure: 1 },
+    },
+  },
   },
   {
     id: "point-biserial",
@@ -1431,6 +2114,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "associate" },
+    boosts: {
+      outcomeScale: { binary: 3 },
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   {
     id: "intraclass-correlation",
@@ -1451,6 +2141,14 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "associate" },
+    boosts: {
+      outcomeScale: { continuous: 3 },
+      sampleStructure: { paired: 2, repeated: 2 },
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   
   // === ADDITIONAL CATEGORICAL ===
@@ -1473,6 +2171,12 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "categorical_assoc", tableType: "paired_binary_3plus" },
+    boosts: {
+      stance: { nonparametric: 1, unsure: 1 },
+    },
+  },
   },
   {
     id: "cramers-v",
@@ -1493,6 +2197,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { categorical_assoc: 3, utilities: 3, estimate: 3 },
+    },
+    kind: "effectsize",
+  },
   },
   {
     id: "cohens-kappa",
@@ -1513,6 +2224,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { categorical_assoc: 2, associate: 2, utilities: 3 },
+    },
+    kind: "effectsize",
+  },
   },
   {
     id: "fleiss-kappa",
@@ -1533,6 +2251,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { categorical_assoc: 2, associate: 2, utilities: 3 },
+    },
+    kind: "effectsize",
+  },
   },
   
   // === ADDITIONAL REGRESSION ===
@@ -1555,6 +2280,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", outcomeScale: "count" },
+    boosts: {
+      modelingFocus: { inference: 3, prediction: 1 },
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   {
     id: "zero-inflated-poisson",
@@ -1574,6 +2306,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", outcomeScale: "count" },
+    boosts: {
+      modelingFocus: { inference: 3, prediction: 1 },
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   {
     id: "quantile-regression",
@@ -1594,6 +2333,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", outcomeScale: "continuous" },
+    boosts: {
+      modelingFocus: { inference: 2, prediction: 1 },
+      stance: { robust: 3, unsure: 1 },
+    },
+  },
   },
   {
     id: "robust-regression",
@@ -1614,6 +2360,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", outcomeScale: "continuous" },
+    boosts: {
+      modelingFocus: { inference: 2, prediction: 1 },
+      stance: { robust: 3, unsure: 1 },
+    },
+  },
   },
   {
     id: "probit-regression",
@@ -1634,6 +2387,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", outcomeScale: "binary" },
+    boosts: {
+      modelingFocus: { inference: 3, prediction: 1 },
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   
   // === ADDITIONAL ML METHODS ===
@@ -1656,6 +2416,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", modelingFocus: "prediction" },
+    boosts: {
+      outcomeScale: { continuous: 2, binary: 3 },
+      stance: { unsure: 1 },
+    },
+  },
   },
   {
     id: "xgboost",
@@ -1676,6 +2443,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", modelingFocus: "prediction" },
+    boosts: {
+      outcomeScale: { continuous: 2, binary: 2 },
+      stance: { unsure: 1 },
+    },
+  },
   },
   {
     id: "lightgbm",
@@ -1696,6 +2470,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", modelingFocus: "prediction" },
+    boosts: {
+      outcomeScale: { continuous: 2, binary: 2 },
+      stance: { unsure: 1 },
+    },
+  },
   },
   {
     id: "catboost",
@@ -1716,6 +2497,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", modelingFocus: "prediction" },
+    boosts: {
+      outcomeScale: { continuous: 2, binary: 2, nominal: 2 },
+      stance: { unsure: 1 },
+    },
+  },
   },
   {
     id: "knn",
@@ -1736,6 +2524,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", modelingFocus: "prediction" },
+    boosts: {
+      outcomeScale: { continuous: 1, binary: 2, nominal: 2 },
+      stance: { nonparametric: 2, unsure: 1 },
+    },
+  },
   },
   {
     id: "naive-bayes",
@@ -1756,6 +2551,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", modelingFocus: "prediction" },
+    boosts: {
+      outcomeScale: { binary: 3, nominal: 3 },
+      stance: { unsure: 1 },
+    },
+  },
   },
   {
     id: "decision-tree",
@@ -1776,6 +2578,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", modelingFocus: "prediction" },
+    boosts: {
+      outcomeScale: { continuous: 1, binary: 2, nominal: 2 },
+      stance: { unsure: 1 },
+    },
+  },
   },
   {
     id: "elastic-net",
@@ -1796,6 +2605,14 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model" },
+    boosts: {
+      outcomeScale: { continuous: 3 },
+      modelingFocus: { inference: 1, prediction: 2 },
+      stance: { parametric: 1, unsure: 1 },
+    },
+  },
   },
   {
     id: "neural-network-mlp",
@@ -1816,6 +2633,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "model", modelingFocus: "prediction" },
+    boosts: {
+      outcomeScale: { continuous: 2, binary: 2 },
+      stance: { unsure: 1 },
+    },
+  },
   },
   {
     id: "dbscan",
@@ -1836,6 +2660,12 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "unsupervised", unsupTask: "clustering" },
+    boosts: {
+      stance: { nonparametric: 2, unsure: 1 },
+    },
+  },
   },
   {
     id: "gaussian-mixture",
@@ -1856,6 +2686,12 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "unsupervised", unsupTask: "clustering" },
+    boosts: {
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   {
     id: "tsne",
@@ -1876,6 +2712,12 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "unsupervised", unsupTask: "embedding" },
+    boosts: {
+      stance: { nonparametric: 1, unsure: 1 },
+    },
+  },
   },
   {
     id: "umap",
@@ -1896,6 +2738,12 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "unsupervised", unsupTask: "embedding" },
+    boosts: {
+      stance: { nonparametric: 1, unsure: 2 },
+    },
+  },
   },
   
   // === ADDITIONAL TIME SERIES ===
@@ -1918,6 +2766,12 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "time_series", tsTask: "forecast" },
+    boosts: {
+      stance: { unsure: 2 },
+    },
+  },
   },
   {
     id: "adf-test",
@@ -1938,6 +2792,12 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "time_series", tsTask: "diagnostics" },
+    boosts: {
+      stance: { parametric: 1, unsure: 1 },
+    },
+  },
   },
   {
     id: "granger-causality",
@@ -1958,6 +2818,12 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "time_series", tsTask: "multivariate" },
+    boosts: {
+      stance: { parametric: 1, unsure: 1 },
+    },
+  },
   },
   {
     id: "ljung-box",
@@ -1978,6 +2844,12 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "time_series", tsTask: "diagnostics" },
+    boosts: {
+      stance: { parametric: 1, unsure: 1 },
+    },
+  },
   },
   {
     id: "var",
@@ -1998,6 +2870,12 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "time_series", tsTask: "multivariate" },
+    boosts: {
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   
   // === BAYESIAN METHODS ===
@@ -2020,6 +2898,14 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { stance: "bayesian" },
+    boosts: {
+      goal: { compare: 3 },
+      outcomeScale: { continuous: 2 },
+      nGroups: { "2": 2 },
+    },
+  },
   },
   {
     id: "bayesian-regression",
@@ -2040,6 +2926,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { stance: "bayesian" },
+    boosts: {
+      goal: { model: 3, associate: 1 },
+      outcomeScale: { continuous: 2, binary: 1 },
+    },
+  },
   },
   {
     id: "bayesian-anova",
@@ -2060,6 +2953,14 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { stance: "bayesian" },
+    boosts: {
+      goal: { compare: 3 },
+      outcomeScale: { continuous: 2 },
+      nGroups: { "3plus": 2 },
+    },
+  },
   },
   
   // === ADDITIONAL SURVIVAL ANALYSIS ===
@@ -2082,6 +2983,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "survival", survivalTask: "regression" },
+    boosts: {
+      goal: { survival: 3, compare: 1 },
+      stance: { parametric: 2, unsure: 1 },
+    },
+  },
   },
   {
     id: "competing-risks",
@@ -2102,6 +3010,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "survival", survivalTask: "competing" },
+    boosts: {
+      goal: { survival: 3, compare: 1 },
+      stance: { parametric: 1, unsure: 1 },
+    },
+  },
   },
   {
     id: "random-survival-forest",
@@ -2122,6 +3037,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: { goal: "survival", survivalTask: "ml" },
+    boosts: {
+      goal: { survival: 3 },
+      stance: { unsure: 2 },
+    },
+  },
   },
   
   // === EFFECT SIZE MEASURES ===
@@ -2144,6 +3066,15 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 2, utilities: 3, estimate: 3 },
+      outcomeScale: { continuous: 2 },
+      nGroups: { "2": 2 },
+    },
+    kind: "effectsize",
+  },
   },
   {
     id: "hedges-g",
@@ -2164,6 +3095,15 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 2, utilities: 3, estimate: 3 },
+      outcomeScale: { continuous: 2 },
+      nGroups: { "2": 2 },
+    },
+    kind: "effectsize",
+  },
   },
   {
     id: "eta-squared",
@@ -2184,6 +3124,15 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { compare: 2, utilities: 3, estimate: 3 },
+      outcomeScale: { continuous: 2 },
+      nGroups: { "3plus": 2 },
+    },
+    kind: "effectsize",
+  },
   },
   {
     id: "odds-ratio",
@@ -2204,199 +3153,163 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     verified: false,
     pythonCode: "",
     rCode: "",
+    rules: {
+    requires: {},
+    boosts: {
+      goal: { categorical_assoc: 2, model: 1, utilities: 3, estimate: 3 },
+      outcomeScale: { binary: 3 },
+    },
+    kind: "effectsize",
+  },
   },
 ];
 
-const outcomeTypeToScale: Record<string, string[]> = {
-  "continuous": ["continuous"],
-  "counts": ["count"],
-  "ordinal": ["ordinal"],
-  "categorical": ["nominal"],
-  "binary": ["binary"],
-  "time-to-event": ["time-to-event"],
-  "multivariate": ["multivariate"],
-  "high-dimensional": ["multivariate", "continuous"],
-};
+// ── Routing Engine ─────────────────────────────────────────────────────
 
-const structureToDesign: Record<string, string[]> = {
-  "independent": ["independent groups", "cross-sectional"],
-  "paired": ["paired/repeated measures"],
-  "clustered": ["longitudinal"],
-  "longitudinal": ["longitudinal", "paired/repeated measures"],
-  "time-series": ["time-series"],
-  "spatial": ["cross-sectional"],
-};
-
-const assumptionsToMethodFamily: Record<string, string[]> = {
-  "parametric": ["Parametric", "Regression-based"],
-  "nonparametric": ["Nonparametric"],
-  "robust": ["Regression-based", "Resampling"],
-  "bayesian": ["Bayesian"],
-};
-
-export function getRecommendedTests(selections: Record<string, string>): StatTest[] {
-  const { 
-    "research-goal": goal, 
-    "outcome-type": outcome, 
-    "sample-structure": structure, 
-    "study-design": studyDesign,
-    assumptions 
-  } = selections;
-  
-  let recommended: StatTest[] = [];
-  
-  const targetOutcomeScales = outcome ? outcomeTypeToScale[outcome] || [] : [];
-  const targetDesigns = structure ? structureToDesign[structure] || [] : [];
-  const targetMethodFamilies = assumptions ? assumptionsToMethodFamily[assumptions] || [] : [];
-
-  const scoreTest = (test: StatTest): number => {
-    let score = 0;
-    
-    if (targetOutcomeScales.length > 0 && test.outcomeScale && targetOutcomeScales.includes(test.outcomeScale)) {
-      score += 3;
-    }
-    
-    if (targetDesigns.length > 0 && test.design && targetDesigns.includes(test.design)) {
-      score += 2;
-    }
-    
-    if (targetMethodFamilies.length > 0 && targetMethodFamilies.includes(test.methodFamily)) {
-      score += 2;
-    }
-    
-    if (test.level === "basic") score += 1;
-    else if (test.level === "intermediate") score += 0.5;
-    
-    return score;
-  };
-  
-  if (goal === "compare") {
-    let candidates = statisticalTests.filter(t => 
-      categoryGroups.find(g => g.id === "comparison")?.tests.includes(t.id)
-    );
-    
-    if (targetOutcomeScales.length > 0) {
-      candidates = candidates.filter(t => !t.outcomeScale || targetOutcomeScales.includes(t.outcomeScale));
-    }
-    if (targetDesigns.length > 0) {
-      candidates = candidates.filter(t => !t.design || targetDesigns.includes(t.design));
-    }
-    if (targetMethodFamilies.length > 0) {
-      candidates = candidates.filter(t => targetMethodFamilies.includes(t.methodFamily));
-    }
-    
-    recommended = candidates.sort((a, b) => scoreTest(b) - scoreTest(a)).slice(0, 4);
+/** Check if every key in `requires` matches the context */
+function matchesRequires(ctx: WizardContext, req: Partial<WizardContext> | undefined): boolean {
+  if (!req) return true;
+  for (const [key, value] of Object.entries(req)) {
+    const ctxVal = ctx[key as keyof WizardContext];
+    if (ctxVal === undefined) continue; // unset context key → don't reject
+    if (ctxVal !== value) return false;
   }
-  
-  else if (goal === "relationship") {
-    let candidates = statisticalTests.filter(t => 
-      categoryGroups.find(g => g.id === "correlation")?.tests.includes(t.id)
-    );
-    
-    if (targetMethodFamilies.length > 0) {
-      candidates = candidates.filter(t => targetMethodFamilies.includes(t.methodFamily));
-    }
-    
-    recommended = candidates.sort((a, b) => scoreTest(b) - scoreTest(a)).slice(0, 3);
-  }
-  
-  else if (goal === "predict") {
-    let candidates = statisticalTests.filter(t => 
-      categoryGroups.find(g => g.id === "regression")?.tests.includes(t.id) ||
-      categoryGroups.find(g => g.id === "ml")?.tests.includes(t.id)
-    );
-    
-    if (targetOutcomeScales.length > 0) {
-      const matched = candidates.filter(t => t.outcomeScale && targetOutcomeScales.includes(t.outcomeScale));
-      if (matched.length > 0) candidates = matched;
-    }
-    
-    recommended = candidates.sort((a, b) => scoreTest(b) - scoreTest(a)).slice(0, 4);
-  }
-  
-  else if (goal === "independence") {
-    recommended = statisticalTests.filter(t => 
-      categoryGroups.find(g => g.id === "categorical")?.tests.includes(t.id) &&
-      t.level === "basic"
-    ).slice(0, 3);
-  }
-  
-  else if (goal === "time") {
-    if (outcome === "time-to-event") {
-      recommended = statisticalTests.filter(t => 
-        categoryGroups.find(g => g.id === "survival")?.tests.includes(t.id)
-      ).sort((a, b) => scoreTest(b) - scoreTest(a)).slice(0, 4);
-    } else {
-      recommended = statisticalTests.filter(t => 
-        categoryGroups.find(g => g.id === "time-series")?.tests.includes(t.id)
-      ).sort((a, b) => scoreTest(b) - scoreTest(a)).slice(0, 4);
-    }
-  }
-  
-  else if (goal === "unsupervised") {
-    let candidates = statisticalTests.filter(t => 
-      categoryGroups.find(g => g.id === "clustering")?.tests.includes(t.id) ||
-      categoryGroups.find(g => g.id === "dimension")?.tests.includes(t.id)
-    );
-    recommended = candidates.sort((a, b) => scoreTest(b) - scoreTest(a)).slice(0, 4);
-  }
-  
-  else if (goal === "power") {
-    recommended = [statisticalTests.find(t => t.id === "power-analysis")!];
-  }
-  
-  else if (goal === "estimate") {
-    let candidates = statisticalTests.filter(t => 
-      categoryGroups.find(g => g.id === "comparison")?.tests.includes(t.id) ||
-      categoryGroups.find(g => g.id === "effectsize")?.tests.includes(t.id) ||
-      categoryGroups.find(g => g.id === "resampling")?.tests.includes(t.id)
-    );
-    
-    if (targetOutcomeScales.length > 0) {
-      const matched = candidates.filter(t => !t.outcomeScale || targetOutcomeScales.includes(t.outcomeScale));
-      if (matched.length > 0) candidates = matched;
-    }
-    if (targetDesigns.length > 0) {
-      const matched = candidates.filter(t => !t.design || targetDesigns.includes(t.design));
-      if (matched.length > 0) candidates = matched;
-    }
-    if (targetMethodFamilies.length > 0) {
-      candidates = candidates.filter(t => targetMethodFamilies.includes(t.methodFamily));
-    }
-    
-    recommended = candidates.sort((a, b) => scoreTest(b) - scoreTest(a)).slice(0, 4);
-  }
-  
-  if (recommended.length === 0) {
-    let candidates = statisticalTests.filter(t => t.level === "basic");
-    
-    if (targetMethodFamilies.length > 0) {
-      const matched = candidates.filter(t => targetMethodFamilies.includes(t.methodFamily));
-      if (matched.length > 0) candidates = matched;
-    }
-    if (targetOutcomeScales.length > 0) {
-      const matched = candidates.filter(t => !t.outcomeScale || targetOutcomeScales.includes(t.outcomeScale));
-      if (matched.length > 0) candidates = matched;
-    }
-    
-    recommended = candidates.sort((a, b) => scoreTest(b) - scoreTest(a)).slice(0, 3);
-  }
-  
-  if (assumptions === "bayesian") {
-    const bayesianTests = statisticalTests.filter(t => 
-      categoryGroups.find(g => g.id === "bayesian")?.tests.includes(t.id)
-    );
-    const existingIds = new Set(recommended.map(t => t.id));
-    bayesianTests.forEach(t => {
-      if (!existingIds.has(t.id)) {
-        recommended.push(t);
-      }
-    });
-    recommended = recommended.slice(0, 5);
-  }
-  
-  return recommended.filter(Boolean);
+  return true;
 }
+
+/** Sum soft-score boosts for matching context values */
+function scoreByBoosts(ctx: WizardContext, boosts: StatTestRule["boosts"] | undefined): number {
+  if (!boosts) return 0;
+  let score = 0;
+  for (const [key, mapping] of Object.entries(boosts)) {
+    const ctxVal = ctx[key as keyof WizardContext];
+    if (ctxVal !== undefined && mapping[ctxVal as string] !== undefined) {
+      score += mapping[ctxVal as string];
+    }
+  }
+  return score;
+}
+
+const PRIMARY_KINDS: TestKind[] = ["primary"];
+const COMPANION_KINDS: TestKind[] = ["assumption", "posthoc", "diagnostic", "effectsize", "resampling", "planning"];
+
+/** Main recommendation engine */
+export function recommend(ctx: WizardContext, allTests: StatTest[]): Recommendation {
+  // Separate tests by kind
+  const primaryTests: StatTest[] = [];
+  const companionPool: StatTest[] = [];
+
+  for (const test of allTests) {
+    const kind = test.rules.kind ?? "primary";
+    if (PRIMARY_KINDS.includes(kind)) {
+      primaryTests.push(test);
+    } else {
+      companionPool.push(test);
+    }
+  }
+
+  // Filter primary tests by hard constraints
+  const passing = primaryTests.filter(t => matchesRequires(ctx, t.rules.requires));
+
+  // Score and sort
+  const scored = passing.map(t => ({
+    test: t,
+    score: scoreByBoosts(ctx, t.rules.boosts),
+  }));
+  scored.sort((a, b) => b.score - a.score);
+
+  // Top 2 are primary, next batch are alternatives (up to 4 more)
+  const primary = scored.slice(0, 2).map(s => s.test);
+  const alternatives = scored.slice(2, 6).map(s => s.test);
+
+  // Attach companions that pass hard constraints
+  const companions = companionPool.filter(t => matchesRequires(ctx, t.rules.requires));
+
+  return { primary, alternatives, companions };
+}
+
+/** Backward-compatible wrapper: returns a flat list of recommended primary tests */
+export function getRecommendedTests(selections: Record<string, string>): StatTest[] {
+  // Map old selection keys to WizardContext
+  const ctx: WizardContext = {};
+
+  // Map old goal values to new Goal type
+  const goalMap: Record<string, Goal> = {
+    compare: "compare",
+    relationship: "associate",
+    predict: "model",
+    independence: "categorical_assoc",
+    time: "time_series",
+    unsupervised: "unsupervised",
+    estimate: "compare", // estimate used comparison/effectsize/resampling
+    power: "power",
+  };
+  if (selections["research-goal"]) {
+    ctx.goal = goalMap[selections["research-goal"]] ?? "compare";
+  }
+  // Also map any new-style keys
+  if (selections["goal"]) {
+    ctx.goal = selections["goal"] as Goal;
+  }
+
+  // Map outcome
+  const outcomeMap: Record<string, OutcomeScale> = {
+    continuous: "continuous",
+    counts: "count",
+    ordinal: "ordinal",
+    categorical: "nominal",
+    binary: "binary",
+    "time-to-event": "time-to-event",
+    multivariate: "multivariate",
+  };
+  if (selections["outcome-type"]) {
+    ctx.outcomeScale = outcomeMap[selections["outcome-type"]] ?? (selections["outcome-type"] as OutcomeScale);
+  }
+  if (selections["outcomeScale"]) {
+    ctx.outcomeScale = selections["outcomeScale"] as OutcomeScale;
+  }
+
+  // Map sample structure
+  const structMap: Record<string, SampleStructure> = {
+    independent: "independent",
+    paired: "paired",
+    clustered: "clustered",
+    longitudinal: "repeated",
+    "time-series": "time-series",
+  };
+  if (selections["sample-structure"]) {
+    ctx.sampleStructure = structMap[selections["sample-structure"]] ?? (selections["sample-structure"] as SampleStructure);
+  }
+  if (selections["sampleStructure"]) {
+    ctx.sampleStructure = selections["sampleStructure"] as SampleStructure;
+  }
+
+  // Map assumptions / stance
+  const stanceMap: Record<string, AssumptionStance> = {
+    parametric: "parametric",
+    nonparametric: "nonparametric",
+    robust: "robust",
+    bayesian: "bayesian",
+    unsure: "unsure",
+  };
+  if (selections["assumptions"]) {
+    ctx.stance = stanceMap[selections["assumptions"]] ?? (selections["assumptions"] as AssumptionStance);
+  }
+  if (selections["stance"]) {
+    ctx.stance = selections["stance"] as AssumptionStance;
+  }
+
+  // Copy any other new-style keys directly
+  for (const key of ["nGroups", "equalVar", "normality", "tableType", "modelingFocus", "predictorsCount", "mixedEffects", "tsTask", "survivalTask", "unsupTask"] as const) {
+    if (selections[key]) {
+      (ctx as any)[key] = selections[key];
+    }
+  }
+
+  const result = recommend(ctx, statisticalTests);
+  return [...result.primary, ...result.alternatives];
+}
+
 
 export const categoryGroups = [
   { id: "comparison", label: "Group Comparison", tests: ["t-test-independent", "paired-t-test", "one-way-anova", "two-way-anova", "repeated-measures-anova", "mann-whitney", "wilcoxon-signed-rank", "kruskal-wallis", "friedman-test", "welch-t-test", "welch-anova", "ancova", "manova"] },

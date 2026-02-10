@@ -20,6 +20,7 @@ const mockTest: StatTest = {
   methodFamily: "Parametric",
   category: "Group Comparison",
   categoryId: "comparison",
+  rules: { requires: { goal: "compare" } },
 };
 
 export default function TestResultCardExample() {
