@@ -37,7 +37,15 @@ export default function Home() {
             <Route className="w-5 h-5 text-primary" />
             <span>StatsTree</span>
           </Link>
-          <ThemeToggle />
+          <div className="flex items-center gap-4">
+            <Link 
+              href="/glossary" 
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Glossary
+            </Link>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 

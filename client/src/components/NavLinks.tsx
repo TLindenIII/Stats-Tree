@@ -3,13 +3,14 @@ import { useRef, useEffect, useState } from "react";
 import { useNavContext } from "@/contexts/NavContext";
 
 interface NavLinksProps {
-  currentPage: "wizard" | "flowchart" | "browse";
+  currentPage: "wizard" | "flowchart" | "browse" | "glossary" | "home";
 }
 
 const navItems = [
   { id: "wizard", label: "Wizard", href: "/wizard" },
   { id: "flowchart", label: "Flowchart", href: "/flowchart" },
   { id: "browse", label: "Browse", href: "/tests" },
+  { id: "glossary", label: "Glossary", href: "/glossary" },
 ] as const;
 
 export function NavLinks({ currentPage }: NavLinksProps) {
