@@ -1,3 +1,4 @@
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ interface TestResultCardProps {
   onAlternativeClick?: (testId: string) => void;
 }
 
-export function TestResultCard({ 
+export const TestResultCard = React.memo(function TestResultCard({ 
   test, 
   isPrimary = false, 
   onViewDetails,
@@ -201,11 +202,7 @@ export function TestResultCard({
                     );
                   })
                 ) : (
-                  test.alternatives.map((alt, i) => (
-                    <Badge key={i} variant="outline">
-                      {alt}
-                    </Badge>
-                  ))
+                  <span className="text-sm text-muted-foreground">No alternatives listed.</span>
                 )}
               </div>
             </AccordionContent>
@@ -262,4 +259,4 @@ export function TestResultCard({
       </CardContent>
     </Card>
   );
-}
+});

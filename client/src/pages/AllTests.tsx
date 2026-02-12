@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useSearch } from "wouter";
 import { Link } from "@/lib/OfflineLink";
 import { Button } from "@/components/ui/button";
@@ -91,7 +91,6 @@ function getSearchScore(test: StatTest, query: string): number {
     description: 4,
     whenToUse: 3,
     assumptions: 2,
-    alternatives: 1,
     category: 2,
     methodFamily: 2
   };
@@ -110,8 +109,6 @@ function getSearchScore(test: StatTest, query: string): number {
   const assumptionScore = test.assumptions.reduce((max, a) => Math.max(max, scoreText(a, query)), 0);
   totalScore += assumptionScore * weights.assumptions;
   
-  const altScore = test.alternatives.reduce((max, a) => Math.max(max, scoreText(a, query)), 0);
-  totalScore += altScore * weights.alternatives;
   
   return totalScore;
 }
@@ -236,8 +233,17 @@ export default function AllTests() {
     }
   }, [levels, selectedLevel]);
 
+  // Pagination state
+  const [visibleCount, setVisibleCount] = useState(12);
+
+  // Reset visible count when filters change
+  useEffect(() => {
+    setVisibleCount(12);
+  }, [searchQuery, selectedCategory, selectedMethodFamily, selectedOutcomeScale, selectedDesign, selectedLevel]);
+
   const filteredTests = useMemo(() => {
     const filtered = statisticalTests.filter((test) => {
+      // Use query directly for filtering
       const searchMatches = matchesSearch(test, searchQuery);
       
       const matchesCat = selectedCategory === null || 
@@ -267,6 +273,15 @@ export default function AllTests() {
     return filtered;
   }, [searchQuery, selectedCategory, selectedMethodFamily, selectedOutcomeScale, selectedDesign, selectedLevel]);
 
+  // Get visible tests for rendering
+  const visibleTests = useMemo(() => {
+    return filteredTests.slice(0, visibleCount);
+  }, [filteredTests, visibleCount]);
+
+  const handleLoadMore = () => {
+    setVisibleCount(prev => prev + 12);
+  };
+
   const hasActiveFilters = selectedCategory !== null || selectedMethodFamily !== null ||
     selectedOutcomeScale !== null || selectedDesign !== null || selectedLevel !== null;
 
@@ -279,27 +294,33 @@ export default function AllTests() {
     setSearchQuery("");
   };
 
-  const toggleCompare = (test: StatTest) => {
-    if (compareTests.some(t => t.id === test.id)) {
-      setCompareTests(compareTests.filter(t => t.id !== test.id));
-    } else if (compareTests.length < 3) {
-      setCompareTests([...compareTests, test]);
-    }
-  };
+  const toggleCompare = useCallback((test: StatTest) => {
+    setCompareTests(prev => {
+      if (prev.some(t => t.id === test.id)) {
+        return prev.filter(t => t.id !== test.id);
+      } else if (prev.length < 3) {
+        return [...prev, test];
+      }
+      return prev;
+    });
+  }, []);
 
-  const handleTestClick = (test: StatTest) => {
+  const handleTestClick = useCallback((test: StatTest) => {
     setSelectedTest(test);
-  };
+  }, []);
 
-  const handleAlternativeClick = (altId: string) => {
+  const handleAlternativeClick = useCallback((altId: string) => {
     const altTest = statisticalTests.find(t => t.id === altId);
-    if (altTest && selectedTest) {
-      // Open comparison modal with current test and alternative
-      setCompareTests([selectedTest, altTest]);
-      setSelectedTest(null); // Close detail sheet
+    if (altTest) {
+      setSelectedTest(current => {
+        if (current) {
+          setCompareTests([current, altTest]);
+        }
+        return null; // Close detail sheet
+      });
       setShowCompare(true);
     }
-  };
+  }, []);
 
 
   return (
@@ -474,24 +495,34 @@ export default function AllTests() {
           )}
 
           <div className="space-y-4">
-            {filteredTests.length > 0 ? (
-              filteredTests.map((test) => (
-                <TestResultCard 
-                  key={test.id} 
-                  test={test}
-                  onViewDetails={() => handleTestClick(test)}
-                  onCompare={() => toggleCompare(test)}
-                  isComparing={compareTests.some(t => t.id === test.id)}
-                  canCompare={compareTests.length < 3 || compareTests.some(t => t.id === test.id)}
-                  onAlternativeClick={(altId) => {
-                    const altTest = statisticalTests.find(t => t.id === altId);
-                    if (altTest) {
-                      setCompareTests([test, altTest]);
-                      setShowCompare(true);
-                    }
-                  }}
-                />
-              ))
+            {visibleTests.length > 0 ? (
+              <>
+                {visibleTests.map((test) => (
+                  <TestResultCard 
+                    key={test.id} 
+                    test={test}
+                    onViewDetails={() => handleTestClick(test)}
+                    onCompare={() => toggleCompare(test)}
+                    isComparing={compareTests.some(t => t.id === test.id)}
+                    canCompare={compareTests.length < 3 || compareTests.some(t => t.id === test.id)}
+                    onAlternativeClick={(altId) => {
+                      const altTest = statisticalTests.find(t => t.id === altId);
+                      if (altTest) {
+                        setCompareTests([test, altTest]);
+                        setShowCompare(true);
+                      }
+                    }}
+                  />
+                ))}
+                
+                {visibleTests.length < filteredTests.length && (
+                  <div className="flex justify-center pt-4">
+                    <Button variant="outline" onClick={handleLoadMore}>
+                      Load More Tests ({filteredTests.length - visibleTests.length} remaining)
+                    </Button>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">No tests found matching your criteria.</p>
@@ -505,7 +536,7 @@ export default function AllTests() {
           </div>
 
           <div className="text-center text-sm text-muted-foreground">
-            Showing {filteredTests.length} of {statisticalTests.length} tests
+            Showing {visibleTests.length} of {filteredTests.length} tests
           </div>
         </div>
       </main>
