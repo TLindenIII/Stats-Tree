@@ -50,8 +50,8 @@ export default function Glossary() {
         <div className="border rounded-md divide-y bg-card">
           {filteredTerms.length > 0 ? (
             filteredTerms.map((item) => (
-              <div key={item.term} className="p-4 hover:bg-muted/30 transition-colors flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-6">
-                <h3 className="font-semibold text-sm min-w-[160px] shrink-0 text-foreground">
+              <div key={item.term} className="p-4 hover:bg-muted/30 transition-colors flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6">
+                <h3 className="font-semibold text-sm sm:w-[220px] shrink-0 text-foreground">
                   {item.term}
                 </h3>
                 <div className="text-sm text-muted-foreground leading-relaxed">
