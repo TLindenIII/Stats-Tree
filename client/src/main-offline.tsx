@@ -14,6 +14,7 @@ import Wizard from "@/pages/Wizard";
 import Results from "@/pages/Results";
 import AllTests from "@/pages/AllTests";
 import Flowchart from "@/pages/Flowchart";
+import Glossary from "@/pages/Glossary";
 import "./index.css";
 
 function Routes() {
@@ -24,6 +25,7 @@ function Routes() {
       <Route path="/results" component={Results} />
       <Route path="/tests" component={AllTests} />
       <Route path="/flowchart" component={Flowchart} />
+      <Route path="/glossary" component={Glossary} />
       <Route component={NotFound} />
     </Switch>
   );
