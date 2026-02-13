@@ -1,65 +1,79 @@
 // ── Union types for WizardContext ──────────────────────────────────────
 
+/** matches wizardLogic.tag_schema.goal */
 export type Goal =
-  | "compare"
-  | "associate"
-  | "model"
-  | "estimate"
-  | "categorical_assoc"
+  | "compare_groups"
+  | "association"
+  | "categorical_association"
+  | "model_with_predictors"
+  | "unsupervised"
   | "time_series"
   | "survival"
-  | "unsupervised"
-  | "utilities"
-  | "power";
+  | "power_planning"
+  | "diagnostics_posthoc_effectsize"
+  | "estimate";
 
-export type OutcomeScale =
+/** matches wizardLogic.tag_schema.outcome */
+export type Outcome =
   | "continuous"
   | "binary"
+  | "categorical"
   | "count"
   | "ordinal"
-  | "nominal"
-  | "time-to-event"
-  | "multivariate";
+  | "time_to_event"
+  | "none";
 
-export type SampleStructure =
+/** matches wizardLogic.tag_schema.design */
+export type Design =
   | "independent"
   | "paired"
   | "repeated"
   | "clustered"
-  | "time-series";
+  | "time-series"
+  | "longitudinal"
+  | "factorial"
+  | "none";
 
-export type AssumptionStance = "parametric" | "nonparametric" | "robust" | "bayesian" | "unsure";
+/** matches wizardLogic.tag_schema.groups */
+export type Groups = "two" | "three_plus" | "none";
+
+/** matches wizardLogic.tag_schema.factors */
+export type Factors = "one" | "two_plus" | "none";
+
+/** matches wizardLogic.tag_schema.task */
+export type Task =
+  | "independence_test"
+  | "agreement"
+  | "effect_size"
+  | "forecasting"
+  | "stationarity"
+  | "model_adequacy"
+  | "multivariate_dynamics"
+  | "causality"
+  | "describe_survival"
+  | "compare_survival"
+  | "model_survival"
+  | "clustering"
+  | "dim_reduction"
+  | "power_sample_size"
+  | "none";
+
+/** matches wizardLogic.tag_schema.modeling_preference */
+export type ModelingPreference = "interpretable" | "predictive_ml" | "regularized" | "none";
 
 // ── WizardContext ──────────────────────────────────────────────────────
 
 export interface WizardContext {
   goal?: Goal;
-  outcomeScale?: OutcomeScale;
-
-  // compare branch
-  nGroups?: "1" | "2" | "3plus";
-  sampleStructure?: SampleStructure;
-  equalVar?: "yes" | "no" | "unsure";
-  normality?: "yes" | "no" | "unsure";
-
-  // categorical assoc / compare
-  tableType?: "2x2" | "rxc" | "paired_binary_2" | "paired_binary_3plus";
-
-  // modeling / ml
-  modelingFocus?: "inference" | "prediction";
-  predictorsCount?: "1" | "many";
-  mixedEffects?: "yes" | "no";
-
-  // time series
-  tsTask?: "forecast" | "diagnostics" | "multivariate";
-
-  // survival
-  survivalTask?: "curve" | "compare" | "regression" | "competing" | "ml";
-
-  // unsupervised
-  unsupTask?: "clustering" | "dimred" | "embedding";
-
-  stance?: AssumptionStance;
+  outcome?: Outcome;
+  design?: Design;
+  groups?: Groups;
+  factors?: Factors;
+  task?: Task;
+  modeling_preference?: ModelingPreference;
+  assoc_pair?: "cont_cont" | "bin_cont" | "other" | "unknown";
+  control_vars?: "yes" | "no" | "unknown";
+  diag?: "normality" | "equal_variance" | "autocorr" | "heterosk" | "multiple_testing" | "posthoc" | "effect_size" | "unknown";
 }
 
 // ── Wizard Step & Test interfaces ──────────────────────────────────────
@@ -98,9 +112,9 @@ export interface StatTest {
   methodFamily: string;
   category: string;
 
-  outcomeScale?: string | null;
+  outcome?: Outcome | null;
   predictorStructure?: string | null;
-  design?: string | null;
+  design?: Design | null;
   level?: string | null;
   alternativeLinks?: string[];
   pythonCode?: string;
@@ -116,211 +130,7 @@ export interface Recommendation {
   companions: StatTest[];
 }
 
-// ── Wizard Steps (conditional) ─────────────────────────────────────────
 
-export const wizardSteps: WizardStep[] = [
-  {
-    id: "goal",
-    title: "Goal",
-    question: "What are you trying to do?",
-    options: [
-      { value: "compare", label: "Compare groups (differences)", description: "Test differences between two or more groups" },
-      { value: "associate", label: "Association / correlation", description: "Measure relationships between variables" },
-      { value: "model", label: "Model an outcome with predictors", description: "Regression, classification models" },
-      { value: "estimate", label: "Estimate a parameter", description: "Confidence intervals, effect sizes, resampling" },
-      { value: "categorical_assoc", label: "Categorical association (tables)", description: "Chi-square, Fisher's exact, contingency tables" },
-      { value: "time_series", label: "Time series", description: "Forecasting, diagnostics, sequential data" },
-      { value: "survival", label: "Survival / time-to-event", description: "Kaplan-Meier, Cox regression, competing risks" },
-      { value: "unsupervised", label: "Unsupervised learning", description: "Clustering, dimension reduction, embeddings" },
-
-      { value: "utilities", label: "Assumptions / diagnostics / post-hoc / effect size", description: "Normality tests, variance tests, pairwise comparisons" },
-      { value: "power", label: "Power / sample size planning", description: "Power analysis, sample size calculation" },
-    ],
-  },
-
-  // Outcome type — asked for most branches
-  {
-    id: "outcomeScale",
-    title: "Outcome",
-    question: "What type of outcome do you have?",
-    options: [
-      { value: "continuous", label: "Continuous (numeric)", description: "Measurements like height, weight, temperature" },
-      { value: "ordinal", label: "Ordinal (rank / Likert)", description: "Ranked categories with natural order" },
-      { value: "nominal", label: "Categorical (nominal)", description: "Unordered categories like colors, types" },
-      { value: "binary", label: "Binary", description: "Two outcomes like yes/no, success/failure" },
-      { value: "count", label: "Count", description: "Count data like number of events" },
-      { value: "time-to-event", label: "Time-to-event", description: "Survival data with censoring" },
-      { value: "multivariate", label: "Multiple outcomes", description: "Multiple outcome variables simultaneously" },
-    ],
-    askWhen: (ctx) =>
-      ctx.goal === "compare" ||
-      ctx.goal === "associate" ||
-      ctx.goal === "model" ||
-      ctx.goal === "estimate" ||
-      ctx.goal === "categorical_assoc" ||
-      ctx.goal === "survival",
-  },
-
-  // Number of groups — compare branch with continuous/ordinal
-  {
-    id: "nGroups",
-    title: "Groups",
-    question: "How many groups / conditions are you comparing?",
-    options: [
-      { value: "1", label: "1 (vs a reference value)", description: "Comparing to a known or hypothesized value" },
-      { value: "2", label: "2", description: "Two groups or conditions" },
-      { value: "3plus", label: "3+", description: "Three or more groups" },
-    ],
-    askWhen: (ctx) =>
-      ctx.goal === "compare" &&
-      (ctx.outcomeScale === "continuous" || ctx.outcomeScale === "ordinal"),
-  },
-
-  // Sample structure — compare or model
-  {
-    id: "sampleStructure",
-    title: "Design",
-    question: "Are the measurements independent or paired/repeated?",
-    options: [
-      { value: "independent", label: "Independent groups", description: "Different subjects in each group" },
-      { value: "paired", label: "Paired (matched / pre-post)", description: "Same subjects measured twice or matched pairs" },
-      { value: "repeated", label: "Repeated measures (3+ within-subject)", description: "Multiple measurements per subject" },
-      { value: "clustered", label: "Clustered / hierarchical", description: "Nested data like students in schools" },
-      { value: "time-series", label: "Time series", description: "Sequential observations over time" },
-    ],
-    askWhen: (ctx) => ctx.goal === "compare" || ctx.goal === "model" || ctx.goal === "associate",
-  },
-
-  // Normality — compare + continuous
-  {
-    id: "normality",
-    title: "Normality",
-    question: "Are you comfortable assuming approximate normality (or large n)?",
-    options: [
-      { value: "yes", label: "Yes", description: "Data is roughly bell-shaped or sample is large" },
-      { value: "no", label: "No", description: "Data is skewed, has outliers, or sample is small" },
-      { value: "unsure", label: "Not sure", description: "Will suggest methods for both scenarios" },
-    ],
-    askWhen: (ctx) =>
-      ctx.goal === "compare" && ctx.outcomeScale === "continuous",
-  },
-
-  // Equal variances — compare + continuous + independent + 2+ groups
-  {
-    id: "equalVar",
-    title: "Variances",
-    question: "Do you expect equal variances across groups?",
-    options: [
-      { value: "yes", label: "Yes", description: "Group spreads are roughly similar" },
-      { value: "no", label: "No / different variances", description: "Groups have noticeably different spreads" },
-      { value: "unsure", label: "Not sure", description: "Will suggest robust alternatives" },
-    ],
-    askWhen: (ctx) =>
-      ctx.goal === "compare" &&
-      ctx.outcomeScale === "continuous" &&
-      ctx.nGroups !== "1" &&
-      ctx.sampleStructure === "independent",
-  },
-
-  // Categorical table routing
-  {
-    id: "tableType",
-    title: "Table Design",
-    question: "What best describes your categorical setup?",
-    options: [
-      { value: "2x2", label: "2×2 independent table", description: "Two groups with a binary outcome" },
-      { value: "rxc", label: "r×c independent table", description: "Multiple groups with multiple categories" },
-      { value: "paired_binary_2", label: "Paired binary (2 conditions) — McNemar", description: "Same subjects, binary outcome, before/after" },
-      { value: "paired_binary_3plus", label: "Paired binary (3+ conditions) — Cochran's Q", description: "Same subjects, binary outcome, 3+ conditions" },
-    ],
-    askWhen: (ctx) =>
-      ctx.goal === "categorical_assoc" ||
-      (ctx.goal === "compare" && (ctx.outcomeScale === "nominal" || ctx.outcomeScale === "binary")),
-  },
-
-  // Modeling focus
-  {
-    id: "modelingFocus",
-    title: "Model Focus",
-    question: "What do you care about most?",
-    options: [
-      { value: "inference", label: "Explain effects / inference", description: "Understand which predictors matter and how" },
-      { value: "prediction", label: "Predictive performance", description: "Maximize model accuracy on new data" },
-    ],
-    askWhen: (ctx) => ctx.goal === "model",
-  },
-
-  // Mixed effects
-  {
-    id: "mixedEffects",
-    title: "Random Effects",
-    question: "Do you need random effects for clustered/repeated observations?",
-    options: [
-      { value: "yes", label: "Yes", description: "Accounts for grouping structure in data" },
-      { value: "no", label: "No / standard model", description: "Simple fixed-effects model" },
-    ],
-    askWhen: (ctx) =>
-      ctx.goal === "model" &&
-      (ctx.sampleStructure === "clustered" || ctx.sampleStructure === "repeated"),
-  },
-
-  // Time series task
-  {
-    id: "tsTask",
-    title: "Time Series Task",
-    question: "What are you doing with the time series?",
-    options: [
-      { value: "forecast", label: "Forecasting", description: "Predict future values" },
-      { value: "diagnostics", label: "Diagnostics / tests", description: "Stationarity, autocorrelation, white noise" },
-      { value: "multivariate", label: "Multiple series modeling", description: "Model relationships between multiple time series" },
-    ],
-    askWhen: (ctx) => ctx.goal === "time_series",
-  },
-
-  // Survival task
-  {
-    id: "survivalTask",
-    title: "Survival Task",
-    question: "What do you need for time-to-event data?",
-    options: [
-      { value: "curve", label: "Estimate a survival curve", description: "Kaplan-Meier estimator" },
-      { value: "compare", label: "Compare survival curves", description: "Log-rank test between groups" },
-      { value: "regression", label: "Regression with covariates", description: "Cox proportional hazards" },
-      { value: "competing", label: "Competing risks", description: "Multiple possible event types" },
-      { value: "ml", label: "Prediction-focused survival ML", description: "Machine learning for survival" },
-    ],
-    askWhen: (ctx) =>
-      ctx.goal === "survival" || (ctx.goal === "compare" && ctx.outcomeScale === "time-to-event"),
-  },
-
-  // Unsupervised task
-  {
-    id: "unsupTask",
-    title: "Unsupervised Task",
-    question: "What do you want to do?",
-    options: [
-      { value: "clustering", label: "Clustering", description: "Group similar observations" },
-      { value: "dimred", label: "Dimension reduction / latent structure", description: "PCA, factor analysis" },
-      { value: "embedding", label: "Visualization embedding", description: "t-SNE, UMAP" },
-    ],
-    askWhen: (ctx) => ctx.goal === "unsupervised",
-  },
-
-  // Stance — preference for method style (asked for most goals)
-  {
-    id: "stance",
-    title: "Preference",
-    question: "Any preference for method style?",
-    options: [
-      { value: "parametric", label: "Parametric (if reasonable)", description: "Assumes distributions, often more powerful" },
-      { value: "nonparametric", label: "Nonparametric / rank-based", description: "Distribution-free, fewer assumptions" },
-      { value: "robust", label: "Robust / outlier-resistant", description: "Resistant to extreme values" },
-      { value: "bayesian", label: "Bayesian", description: "Incorporates prior information" },
-      { value: "unsure", label: "No preference", description: "Will recommend best default" },
-    ],
-    askWhen: (ctx) => ctx.goal !== "power" && ctx.goal !== "utilities",
-  },
-];
 
 export const statisticalTests: StatTest[] = [
   // Group Comparison - Parametric
@@ -342,9 +152,9 @@ export const statisticalTests: StatTest[] = [
     ],
     methodFamily: "Parametric",
     category: "Group Comparison",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["mann-whitney", "welch-t-test", "bayesian-t-test"],
     pythonCode: `
@@ -356,11 +166,8 @@ t_pooled, p_val = scipy.stats.ttest_ind(a, b, equal_var=True)
 t_pooled <- t.test(a, b, var.equal = TRUE)
 `.trim(),
     rules: {
-      requires: { goal: "compare", outcomeScale: "continuous", nGroups: "2", sampleStructure: "independent" },
+      requires: { goal: "compare_groups", outcome: "continuous", groups: "two", design: "independent" },
       boosts: {
-        normality: { yes: 3, unsure: 1 },
-        equalVar: { yes: 3, unsure: 1 },
-        stance: { parametric: 2, unsure: 1 },
       },
     },
   },
@@ -382,9 +189,9 @@ t_pooled <- t.test(a, b, var.equal = TRUE)
     ],
     methodFamily: "Parametric",
     category: "Group Comparison",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "paired/repeated measures",
+    design: "paired",
     level: "basic",
     alternativeLinks: ["wilcoxon-signed-rank"],
     pythonCode: `
@@ -398,10 +205,8 @@ t_paired, p_val = scipy.stats.ttest_rel(a, b)
 t_paired <- t.test(a, b, paired = TRUE)
     `.trim(),
     rules: {
-      requires: { goal: "compare", outcomeScale: "continuous", nGroups: "2", sampleStructure: "paired" },
+      requires: { goal: "compare_groups", outcome: "continuous", groups: "two", design: "paired" },
       boosts: {
-        normality: { yes: 3, unsure: 1 },
-        stance: { parametric: 2, unsure: 1 },
       },
     },
   },
@@ -414,19 +219,16 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Comparing 3+ group means", "One categorical predictor", "Continuous outcome"],
     methodFamily: "Parametric",
     category: "Group Comparison",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["kruskal-wallis", "welch-anova", "bayesian-anova"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "compare", outcomeScale: "continuous", nGroups: "3plus", sampleStructure: "independent" },
+    requires: { goal: "compare_groups", outcome: "continuous", groups: "three_plus", design: "independent" },
     boosts: {
-      normality: { yes: 3, unsure: 1 },
-      equalVar: { yes: 3, unsure: 1 },
-      stance: { parametric: 2, unsure: 1 },
     },
   },
   },
@@ -439,7 +241,7 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Two categorical predictors", "Factorial experimental design", "Testing interaction effects"],
     methodFamily: "Parametric",
     category: "Group Comparison",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple categorical",
     design: "factorial",
     level: "intermediate",
@@ -447,11 +249,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "compare", outcomeScale: "continuous", nGroups: "3plus", sampleStructure: "independent" },
+    requires: { goal: "compare_groups", outcome: "continuous", groups: "three_plus", design: "independent" },
     boosts: {
-      normality: { yes: 2, unsure: 1 },
-      equalVar: { yes: 2, unsure: 1 },
-      stance: { parametric: 2, unsure: 1 },
     },
   },
   },
@@ -464,18 +263,16 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Multiple measurements on same subjects", "Longitudinal within-subject design", "Before-during-after comparisons"],
     methodFamily: "Parametric",
     category: "Group Comparison",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "paired/repeated measures",
+    design: "repeated",
     level: "intermediate",
     alternativeLinks: ["friedman-test", "linear-mixed-model"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "compare", outcomeScale: "continuous", nGroups: "3plus", sampleStructure: "repeated" },
+    requires: { goal: "compare_groups", outcome: "continuous", groups: "three_plus", design: "repeated" },
     boosts: {
-      normality: { yes: 2, unsure: 1 },
-      stance: { parametric: 2, unsure: 1 },
     },
   },
   },
@@ -489,19 +286,17 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Non-normal distributions", "Ordinal data", "Small sample sizes"],
     methodFamily: "Nonparametric",
     category: "Group Comparison",
-    outcomeScale: "ordinal",
+    outcome: "ordinal",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["t-test-independent", "permutation-test"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "compare", nGroups: "2", sampleStructure: "independent" },
+    requires: { goal: "compare_groups", groups: "two", design: "independent" },
     boosts: {
-      outcomeScale: { continuous: 2, ordinal: 3 },
-      normality: { no: 3, unsure: 1 },
-      stance: { nonparametric: 3, unsure: 1 },
+      outcome: { continuous: 2, ordinal: 3 },
     },
   },
   },
@@ -514,19 +309,17 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Paired data with non-normal differences", "Ordinal outcomes", "Before-after comparisons"],
     methodFamily: "Nonparametric",
     category: "Group Comparison",
-    outcomeScale: "ordinal",
+    outcome: "ordinal",
     predictorStructure: "single categorical",
-    design: "paired/repeated measures",
+    design: "paired",
     level: "basic",
     alternativeLinks: ["paired-t-test"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "compare", nGroups: "2", sampleStructure: "paired" },
+    requires: { goal: "compare_groups", groups: "two", design: "paired" },
     boosts: {
-      outcomeScale: { continuous: 2, ordinal: 3 },
-      normality: { no: 3, unsure: 1 },
-      stance: { nonparametric: 3, unsure: 1 },
+      outcome: { continuous: 2, ordinal: 3 },
     },
   },
   },
@@ -539,19 +332,17 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Comparing 3+ groups with non-normal data", "Ordinal outcomes", "Unequal group sizes"],
     methodFamily: "Nonparametric",
     category: "Group Comparison",
-    outcomeScale: "ordinal",
+    outcome: "ordinal",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["one-way-anova", "dunn-test"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "compare", nGroups: "3plus", sampleStructure: "independent" },
+    requires: { goal: "compare_groups", groups: "three_plus", design: "independent" },
     boosts: {
-      outcomeScale: { continuous: 2, ordinal: 3 },
-      normality: { no: 3, unsure: 1 },
-      stance: { nonparametric: 3, unsure: 1 },
+      outcome: { continuous: 2, ordinal: 3 },
     },
   },
   },
@@ -564,19 +355,17 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Repeated measures with non-normal data", "Ordinal outcomes", "Blocked designs"],
     methodFamily: "Nonparametric",
     category: "Group Comparison",
-    outcomeScale: "ordinal",
+    outcome: "ordinal",
     predictorStructure: "single categorical",
-    design: "paired/repeated measures",
+    design: "repeated",
     level: "intermediate",
     alternativeLinks: ["repeated-measures-anova"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "compare", nGroups: "3plus", sampleStructure: "repeated" },
+    requires: { goal: "compare_groups", groups: "three_plus", design: "repeated" },
     boosts: {
-      outcomeScale: { continuous: 2, ordinal: 3 },
-      normality: { no: 3, unsure: 1 },
-      stance: { nonparametric: 3, unsure: 1 },
+      outcome: { continuous: 2, ordinal: 3 },
     },
   },
   },
@@ -590,18 +379,17 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Measuring linear association", "Both variables continuous", "Normally distributed data"],
     methodFamily: "Parametric",
     category: "Correlation",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single continuous",
-    design: "cross-sectional",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["spearman-correlation", "kendall-tau"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "associate" },
+    requires: { goal: "association" },
     boosts: {
-      outcomeScale: { continuous: 3 },
-      stance: { parametric: 2, unsure: 1 },
+      outcome: { continuous: 3 },
     },
   },
   },
@@ -614,18 +402,17 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Non-linear monotonic relationships", "Ordinal data", "Outliers present"],
     methodFamily: "Nonparametric",
     category: "Correlation",
-    outcomeScale: "ordinal",
+    outcome: "ordinal",
     predictorStructure: "single continuous",
-    design: "cross-sectional",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["pearson-correlation", "kendall-tau"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "associate" },
+    requires: { goal: "association" },
     boosts: {
-      outcomeScale: { continuous: 2, ordinal: 3 },
-      stance: { nonparametric: 3, unsure: 1 },
+      outcome: { continuous: 2, ordinal: 3 },
     },
   },
   },
@@ -638,18 +425,17 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Controlling for confounders", "Isolating relationships", "Multiple predictors"],
     methodFamily: "Parametric",
     category: "Correlation",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple continuous",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["multiple-regression"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "associate" },
+    requires: { goal: "association" },
     boosts: {
-      outcomeScale: { continuous: 3 },
-      stance: { parametric: 2, unsure: 1 },
+      outcome: { continuous: 3 },
     },
   },
   },
@@ -663,19 +449,17 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Predicting continuous outcomes", "Multiple predictors", "Quantifying relationships"],
     methodFamily: "Regression-based",
     category: "Regression",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single continuous",
-    design: "cross-sectional",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["multiple-regression", "robust-regression", "bayesian-regression"],
     pythonCode: "",
     rCode: "",  
     rules: {
-    requires: { goal: "model", outcomeScale: "continuous" },
+    requires: { goal: "model_with_predictors", outcome: "continuous" },
     boosts: {
-      modelingFocus: { inference: 3, prediction: 1 },
-      stance: { parametric: 2, unsure: 1 },
-      mixedEffects: { no: 1 },
+      modeling_preference: { inference: 3, prediction: 1 },
     },
   },
   },
@@ -688,19 +472,17 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Multiple predictors", "Controlling for confounders", "Prediction with covariates"],
     methodFamily: "Regression-based",
     category: "Regression",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["linear-regression", "lasso-ridge", "elastic-net"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", outcomeScale: "continuous" },
+    requires: { goal: "model_with_predictors", outcome: "continuous" },
     boosts: {
-      modelingFocus: { inference: 3, prediction: 1 },
-      stance: { parametric: 2, unsure: 1 },
-      mixedEffects: { no: 1 },
+      modeling_preference: { inference: 3, prediction: 1 },
     },
   },
   },
@@ -713,19 +495,18 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Binary classification", "Odds ratio estimation", "Multiple predictors"],
     methodFamily: "Regression-based",
     category: "Regression",
-    outcomeScale: "binary",
+    outcome: "binary",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["probit-regression", "random-forest", "svm"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", outcomeScale: "binary" },
+    requires: { goal: "model_with_predictors", outcome: "binary" },
     boosts: {
-      modelingFocus: { inference: 3, prediction: 1 },
-      stance: { parametric: 2, unsure: 1 },
-      mixedEffects: { no: 1 },
+      modeling_preference: { interpretable: 3, predictive_ml: 1 },
+      design: { none: 1 },
     },
   },
   },
@@ -738,19 +519,18 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Count outcomes", "Rate data", "Event frequencies"],
     methodFamily: "Regression-based",
     category: "Regression",
-    outcomeScale: "count",
+    outcome: "count",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["negative-binomial", "zero-inflated-poisson"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", outcomeScale: "count" },
+    requires: { goal: "model_with_predictors", outcome: "count" },
     boosts: {
-      modelingFocus: { inference: 3, prediction: 1 },
-      stance: { parametric: 2, unsure: 1 },
-      mixedEffects: { no: 1 },
+      modeling_preference: { interpretable: 3, predictive_ml: 1 },
+      design: { none: 1 },
     },
   },
   },
@@ -763,19 +543,18 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Ordinal outcomes (Likert scales)", "Ranked categories", "Multiple predictors"],
     methodFamily: "Regression-based",
     category: "Regression",
-    outcomeScale: "ordinal",
+    outcome: "ordinal",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["logistic-regression", "multinomial-logistic"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", outcomeScale: "ordinal" },
+    requires: { goal: "model_with_predictors", outcome: "ordinal" },
     boosts: {
-      modelingFocus: { inference: 3, prediction: 1 },
-      stance: { parametric: 2, unsure: 1 },
-      mixedEffects: { no: 1 },
+      modeling_preference: { interpretable: 3, predictive_ml: 1 },
+      design: { none: 1 },
     },
   },
   },
@@ -789,19 +568,18 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Testing association between categorical variables", "Contingency tables", "Independence testing"],
     methodFamily: "Nonparametric",
     category: "Categorical",
-    outcomeScale: "nominal",
+    outcome: "categorical",
     predictorStructure: "single categorical",
-    design: "cross-sectional",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["fisher-exact", "cramers-v"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { tableType: "rxc" },
+    requires: { outcome: "categorical" },
     boosts: {
       goal: { categorical_assoc: 3, compare: 3 },
-      tableType: { rxc: 3 },
-      stance: { nonparametric: 2, unsure: 1 },
+
     },
   },
   },
@@ -814,19 +592,18 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Testing association in 2x2 tables", "Sample size sufficient"],
     methodFamily: "Nonparametric",
     category: "Categorical",
-    outcomeScale: "nominal",
+    outcome: "categorical",
     predictorStructure: "single categorical",
-    design: "cross-sectional",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["fisher-exact", "mcnemar-test"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { tableType: "2x2" },
+    requires: { outcome: "categorical" },
     boosts: {
       goal: { categorical_assoc: 3, compare: 3 },
-      tableType: { "2x2": 3 },
-      stance: { nonparametric: 2, unsure: 1 },
+
     },
   },
   },
@@ -839,19 +616,18 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Small sample sizes", "Expected counts < 5", "2x2 tables"],
     methodFamily: "Nonparametric",
     category: "Categorical",
-    outcomeScale: "nominal",
+    outcome: "categorical",
     predictorStructure: "single categorical",
-    design: "cross-sectional",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["chi-square"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { tableType: "2x2" },
+    requires: { groups: "two", design: "independent" },
     boosts: {
       goal: { categorical_assoc: 3, compare: 3 },
-      tableType: { "2x2": 3 },
-      stance: { nonparametric: 2, unsure: 1 },
+
     },
   },
   },
@@ -864,17 +640,16 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Before-after binary outcomes", "Matched pairs", "Diagnostic test comparison"],
     methodFamily: "Nonparametric",
     category: "Categorical",
-    outcomeScale: "binary",
+    outcome: "binary",
     predictorStructure: "single categorical",
-    design: "paired/repeated measures",
+    design: "paired",
     level: "intermediate",
     alternativeLinks: ["cochran-q"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "categorical_assoc", tableType: "paired_binary_2" },
+    requires: { goal: "compare_groups", design: "paired" },
     boosts: {
-      stance: { nonparametric: 1, unsure: 1 },
     },
   },
   },
@@ -888,7 +663,7 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Clustered/nested data", "Repeated measures", "Unbalanced designs"],
     methodFamily: "Mixed Models",
     category: "Mixed Models",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple mixed",
     design: "longitudinal",
     level: "advanced",
@@ -896,12 +671,11 @@ t_paired <- t.test(a, b, paired = TRUE)
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", mixedEffects: "yes" },
+    requires: { goal: "model_with_predictors", design: "clustered" },
     boosts: {
-      outcomeScale: { continuous: 3 },
-      sampleStructure: { clustered: 3, repeated: 2 },
-      modelingFocus: { inference: 2 },
-      stance: { parametric: 2, unsure: 1 },
+      outcome: { continuous: 3 },
+      design: { clustered: 3, repeated: 2 },
+      modeling_preference: { inference: 2 },
     },
   },
   },
@@ -914,7 +688,7 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Non-normal outcomes with clustering", "Binary/count data in hierarchical structures"],
     methodFamily: "Mixed Models",
     category: "Mixed Models",
-    outcomeScale: "binary",
+    outcome: "binary",
     predictorStructure: "multiple mixed",
     design: "longitudinal",
     level: "advanced",
@@ -922,12 +696,11 @@ t_paired <- t.test(a, b, paired = TRUE)
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", mixedEffects: "yes" },
+    requires: { goal: "model_with_predictors", design: "clustered" },
     boosts: {
-      outcomeScale: { binary: 3, count: 3, ordinal: 2 },
-      sampleStructure: { clustered: 3, repeated: 2 },
-      modelingFocus: { inference: 2 },
-      stance: { parametric: 2, unsure: 1 },
+      outcome: { binary: 3, count: 3, ordinal: 2 },
+      design: { clustered: 3, repeated: 2 },
+      modeling_preference: { inference: 2 },
     },
   },
   },
@@ -941,7 +714,7 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Time series forecasting", "Trend modeling", "Autocorrelated data"],
     methodFamily: "Time-series",
     category: "Time Series",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "none",
     design: "time-series",
     level: "intermediate",
@@ -949,9 +722,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "time_series", tsTask: "forecast" },
+    requires: { goal: "time_series", task: "forecasting" },
     boosts: {
-      stance: { parametric: 2, unsure: 1 },
     },
   },
   },
@@ -964,7 +736,7 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Short-term forecasting", "Trend and seasonality", "Simpler interpretation"],
     methodFamily: "Time-series",
     category: "Time Series",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "none",
     design: "time-series",
     level: "intermediate",
@@ -972,9 +744,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "time_series", tsTask: "forecast" },
+    requires: { goal: "time_series", task: "forecasting" },
     boosts: {
-      stance: { parametric: 1, unsure: 1 },
     },
   },
   },
@@ -988,7 +759,7 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Estimating survival curves", "Handling censored data", "Descriptive survival analysis"],
     methodFamily: "Survival",
     category: "Survival Analysis",
-    outcomeScale: "time-to-event",
+    outcome: "time_to_event",
     predictorStructure: "none",
     design: "longitudinal",
     level: "intermediate",
@@ -996,10 +767,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "survival", survivalTask: "curve" },
+    requires: { goal: "survival", task: "describe_survival" },
     boosts: {
       goal: { survival: 3, compare: 1 },
-      stance: { nonparametric: 2, unsure: 1 },
     },
   },
   },
@@ -1012,7 +782,7 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Comparing survival curves", "Clinical trial endpoints", "Time-to-event comparisons"],
     methodFamily: "Survival",
     category: "Survival Analysis",
-    outcomeScale: "time-to-event",
+    outcome: "time_to_event",
     predictorStructure: "single categorical",
     design: "longitudinal",
     level: "intermediate",
@@ -1020,10 +790,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "survival", survivalTask: "compare" },
+    requires: { goal: "survival", task: "compare_survival" },
     boosts: {
       goal: { survival: 3, compare: 1 },
-      stance: { nonparametric: 2, unsure: 1 },
     },
   },
   },
@@ -1036,7 +805,7 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Survival with covariates", "Hazard ratio estimation", "Adjusting for confounders"],
     methodFamily: "Survival",
     category: "Survival Analysis",
-    outcomeScale: "time-to-event",
+    outcome: "time_to_event",
     predictorStructure: "multiple mixed",
     design: "longitudinal",
     level: "advanced",
@@ -1044,10 +813,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "survival", survivalTask: "regression" },
+    requires: { goal: "survival", task: "model_survival" },
     boosts: {
       goal: { survival: 3, compare: 1 },
-      stance: { parametric: 2, unsure: 1 },
     },
   },
   },
@@ -1061,17 +829,16 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Finding natural groupings", "Customer segmentation", "Pattern discovery"],
     methodFamily: "Machine Learning",
     category: "Clustering",
-    outcomeScale: "multivariate",
+    outcome: "continuous",
     predictorStructure: "none",
-    design: "cross-sectional",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["hierarchical-clustering", "dbscan", "gaussian-mixture"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "unsupervised", unsupTask: "clustering" },
+    requires: { goal: "unsupervised", task: "clustering" },
     boosts: {
-      stance: { parametric: 1, unsure: 1 },
     },
   },
   },
@@ -1084,17 +851,16 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Exploring cluster hierarchy", "Dendrogram visualization", "Unknown number of clusters"],
     methodFamily: "Machine Learning",
     category: "Clustering",
-    outcomeScale: "multivariate",
+    outcome: "continuous",
     predictorStructure: "none",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["kmeans", "dbscan"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "unsupervised", unsupTask: "clustering" },
+    requires: { goal: "unsupervised", task: "clustering" },
     boosts: {
-      stance: { nonparametric: 1, unsure: 1 },
     },
   },
   },
@@ -1107,17 +873,16 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Dimension reduction", "Feature extraction", "Visualization of high-dimensional data"],
     methodFamily: "Multivariate",
     category: "Dimension Reduction",
-    outcomeScale: "multivariate",
+    outcome: "continuous",
     predictorStructure: "none",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["factor-analysis", "tsne", "umap"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "unsupervised", unsupTask: "dimred" },
+    requires: { goal: "unsupervised", task: "dim_reduction" },
     boosts: {
-      stance: { parametric: 1, unsure: 1 },
     },
   },
   },
@@ -1130,17 +895,16 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Scale development", "Latent construct identification", "Data reduction with theory"],
     methodFamily: "Multivariate",
     category: "Dimension Reduction",
-    outcomeScale: "multivariate",
+    outcome: "continuous",
     predictorStructure: "none",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["pca"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "unsupervised", unsupTask: "dimred" },
+    requires: { goal: "unsupervised", task: "dim_reduction" },
     boosts: {
-      stance: { parametric: 2, unsure: 1 },
     },
   },
   },
@@ -1154,18 +918,17 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Complex non-linear relationships", "Feature importance", "Robust predictions"],
     methodFamily: "Machine Learning",
     category: "Prediction",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["gradient-boosting", "xgboost", "decision-tree"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", modelingFocus: "prediction" },
+    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
     boosts: {
-      outcomeScale: { continuous: 2, binary: 2 },
-      stance: { unsure: 1 },
+      outcome: { continuous: 2, binary: 2 },
     },
   },
   },
@@ -1178,18 +941,17 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["High prediction accuracy", "Structured/tabular data", "Competitions"],
     methodFamily: "Machine Learning",
     category: "Prediction",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["random-forest", "xgboost", "lightgbm"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", modelingFocus: "prediction" },
+    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
     boosts: {
-      outcomeScale: { continuous: 2, binary: 2 },
-      stance: { unsure: 1 },
+      outcome: { continuous: 2, binary: 2 },
     },
   },
   },
@@ -1202,19 +964,18 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["High-dimensional data", "Multicollinearity", "Variable selection (Lasso)"],
     methodFamily: "Regression-based",
     category: "Prediction",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple continuous",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["elastic-net", "multiple-regression"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model" },
+    requires: { goal: "model_with_predictors" },
     boosts: {
-      outcomeScale: { continuous: 3 },
-      modelingFocus: { inference: 1, prediction: 2 },
-      stance: { parametric: 1, unsure: 1 },
+      outcome: { continuous: 3 },
+      modeling_preference: { inference: 1, prediction: 2 },
     },
   },
   },
@@ -1228,9 +989,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Unknown sampling distribution", "Complex statistics", "Small samples"],
     methodFamily: "Resampling",
     category: "Resampling",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "none",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["permutation-test"],
     pythonCode: "",
@@ -1238,7 +999,6 @@ t_paired <- t.test(a, b, paired = TRUE)
     rules: {
     requires: {},
     boosts: {
-      stance: { robust: 3, nonparametric: 2, unsure: 1 },
       goal: { estimate: 3, compare: 1 },
     },
     kind: "resampling",
@@ -1253,9 +1013,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["No distributional assumptions", "Small samples", "Complex test statistics"],
     methodFamily: "Permutation-based",
     category: "Resampling",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["bootstrap", "mann-whitney"],
     pythonCode: "",
@@ -1263,7 +1023,6 @@ t_paired <- t.test(a, b, paired = TRUE)
     rules: {
     requires: {},
     boosts: {
-      stance: { nonparametric: 3, robust: 2, unsure: 1 },
       goal: { estimate: 3, compare: 1 },
     },
     kind: "resampling",
@@ -1279,15 +1038,15 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Study planning", "Grant applications", "Sample size justification"],
     methodFamily: "Planning",
     category: "Study Planning",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "none",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: [],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "power" },
+    requires: { goal: "power_planning" },
     kind: "planning",
   },
   },
@@ -1303,9 +1062,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Checking homogeneity of variance before ANOVA", "Non-normal data", "Robust variance testing"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["bartlett-test", "brown-forsythe", "fligner-killeen"],
     pythonCode: "",
@@ -1327,9 +1086,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Variance homogeneity testing", "Normally distributed data", "Before ANOVA"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["levene-test", "brown-forsythe"],
     pythonCode: "",
@@ -1351,9 +1110,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Variance testing with skewed data", "Outlier-resistant variance comparison"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["levene-test", "bartlett-test"],
     pythonCode: "",
@@ -1375,9 +1134,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Severe non-normality", "Robust variance testing", "Small samples"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["levene-test"],
     pythonCode: "",
@@ -1399,9 +1158,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Quick variance ratio check", "Balanced designs", "Preliminary analysis"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["levene-test", "bartlett-test"],
     pythonCode: "",
@@ -1424,9 +1183,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Checking normality assumption", "Small to moderate samples", "Before parametric tests"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "none",
-    design: "cross-sectional",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["kolmogorov-smirnov", "anderson-darling", "dagostino-pearson"],
     pythonCode: "",
@@ -1448,9 +1207,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Testing any distributional assumption", "Comparing two distributions", "Large samples"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "none",
-    design: "cross-sectional",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["shapiro-wilk", "anderson-darling"],
     pythonCode: "",
@@ -1472,9 +1231,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Normality testing with tail sensitivity", "Distribution fitting", "Quality control"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "none",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["shapiro-wilk", "kolmogorov-smirnov"],
     pythonCode: "",
@@ -1496,9 +1255,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Moderate to large samples", "Detecting non-normality from skewness/kurtosis"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "none",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["shapiro-wilk"],
     pythonCode: "",
@@ -1521,7 +1280,7 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Time series regression", "Detecting serial correlation", "Model diagnostics"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "none",
     design: "time-series",
     level: "intermediate",
@@ -1545,9 +1304,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Checking constant variance", "Regression diagnostics", "Before inference"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["durbin-watson"],
     pythonCode: "",
@@ -1569,9 +1328,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Detecting multicollinearity", "Variable selection", "Regression diagnostics"],
     methodFamily: "Diagnostic",
     category: "Assumption Testing",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "basic",
     alternativeLinks: [],
     pythonCode: "",
@@ -1595,9 +1354,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["All pairwise comparisons after ANOVA", "Balanced designs", "Conservative control"],
     methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["bonferroni", "games-howell", "scheffe-test"],
     pythonCode: "",
@@ -1606,8 +1365,7 @@ t_paired <- t.test(a, b, paired = TRUE)
     requires: {},
     boosts: {
       goal: { compare: 2, utilities: 3 },
-      nGroups: { "3plus": 2 },
-      equalVar: { yes: 2 },
+      groups: { "3plus": 2 },
     },
     kind: "posthoc",
   },
@@ -1621,9 +1379,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Few comparisons", "Conservative correction", "General multiple testing"],
     methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["holm-bonferroni", "tukey-hsd", "benjamini-hochberg"],
     pythonCode: "",
@@ -1632,7 +1390,7 @@ t_paired <- t.test(a, b, paired = TRUE)
     requires: {},
     boosts: {
       goal: { compare: 2, utilities: 3 },
-      nGroups: { "3plus": 2 },
+      groups: { "3plus": 2 },
     },
     kind: "posthoc",
   },
@@ -1646,9 +1404,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Multiple comparisons", "More power than Bonferroni", "Sequential testing"],
     methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["bonferroni", "benjamini-hochberg"],
     pythonCode: "",
@@ -1657,7 +1415,7 @@ t_paired <- t.test(a, b, paired = TRUE)
     requires: {},
     boosts: {
       goal: { compare: 2, utilities: 3 },
-      nGroups: { "3plus": 2 },
+      groups: { "3plus": 2 },
     },
     kind: "posthoc",
   },
@@ -1671,9 +1429,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["High-throughput testing", "Genomics", "Exploratory analysis"],
     methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["bonferroni", "holm-bonferroni"],
     pythonCode: "",
@@ -1682,7 +1440,7 @@ t_paired <- t.test(a, b, paired = TRUE)
     requires: {},
     boosts: {
       goal: { compare: 1, utilities: 3 },
-      nGroups: { "3plus": 2 },
+      groups: { "3plus": 2 },
     },
     kind: "posthoc",
   },
@@ -1696,9 +1454,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Treatment vs control comparisons", "Not comparing treatments", "Drug trials"],
     methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["tukey-hsd"],
     pythonCode: "",
@@ -1707,7 +1465,7 @@ t_paired <- t.test(a, b, paired = TRUE)
     requires: {},
     boosts: {
       goal: { compare: 2, utilities: 3 },
-      nGroups: { "3plus": 2 },
+      groups: { "3plus": 2 },
     },
     kind: "posthoc",
   },
@@ -1721,9 +1479,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Heterogeneous variances", "Unequal sample sizes", "After Welch's ANOVA"],
     methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["tukey-hsd", "scheffe-test"],
     pythonCode: "",
@@ -1732,8 +1490,7 @@ t_paired <- t.test(a, b, paired = TRUE)
     requires: {},
     boosts: {
       goal: { compare: 2, utilities: 3 },
-      nGroups: { "3plus": 2 },
-      equalVar: { no: 3, unsure: 1 },
+      groups: { "3plus": 2 },
     },
     kind: "posthoc",
   },
@@ -1747,9 +1504,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["Complex contrasts", "Post-hoc hypothesis generation", "Maximum protection"],
     methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["tukey-hsd", "games-howell"],
     pythonCode: "",
@@ -1758,7 +1515,7 @@ t_paired <- t.test(a, b, paired = TRUE)
     requires: {},
     boosts: {
       goal: { compare: 1, utilities: 3 },
-      nGroups: { "3plus": 2 },
+      groups: { "3plus": 2 },
     },
     kind: "posthoc",
   },
@@ -1772,9 +1529,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     whenToUse: ["After Kruskal-Wallis", "Non-parametric multiple comparisons"],
     methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
-    outcomeScale: "ordinal",
+    outcome: "ordinal",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["kruskal-wallis"],
     pythonCode: "",
@@ -1783,8 +1540,7 @@ t_paired <- t.test(a, b, paired = TRUE)
     requires: {},
     boosts: {
       goal: { compare: 2, utilities: 3 },
-      nGroups: { "3plus": 2 },
-      stance: { nonparametric: 3 },
+      groups: { "3plus": 2 },
     },
     kind: "posthoc",
   },
@@ -1808,9 +1564,9 @@ t_paired <- t.test(a, b, paired = TRUE)
     ],
     methodFamily: "Parametric",
     category: "Group Comparison",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["t-test-independent", "mann-whitney"],
     pythonCode: `
@@ -1822,11 +1578,8 @@ t_welch, p_val = scipy.stats.ttest_ind(a, b, equal_var=False)
 t_welch <- t.test(a, b, var.equal = FALSE)
     `.trim(),
     rules: {
-      requires: { goal: "compare", outcomeScale: "continuous", nGroups: "2", sampleStructure: "independent" },
+      requires: { goal: "compare_groups", outcome: "continuous", groups: "two", design: "independent" },
       boosts: {
-        normality: { yes: 2, unsure: 1 },
-        equalVar: { no: 3, unsure: 2 },
-        stance: { parametric: 2, robust: 1, unsure: 2 },
       },
     },
   },
@@ -1839,19 +1592,16 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Heterogeneous variances", "Unbalanced designs", "Three or more groups"],
     methodFamily: "Parametric",
     category: "Group Comparison",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["one-way-anova", "kruskal-wallis"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "compare", outcomeScale: "continuous", nGroups: "3plus", sampleStructure: "independent" },
+    requires: { goal: "compare_groups", outcome: "continuous", groups: "three_plus", design: "independent" },
     boosts: {
-      normality: { yes: 2, unsure: 1 },
-      equalVar: { no: 3, unsure: 2 },
-      stance: { parametric: 2, robust: 1, unsure: 2 },
     },
   },
   },
@@ -1864,20 +1614,17 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Adjusting for confounders", "Pre-test scores as covariate", "Increasing power"],
     methodFamily: "Parametric",
     category: "Group Comparison",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "mixed",
-    design: "independent groups",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["multiple-regression", "linear-mixed-model"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "compare", outcomeScale: "continuous", sampleStructure: "independent" },
+    requires: { goal: "compare_groups", outcome: "continuous", design: "independent" },
     boosts: {
-      nGroups: { "2": 2, "3plus": 2 },
-      normality: { yes: 2, unsure: 1 },
-      equalVar: { yes: 2, unsure: 1 },
-      stance: { parametric: 2, unsure: 1 },
+      groups: { "2": 2, "3plus": 2 },
     },
   },
   },
@@ -1890,20 +1637,17 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Multiple related outcomes", "Reducing Type I error", "Examining patterns"],
     methodFamily: "Multivariate",
     category: "Group Comparison",
-    outcomeScale: "multivariate",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "advanced",
     alternativeLinks: ["two-way-anova", "discriminant-analysis"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "compare", outcomeScale: "multivariate", sampleStructure: "independent" },
+    requires: { goal: "compare_groups", outcome: "continuous", design: "independent" },
     boosts: {
-      nGroups: { "2": 2, "3plus": 2 },
-      normality: { yes: 2 },
-      equalVar: { yes: 2 },
-      stance: { parametric: 2, unsure: 1 },
+      groups: { "2": 2, "3plus": 2 },
     },
   },
   },
@@ -1918,18 +1662,17 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Small samples", "Many tied ranks", "Robust correlation estimate"],
     methodFamily: "Nonparametric",
     category: "Correlation",
-    outcomeScale: "ordinal",
+    outcome: "ordinal",
     predictorStructure: "single continuous",
-    design: "cross-sectional",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["spearman-correlation", "pearson-correlation"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "associate" },
+    requires: { goal: "association" },
     boosts: {
-      outcomeScale: { ordinal: 3, continuous: 1 },
-      stance: { nonparametric: 3, unsure: 1 },
+      outcome: { ordinal: 3, continuous: 1 },
     },
   },
   },
@@ -1942,18 +1685,17 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Binary-continuous relationships", "Item analysis", "Effect size for t-test"],
     methodFamily: "Parametric",
     category: "Correlation",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "cross-sectional",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["pearson-correlation", "t-test-independent"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "associate" },
+    requires: { goal: "association" },
     boosts: {
-      outcomeScale: { continuous: 3 },
-      stance: { parametric: 2, unsure: 1 },
+      outcome: { continuous: 3 },
     },
   },
   },
@@ -1966,19 +1708,18 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Inter-rater reliability", "Test-retest reliability", "Cluster analysis"],
     methodFamily: "Reliability",
     category: "Correlation",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "none",
-    design: "paired/repeated measures",
+    design: "repeated",
     level: "intermediate",
     alternativeLinks: ["cohens-kappa", "linear-mixed-model"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "associate" },
+    requires: { goal: "association" },
     boosts: {
-      outcomeScale: { continuous: 3 },
-      sampleStructure: { paired: 2, repeated: 2 },
-      stance: { parametric: 2, unsure: 1 },
+      outcome: { continuous: 3 },
+      design: { paired: 2, repeated: 2 },
     },
   },
   },
@@ -1993,17 +1734,16 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Repeated measures binary data", "Multiple raters", "Before-during-after binary"],
     methodFamily: "Nonparametric",
     category: "Categorical",
-    outcomeScale: "binary",
+    outcome: "binary",
     predictorStructure: "single categorical",
-    design: "paired/repeated measures",
+    design: "repeated",
     level: "intermediate",
     alternativeLinks: ["mcnemar-test", "friedman-test"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "categorical_assoc", tableType: "paired_binary_3plus" },
+    requires: { goal: "compare_groups", design: "repeated" },
     boosts: {
-      stance: { nonparametric: 1, unsure: 1 },
     },
   },
   },
@@ -2016,9 +1756,9 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Effect size for chi-square", "Comparing association strength", "Nominal data"],
     methodFamily: "Effect Size",
     category: "Categorical",
-    outcomeScale: "nominal",
+    outcome: "categorical",
     predictorStructure: "single categorical",
-    design: "cross-sectional",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["chi-square", "cohens-kappa"],
     pythonCode: "",
@@ -2040,9 +1780,9 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Inter-rater reliability", "Diagnostic agreement", "Coding reliability"],
     methodFamily: "Reliability",
     category: "Categorical",
-    outcomeScale: "nominal",
+    outcome: "categorical",
     predictorStructure: "none",
-    design: "cross-sectional",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["fleiss-kappa", "intraclass-correlation"],
     pythonCode: "",
@@ -2064,9 +1804,9 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Multiple rater agreement", "Content analysis", "Medical diagnosis"],
     methodFamily: "Reliability",
     category: "Categorical",
-    outcomeScale: "nominal",
+    outcome: "categorical",
     predictorStructure: "none",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["cohens-kappa"],
     pythonCode: "",
@@ -2090,18 +1830,17 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Overdispersed counts", "Zero-inflated alternatives", "Event count modeling"],
     methodFamily: "Regression-based",
     category: "Regression",
-    outcomeScale: "count",
+    outcome: "count",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["poisson-regression", "zero-inflated-poisson"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", outcomeScale: "count" },
+    requires: { goal: "model_with_predictors", outcome: "count" },
     boosts: {
-      modelingFocus: { inference: 3, prediction: 1 },
-      stance: { parametric: 2, unsure: 1 },
+      modeling_preference: { inference: 3, prediction: 1 },
     },
   },
   },
@@ -2113,18 +1852,17 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Many zeros in count data", "Structural and sampling zeros", "Two-stage process"],
     methodFamily: "Regression-based",
     category: "Regression",
-    outcomeScale: "count",
+    outcome: "count",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "advanced",
     alternativeLinks: ["poisson-regression", "negative-binomial"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", outcomeScale: "count" },
+    requires: { goal: "model_with_predictors", outcome: "count" },
     boosts: {
-      modelingFocus: { inference: 3, prediction: 1 },
-      stance: { parametric: 2, unsure: 1 },
+      modeling_preference: { inference: 3, prediction: 1 },
     },
   },
   },
@@ -2137,18 +1875,17 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Non-normal outcomes", "Heterogeneous effects", "Median modeling"],
     methodFamily: "Regression-based",
     category: "Regression",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "advanced",
     alternativeLinks: ["linear-regression", "robust-regression"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", outcomeScale: "continuous" },
+    requires: { goal: "model_with_predictors", outcome: "continuous" },
     boosts: {
-      modelingFocus: { inference: 2, prediction: 1 },
-      stance: { robust: 3, unsure: 1 },
+      modeling_preference: { inference: 2, prediction: 1 },
     },
   },
   },
@@ -2161,18 +1898,17 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Outliers present", "Heavy-tailed errors", "Robust inference"],
     methodFamily: "Regression-based",
     category: "Regression",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["linear-regression", "quantile-regression"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", outcomeScale: "continuous" },
+    requires: { goal: "model_with_predictors", outcome: "continuous" },
     boosts: {
-      modelingFocus: { inference: 2, prediction: 1 },
-      stance: { robust: 3, unsure: 1 },
+      modeling_preference: { inference: 2, prediction: 1 },
     },
   },
   },
@@ -2185,18 +1921,17 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Binary classification", "Dose-response", "Latent variable models"],
     methodFamily: "Regression-based",
     category: "Regression",
-    outcomeScale: "binary",
+    outcome: "binary",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["logistic-regression"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", outcomeScale: "binary" },
+    requires: { goal: "model_with_predictors", outcome: "binary" },
     boosts: {
-      modelingFocus: { inference: 3, prediction: 1 },
-      stance: { parametric: 2, unsure: 1 },
+      modeling_preference: { inference: 3, prediction: 1 },
     },
   },
   },
@@ -2211,18 +1946,17 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Binary classification", "High-dimensional data", "Clear margin of separation"],
     methodFamily: "Machine Learning",
     category: "Prediction",
-    outcomeScale: "binary",
+    outcome: "binary",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["logistic-regression", "random-forest"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", modelingFocus: "prediction" },
+    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
     boosts: {
-      outcomeScale: { continuous: 2, binary: 3 },
-      stance: { unsure: 1 },
+      outcome: { continuous: 2, binary: 3 },
     },
   },
   },
@@ -2235,18 +1969,17 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Structured/tabular data", "Kaggle competitions", "High accuracy needed"],
     methodFamily: "Machine Learning",
     category: "Prediction",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["gradient-boosting", "lightgbm", "catboost"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", modelingFocus: "prediction" },
+    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
     boosts: {
-      outcomeScale: { continuous: 2, binary: 2 },
-      stance: { unsure: 1 },
+      outcome: { continuous: 2, binary: 2 },
     },
   },
   },
@@ -2259,18 +1992,17 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Large datasets", "Fast training needed", "Memory efficiency"],
     methodFamily: "Machine Learning",
     category: "Prediction",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["xgboost", "catboost"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", modelingFocus: "prediction" },
+    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
     boosts: {
-      outcomeScale: { continuous: 2, binary: 2 },
-      stance: { unsure: 1 },
+      outcome: { continuous: 2, binary: 2 },
     },
   },
   },
@@ -2283,18 +2015,17 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Many categorical features", "Minimal preprocessing", "Prevent overfitting"],
     methodFamily: "Machine Learning",
     category: "Prediction",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["xgboost", "lightgbm"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", modelingFocus: "prediction" },
+    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
     boosts: {
-      outcomeScale: { continuous: 2, binary: 2, nominal: 2 },
-      stance: { unsure: 1 },
+      outcome: { continuous: 2, binary: 2, nominal: 2 },
     },
   },
   },
@@ -2307,18 +2038,17 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Simple baseline", "Non-linear patterns", "Instance-based learning"],
     methodFamily: "Machine Learning",
     category: "Prediction",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["random-forest", "svm"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", modelingFocus: "prediction" },
+    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
     boosts: {
-      outcomeScale: { continuous: 1, binary: 2, nominal: 2 },
-      stance: { nonparametric: 2, unsure: 1 },
+      outcome: { continuous: 1, binary: 2, nominal: 2 },
     },
   },
   },
@@ -2331,18 +2061,17 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Text classification", "Fast training needed", "Baseline model"],
     methodFamily: "Machine Learning",
     category: "Prediction",
-    outcomeScale: "binary",
+    outcome: "binary",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["logistic-regression", "random-forest"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", modelingFocus: "prediction" },
+    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
     boosts: {
-      outcomeScale: { binary: 3, nominal: 3 },
-      stance: { unsure: 1 },
+      outcome: { binary: 3, nominal: 3 },
     },
   },
   },
@@ -2355,18 +2084,17 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Interpretable model needed", "Non-linear relationships", "Feature importance"],
     methodFamily: "Machine Learning",
     category: "Prediction",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["random-forest", "gradient-boosting"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", modelingFocus: "prediction" },
+    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
     boosts: {
-      outcomeScale: { continuous: 1, binary: 2, nominal: 2 },
-      stance: { unsure: 1 },
+      outcome: { continuous: 1, binary: 2, nominal: 2 },
     },
   },
   },
@@ -2379,19 +2107,18 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Many correlated predictors", "Variable selection + shrinkage", "Combining Lasso and Ridge"],
     methodFamily: "Regression-based",
     category: "Prediction",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple continuous",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["lasso-ridge", "multiple-regression"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model" },
+    requires: { goal: "model_with_predictors" },
     boosts: {
-      outcomeScale: { continuous: 3 },
-      modelingFocus: { inference: 1, prediction: 2 },
-      stance: { parametric: 1, unsure: 1 },
+      outcome: { continuous: 3 },
+      modeling_preference: { inference: 1, prediction: 2 },
     },
   },
   },
@@ -2404,18 +2131,17 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Complex non-linear patterns", "Large datasets", "Deep learning baseline"],
     methodFamily: "Machine Learning",
     category: "Prediction",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "advanced",
     alternativeLinks: ["random-forest", "gradient-boosting"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "model", modelingFocus: "prediction" },
+    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
     boosts: {
-      outcomeScale: { continuous: 2, binary: 2 },
-      stance: { unsure: 1 },
+      outcome: { continuous: 2, binary: 2 },
     },
   },
   },
@@ -2428,17 +2154,16 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Unknown number of clusters", "Non-spherical clusters", "Outlier detection"],
     methodFamily: "Machine Learning",
     category: "Clustering",
-    outcomeScale: "multivariate",
+    outcome: "continuous",
     predictorStructure: "none",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["kmeans", "gaussian-mixture"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "unsupervised", unsupTask: "clustering" },
+    requires: { goal: "unsupervised", task: "clustering" },
     boosts: {
-      stance: { nonparametric: 2, unsure: 1 },
     },
   },
   },
@@ -2451,17 +2176,16 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Soft clustering", "Probabilistic assignment", "Elliptical clusters"],
     methodFamily: "Machine Learning",
     category: "Clustering",
-    outcomeScale: "multivariate",
+    outcome: "continuous",
     predictorStructure: "none",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["kmeans", "dbscan"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "unsupervised", unsupTask: "clustering" },
+    requires: { goal: "unsupervised", task: "clustering" },
     boosts: {
-      stance: { parametric: 2, unsure: 1 },
     },
   },
   },
@@ -2474,17 +2198,16 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Visualization", "Cluster exploration", "High-dimensional data"],
     methodFamily: "Machine Learning",
     category: "Dimension Reduction",
-    outcomeScale: "multivariate",
+    outcome: "continuous",
     predictorStructure: "none",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["umap", "pca"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "unsupervised", unsupTask: "embedding" },
+    requires: { goal: "unsupervised", task: "dim_reduction" },
     boosts: {
-      stance: { nonparametric: 1, unsure: 1 },
     },
   },
   },
@@ -2497,17 +2220,16 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Fast visualization", "Preserving global structure", "Large datasets"],
     methodFamily: "Machine Learning",
     category: "Dimension Reduction",
-    outcomeScale: "multivariate",
+    outcome: "continuous",
     predictorStructure: "none",
-    design: "cross-sectional",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["tsne", "pca"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "unsupervised", unsupTask: "embedding" },
+    requires: { goal: "unsupervised", task: "dim_reduction" },
     boosts: {
-      stance: { nonparametric: 1, unsure: 2 },
     },
   },
   },
@@ -2522,7 +2244,7 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Business forecasting", "Multiple seasonality", "Missing data/outliers"],
     methodFamily: "Time-series",
     category: "Time Series",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "none",
     design: "time-series",
     level: "intermediate",
@@ -2530,9 +2252,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "time_series", tsTask: "forecast" },
+    requires: { goal: "time_series", task: "forecasting" },
     boosts: {
-      stance: { unsure: 2 },
     },
   },
   },
@@ -2545,7 +2266,7 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Stationarity testing", "Before ARIMA modeling", "Cointegration analysis"],
     methodFamily: "Diagnostic",
     category: "Time Series",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "none",
     design: "time-series",
     level: "intermediate",
@@ -2553,9 +2274,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "time_series", tsTask: "diagnostics" },
+    requires: { goal: "time_series", task: "stationarity" },
     boosts: {
-      stance: { parametric: 1, unsure: 1 },
     },
   },
   },
@@ -2568,7 +2288,7 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Predictive causality", "Lead-lag relationships", "VAR models"],
     methodFamily: "Time-series",
     category: "Time Series",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple continuous",
     design: "time-series",
     level: "advanced",
@@ -2576,9 +2296,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "time_series", tsTask: "multivariate" },
+    requires: { goal: "time_series", task: "causality" },
     boosts: {
-      stance: { parametric: 1, unsure: 1 },
     },
   },
   },
@@ -2591,7 +2310,7 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Model diagnostics", "White noise testing", "ARIMA residual check"],
     methodFamily: "Diagnostic",
     category: "Time Series",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "none",
     design: "time-series",
     level: "intermediate",
@@ -2599,9 +2318,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "time_series", tsTask: "diagnostics" },
+    requires: { goal: "time_series", task: "model_adequacy" },
     boosts: {
-      stance: { parametric: 1, unsure: 1 },
     },
   },
   },
@@ -2614,7 +2332,7 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Multiple related time series", "Impulse response", "Forecasting systems"],
     methodFamily: "Time-series",
     category: "Time Series",
-    outcomeScale: "multivariate",
+    outcome: "continuous",
     predictorStructure: "multiple continuous",
     design: "time-series",
     level: "advanced",
@@ -2622,9 +2340,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "time_series", tsTask: "multivariate" },
+    requires: { goal: "time_series", task: "multivariate_dynamics" },
     boosts: {
-      stance: { parametric: 2, unsure: 1 },
     },
   },
   },
@@ -2639,19 +2356,19 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Quantifying evidence for null", "Prior information available", "Uncertainty quantification"],
     methodFamily: "Bayesian",
     category: "Bayesian Methods",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["t-test-independent", "bayesian-anova"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { stance: "bayesian" },
+    requires: {},
     boosts: {
       goal: { compare: 3 },
-      outcomeScale: { continuous: 2 },
-      nGroups: { "2": 2 },
+      outcome: { continuous: 2 },
+      groups: { "2": 2 },
     },
   },
   },
@@ -2664,18 +2381,18 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Uncertainty quantification", "Prior knowledge incorporation", "Small samples"],
     methodFamily: "Bayesian",
     category: "Bayesian Methods",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "multiple mixed",
-    design: "cross-sectional",
+    design: "independent",
     level: "advanced",
     alternativeLinks: ["linear-regression", "multiple-regression"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { stance: "bayesian" },
+    requires: {},
     boosts: {
       goal: { model: 3, associate: 1 },
-      outcomeScale: { continuous: 2, binary: 1 },
+      outcome: { continuous: 2, binary: 1 },
     },
   },
   },
@@ -2688,19 +2405,19 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Evidence for null hypothesis", "Prior information", "Model comparison"],
     methodFamily: "Bayesian",
     category: "Bayesian Methods",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "intermediate",
     alternativeLinks: ["one-way-anova", "bayesian-t-test"],
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { stance: "bayesian" },
+    requires: {},
     boosts: {
       goal: { compare: 3 },
-      outcomeScale: { continuous: 2 },
-      nGroups: { "3plus": 2 },
+      outcome: { continuous: 2 },
+      groups: { "3plus": 2 },
     },
   },
   },
@@ -2715,7 +2432,7 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Parametric survival", "Direct time interpretation", "When proportional hazards fails"],
     methodFamily: "Survival",
     category: "Survival Analysis",
-    outcomeScale: "time-to-event",
+    outcome: "time_to_event",
     predictorStructure: "multiple mixed",
     design: "longitudinal",
     level: "advanced",
@@ -2723,10 +2440,9 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "survival", survivalTask: "regression" },
+    requires: { goal: "survival", task: "model_survival" },
     boosts: {
       goal: { survival: 3, compare: 1 },
-      stance: { parametric: 2, unsure: 1 },
     },
   },
   },
@@ -2739,7 +2455,7 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Multiple failure types", "Cause-specific analysis", "Medical outcomes"],
     methodFamily: "Survival",
     category: "Survival Analysis",
-    outcomeScale: "time-to-event",
+    outcome: "time_to_event",
     predictorStructure: "multiple mixed",
     design: "longitudinal",
     level: "advanced",
@@ -2747,10 +2463,9 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "survival", survivalTask: "competing" },
+    requires: { goal: "survival", task: "model_survival" },
     boosts: {
       goal: { survival: 3, compare: 1 },
-      stance: { parametric: 1, unsure: 1 },
     },
   },
   },
@@ -2763,7 +2478,7 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Non-linear survival patterns", "Variable importance", "Prediction without proportional hazards"],
     methodFamily: "Machine Learning",
     category: "Survival Analysis",
-    outcomeScale: "time-to-event",
+    outcome: "time_to_event",
     predictorStructure: "multiple mixed",
     design: "longitudinal",
     level: "advanced",
@@ -2771,10 +2486,9 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     pythonCode: "",
     rCode: "",
     rules: {
-    requires: { goal: "survival", survivalTask: "ml" },
+    requires: { goal: "survival", task: "model_survival" },
     boosts: {
       goal: { survival: 3 },
-      stance: { unsure: 2 },
     },
   },
   },
@@ -2789,9 +2503,9 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Reporting effect size", "Power analysis", "Meta-analysis"],
     methodFamily: "Effect Size",
     category: "Effect Size",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["hedges-g", "eta-squared"],
     pythonCode: "",
@@ -2800,8 +2514,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     requires: {},
     boosts: {
       goal: { compare: 2, utilities: 3, estimate: 3 },
-      outcomeScale: { continuous: 2 },
-      nGroups: { "2": 2 },
+      outcome: { continuous: 2 },
+      groups: { "2": 2 },
     },
     kind: "effectsize",
   },
@@ -2815,9 +2529,9 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Small sample effect size", "Meta-analysis", "Unbiased estimate"],
     methodFamily: "Effect Size",
     category: "Effect Size",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["cohens-d"],
     pythonCode: "",
@@ -2826,8 +2540,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     requires: {},
     boosts: {
       goal: { compare: 2, utilities: 3, estimate: 3 },
-      outcomeScale: { continuous: 2 },
-      nGroups: { "2": 2 },
+      outcome: { continuous: 2 },
+      groups: { "2": 2 },
     },
     kind: "effectsize",
   },
@@ -2841,9 +2555,9 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["ANOVA effect size", "Variance explained", "Reporting results"],
     methodFamily: "Effect Size",
     category: "Effect Size",
-    outcomeScale: "continuous",
+    outcome: "continuous",
     predictorStructure: "single categorical",
-    design: "independent groups",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["cohens-d", "odds-ratio"],
     pythonCode: "",
@@ -2852,8 +2566,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     requires: {},
     boosts: {
       goal: { compare: 2, utilities: 3, estimate: 3 },
-      outcomeScale: { continuous: 2 },
-      nGroups: { "3plus": 2 },
+      outcome: { continuous: 2 },
+      groups: { "3plus": 2 },
     },
     kind: "effectsize",
   },
@@ -2867,9 +2581,9 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     whenToUse: ["Case-control studies", "Logistic regression", "Risk communication"],
     methodFamily: "Effect Size",
     category: "Effect Size",
-    outcomeScale: "binary",
+    outcome: "binary",
     predictorStructure: "single categorical",
-    design: "cross-sectional",
+    design: "independent",
     level: "basic",
     alternativeLinks: ["eta-squared"],
     pythonCode: "",
@@ -2878,7 +2592,7 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     requires: {},
     boosts: {
       goal: { categorical_assoc: 2, model: 1, utilities: 3, estimate: 3 },
-      outcomeScale: { binary: 3 },
+      outcome: { binary: 3 },
     },
     kind: "effectsize",
   },
@@ -2950,81 +2664,120 @@ export function recommend(ctx: WizardContext, allTests: StatTest[]): Recommendat
 }
 
 /** Backward-compatible wrapper: returns a flat list of recommended primary tests */
+/** Backward-compatible wrapper: returns a flat list of recommended primary tests */
 export function getRecommendedTests(selections: Record<string, string>): StatTest[] {
   // Map old selection keys to WizardContext
   const ctx: WizardContext = {};
 
   // Map old goal values to new Goal type
   const goalMap: Record<string, Goal> = {
-    compare: "compare",
-    relationship: "associate",
-    predict: "model",
-    independence: "categorical_assoc",
+    compare: "compare_groups",
+    relationship: "association",
+    predict: "model_with_predictors",
+    independence: "categorical_association",
     time: "time_series",
     unsupervised: "unsupervised",
-    estimate: "compare", // estimate used comparison/effectsize/resampling
-    power: "power",
+    estimate: "estimate",
+    power: "power_planning",
   };
   if (selections["research-goal"]) {
-    ctx.goal = goalMap[selections["research-goal"]] ?? "compare";
+    ctx.goal = goalMap[selections["research-goal"]] ?? "compare_groups";
   }
   // Also map any new-style keys
   if (selections["goal"]) {
-    ctx.goal = selections["goal"] as Goal;
+    ctx.goal = (goalMap[selections["goal"]] || selections["goal"]) as Goal;
   }
 
   // Map outcome
-  const outcomeMap: Record<string, OutcomeScale> = {
+  const outcomeMap: Record<string, Outcome> = {
     continuous: "continuous",
     counts: "count",
     ordinal: "ordinal",
-    categorical: "nominal",
+    categorical: "categorical",
+    nominal: "categorical",
     binary: "binary",
-    "time-to-event": "time-to-event",
-    multivariate: "multivariate",
+    "time-to-event": "time_to_event",
+    multivariate: "continuous",
   };
   if (selections["outcome-type"]) {
-    ctx.outcomeScale = outcomeMap[selections["outcome-type"]] ?? (selections["outcome-type"] as OutcomeScale);
+    ctx.outcome = outcomeMap[selections["outcome-type"]] ?? (selections["outcome-type"] as Outcome);
   }
-  if (selections["outcomeScale"]) {
-    ctx.outcomeScale = selections["outcomeScale"] as OutcomeScale;
+  if (selections["outcome"]) {
+    ctx.outcome = (outcomeMap[selections["outcome"]] || selections["outcome"]) as Outcome;
   }
 
   // Map sample structure
-  const structMap: Record<string, SampleStructure> = {
+  const designMap: Record<string, Design> = {
     independent: "independent",
     paired: "paired",
     clustered: "clustered",
-    longitudinal: "repeated",
+    longitudinal: "longitudinal",
     "time-series": "time-series",
+    repeated: "repeated",
+    "cross-sectional": "independent",
   };
   if (selections["sample-structure"]) {
-    ctx.sampleStructure = structMap[selections["sample-structure"]] ?? (selections["sample-structure"] as SampleStructure);
+    ctx.design = designMap[selections["sample-structure"]] ?? (selections["sample-structure"] as Design);
   }
-  if (selections["sampleStructure"]) {
-    ctx.sampleStructure = selections["sampleStructure"] as SampleStructure;
+  if (selections["design"]) {
+    ctx.design = (designMap[selections["design"]] || selections["design"]) as Design;
   }
 
-  // Map assumptions / stance
-  const stanceMap: Record<string, AssumptionStance> = {
-    parametric: "parametric",
-    nonparametric: "nonparametric",
-    robust: "robust",
-    bayesian: "bayesian",
-    unsure: "unsure",
+  // Map groups
+  const groupsMap: Record<string, "two" | "three_plus" | "none"> = {
+    "1": "none",
+    "2": "two",
+    "3plus": "three_plus"
   };
-  if (selections["assumptions"]) {
-    ctx.stance = stanceMap[selections["assumptions"]] ?? (selections["assumptions"] as AssumptionStance);
-  }
-  if (selections["stance"]) {
-    ctx.stance = selections["stance"] as AssumptionStance;
+  if (selections["groups"]) {
+    ctx.groups = groupsMap[selections["groups"]] || (selections["groups"] as any);
+  } else if (selections["nGroups"]) {
+    ctx.groups = groupsMap[selections["nGroups"]] || (selections["nGroups"] as any);
   }
 
-  // Copy any other new-style keys directly
-  for (const key of ["nGroups", "equalVar", "normality", "tableType", "modelingFocus", "predictorsCount", "mixedEffects", "tsTask", "survivalTask", "unsupTask"] as const) {
-    if (selections[key]) {
-      (ctx as any)[key] = selections[key];
-    }
+  // Map legacy tasks
+  const taskMap: Record<string, Task> = {
+    "forecast": "forecasting",
+    "diagnostics": "model_adequacy",
+    "multivariate": "multivariate_dynamics",
+    "regression": "model_survival",
+    "competing": "model_survival",
+    "ml": "model_survival",
+    "compare": "compare_survival",
+    "curve": "describe_survival",
+    "clustering": "clustering",
+    "dimred": "dim_reduction",
+    "embedding": "dim_reduction",
+  };
+  if (selections["tsTask"]) ctx.task = taskMap[selections["tsTask"]] || (selections["tsTask"] as any);
+  if (selections["survivalTask"]) ctx.task = taskMap[selections["survivalTask"]] || (selections["survivalTask"] as any);
+  if (selections["unsupTask"]) ctx.task = taskMap[selections["unsupTask"]] || (selections["unsupTask"] as any);
+  if (selections["task"]) ctx.task = selections["task"] as Task;
+
+  // Modeling Preference
+  if (selections["modeling_preference"]) {
+    ctx.modeling_preference = selections["modeling_preference"] as any;
+  } else if (selections["modelingFocus"]) {
+    if (selections["modelingFocus"] === "inference") ctx.modeling_preference = "interpretable";
+    if (selections["modelingFocus"] === "prediction") ctx.modeling_preference = "predictive_ml";
+  }
+
+  // Mixed Effects -> Design logic
+  if (selections["mixedEffects"] === "yes") {
+    if (!ctx.design || ctx.design === "independent") ctx.design = "clustered";
+  }
+
+  // Table Type -> Groups/Design logic (if strictly needed, though redundant with outcome/groups often)
+  if (selections["tableType"]) {
+      if (selections["tableType"] === "2x2") {
+          ctx.groups = "two";
+          ctx.design = "independent";
+      } else if (selections["tableType"] === "rxc") {
+          ctx.groups = "three_plus";
+          ctx.design = "independent";
+      } else if (selections["tableType"]?.startsWith("paired")) {
+          ctx.design = selections["tableType"].includes("3plus") ? "repeated" : "paired";
+      }
   }
 
   const result = recommend(ctx, statisticalTests);

@@ -159,7 +159,7 @@ export default function AllTests() {
       const matchesMethodFamily = excludeFilter === 'methodFamily' || selectedMethodFamily === null ||
         test.methodFamily === selectedMethodFamily;
       const matchesOutcomeScale = excludeFilter === 'outcomeScale' || selectedOutcomeScale === null ||
-        test.outcomeScale === selectedOutcomeScale;
+        test.outcome === selectedOutcomeScale;
       const matchesDesign = excludeFilter === 'design' || selectedDesign === null ||
         test.design === selectedDesign;
       const matchesLevel = excludeFilter === 'level' || selectedLevel === null ||
@@ -175,7 +175,7 @@ export default function AllTests() {
 
   const outcomeScales = useMemo(() => {
     const availableTests = getFilteredTests('outcomeScale');
-    return Array.from(new Set(availableTests.map(t => t.outcomeScale).filter(Boolean))).sort() as string[];
+    return Array.from(new Set(availableTests.map(t => t.outcome).filter(Boolean))).sort() as string[];
   }, [searchQuery, selectedCategory, selectedMethodFamily, selectedDesign, selectedLevel]);
 
   const designs = useMemo(() => {
@@ -253,7 +253,7 @@ export default function AllTests() {
         test.methodFamily === selectedMethodFamily;
       
       const matchesOutcomeScale = selectedOutcomeScale === null ||
-        test.outcomeScale === selectedOutcomeScale;
+        test.outcome === selectedOutcomeScale;
       
       const matchesDesign = selectedDesign === null ||
         test.design === selectedDesign;

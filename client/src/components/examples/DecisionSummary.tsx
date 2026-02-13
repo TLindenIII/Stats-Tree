@@ -1,5 +1,5 @@
 import { DecisionSummary } from "../DecisionSummary";
-import { wizardSteps } from "@/lib/statsData";
+import { wizardLogic } from "@/lib/wizardKeys";
 
 const mockSelections = {
   "research-goal": "compare",
@@ -10,7 +10,7 @@ const mockSelections = {
 export default function DecisionSummaryExample() {
   return (
     <div className="w-full max-w-sm p-4">
-      <DecisionSummary steps={wizardSteps} selections={mockSelections} />
+      <DecisionSummary steps={wizardLogic.steps} selections={mockSelections} />
     </div>
   );
 }

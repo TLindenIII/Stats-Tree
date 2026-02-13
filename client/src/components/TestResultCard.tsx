@@ -76,10 +76,10 @@ export const TestResultCard = React.memo(function TestResultCard({
           </ReactMarkdown>
         </div>
 
-        {(test.outcomeScale || test.design || test.predictorStructure || test.wikipediaUrl) && (
+        {(test.outcome || test.design || test.predictorStructure || test.wikipediaUrl) && (
           <div className="flex gap-4 text-sm text-muted-foreground flex-wrap">
-            {test.outcomeScale && (
-              <span><strong>Outcome:</strong> {test.outcomeScale}</span>
+            {test.outcome && (
+              <span><strong>Outcome:</strong> {test.outcome}</span>
             )}
             {test.design && (
               <span><strong>Design:</strong> {test.design}</span>

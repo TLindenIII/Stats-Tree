@@ -33,7 +33,8 @@ export const wizardLogic = {
       "time_series",
       "survival",
       "power_planning",
-      "diagnostics_posthoc_effectsize"
+      "diagnostics_posthoc_effectsize",
+      "estimate"
     ],
     outcome: ["continuous", "binary", "categorical", "count", "ordinal", "time_to_event", "none"],
     design: ["independent", "paired", "repeated", "clustered", "none"],

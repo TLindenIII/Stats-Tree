@@ -93,10 +93,10 @@ export function CompareSheet({
                   </div>
 
                   <div className="grid grid-cols-1 gap-1 text-xs bg-muted/50 p-2 rounded-md min-h-[4.5rem]">
-                    {test.outcomeScale && (
+                    {test.outcome && (
                       <div>
                         <span className="text-muted-foreground font-medium">Outcome: </span>
-                        {test.outcomeScale}
+                        {test.outcome}
                       </div>
                     )}
                     {test.design && (

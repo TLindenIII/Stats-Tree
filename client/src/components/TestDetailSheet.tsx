@@ -60,8 +60,8 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick, showWizardB
                 </div>
                 <div className="flex gap-3 mt-2 flex-wrap items-center">
                   <Badge variant="outline">{test.category}</Badge>
-                  {test.outcomeScale && (
-                    <span className="text-xs text-muted-foreground"><strong>Outcome:</strong> {test.outcomeScale}</span>
+                  {test.outcome && (
+                    <span className="text-xs text-muted-foreground"><strong>Outcome:</strong> {test.outcome}</span>
                   )}
                   {test.design && (
                     <span className="text-xs text-muted-foreground"><strong>Design:</strong> {test.design}</span>
@@ -125,41 +125,35 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick, showWizardB
                 </ul>
               </div>
               
-              {((test.alternativeLinks && test.alternativeLinks.length > 0) || test.alternatives.length > 0) && (
+              {test.alternativeLinks && test.alternativeLinks.length > 0 && (
                 <div>
                   <h4 className="text-sm font-medium flex items-center gap-1 mb-2">
                     <AlertCircle className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     Alternatives
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    {test.alternativeLinks && test.alternativeLinks.length > 0 ? (
-                      test.alternativeLinks.map((altId) => {
-                        const altTest = statisticalTests.find(t => t.id === altId);
-                        if (!altTest) {
-                          return (
-                            <Badge key={altId} variant="secondary">
-                              {altId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-                            </Badge>
-                          );
-                        }
+                    {test.alternativeLinks.map((altId) => {
+                      const altTest = statisticalTests.find(t => t.id === altId);
+                      if (!altTest) {
                         return (
-                          <Button
-                            key={altId}
-                            variant="outline"
-                            size="sm"
-                            onClick={() => onAlternativeClick(altId)}
-                            data-testid={`alt-link-${altId}`}
-                          >
-                            <GitCompare className="w-3 h-3 mr-1" />
-                            {altTest.name}
-                          </Button>
+                          <Badge key={altId} variant="secondary">
+                            {altId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                          </Badge>
                         );
-                      })
-                    ) : (
-                      test.alternatives.map((alt, i) => (
-                        <Badge key={i} variant="secondary">{alt}</Badge>
-                      ))
-                    )}
+                      }
+                      return (
+                        <Button
+                          key={altId}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onAlternativeClick(altId)}
+                          data-testid={`alt-link-${altId}`}
+                        >
+                          <GitCompare className="w-3 h-3 mr-1" />
+                          {altTest.name}
+                        </Button>
+                      );
+                    })}
                   </div>
                 </div>
               )}

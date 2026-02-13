@@ -1,6 +1,7 @@
 import { Link } from "@/lib/OfflineLink";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { useNavContext } from "@/contexts/NavContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface NavLinksProps {
   currentPage: "wizard" | "flowchart" | "browse" | "glossary" | "home";
@@ -17,7 +18,12 @@ export function NavLinks({ currentPage }: NavLinksProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<string, HTMLElement>>(new Map());
   const { previousPosition, setPreviousPosition } = useNavContext();
+  const isMobile = useIsMobile();
   
+  const visibleNavItems = useMemo(() => {
+    return navItems.filter(item => !isMobile || item.id !== "flowchart");
+  }, [isMobile]);
+
   const [startPos, setStartPos] = useState<{ left: number; width: number } | null>(null);
   const [endPos, setEndPos] = useState<{ left: number; width: number } | null>(null);
   const [animating, setAnimating] = useState(false);
@@ -99,7 +105,7 @@ export function NavLinks({ currentPage }: NavLinksProps) {
 
   return (
     <div ref={containerRef} className="flex items-center relative">
-      {navItems.map((item) => {
+      {visibleNavItems.map((item) => {
         const isActive = item.id === currentPage;
         return (
           <span

@@ -16,11 +16,9 @@ const mockTest: StatTest = {
     "Sample size > 30 per group (or normally distributed)",
     "Continuous outcome variable",
   ],
-  alternatives: ["Mann-Whitney U test (non-parametric)", "Welch's t-test (unequal variances)"],
   methodFamily: "Parametric",
   category: "Group Comparison",
-  categoryId: "comparison",
-  rules: { requires: { goal: "compare" } },
+  rules: { requires: { goal: "compare_groups" } },
 };
 
 export default function TestResultCardExample() {

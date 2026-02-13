@@ -36,6 +36,8 @@ import { CodeBlock } from "@/components/ui/CodeBlock";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Smartphone } from "lucide-react";
 
 interface FlowNode {
   id: string;
@@ -217,8 +219,8 @@ function TestDetailPanel({ tests, open, onClose, onCompareClick }: { tests: Stat
                   </div>
                   <div className="flex gap-3 mt-2 flex-wrap items-center">
                     <Badge variant="outline">{test.category}</Badge>
-                    {test.outcomeScale && (
-                      <span className="text-xs text-muted-foreground"><strong>Outcome:</strong> {test.outcomeScale}</span>
+                    {test.outcome && (
+                      <span className="text-xs text-muted-foreground"><strong>Outcome:</strong> {test.outcome}</span>
                     )}
                     {test.design && (
                       <span className="text-xs text-muted-foreground"><strong>Design:</strong> {test.design}</span>
@@ -282,41 +284,35 @@ function TestDetailPanel({ tests, open, onClose, onCompareClick }: { tests: Stat
                   </ul>
                 </div>
                 
-                {((test.alternativeLinks && test.alternativeLinks.length > 0) || test.alternatives.length > 0) && (
+                {test.alternativeLinks && test.alternativeLinks.length > 0 && (
                   <div>
                     <h4 className="text-sm font-medium flex items-center gap-1 mb-2">
                       <AlertCircle className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                       Alternatives
                     </h4>
                     <div className="flex flex-wrap gap-2">
-                      {test.alternativeLinks && test.alternativeLinks.length > 0 ? (
-                        test.alternativeLinks.map((altId) => {
-                          const altTest = statisticalTests.find(t => t.id === altId);
-                          if (!altTest) {
-                            return (
-                              <Badge key={altId} variant="secondary">
-                                {altId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-                              </Badge>
-                            );
-                          }
+                      {test.alternativeLinks.map((altId) => {
+                        const altTest = statisticalTests.find(t => t.id === altId);
+                        if (!altTest) {
                           return (
-                            <Button
-                              key={altId}
-                              variant="outline"
-                              size="sm"
-                              onClick={() => onCompareClick(test, altId)}
-                              data-testid={`alt-link-${altId}`}
-                            >
-                              <GitCompare className="w-3 h-3 mr-1" />
-                              {altTest.name}
-                            </Button>
+                            <Badge key={altId} variant="secondary">
+                              {altId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                            </Badge>
                           );
-                        })
-                      ) : (
-                        test.alternatives.map((alt, i) => (
-                          <Badge key={i} variant="secondary">{alt}</Badge>
-                        ))
-                      )}
+                        }
+                        return (
+                          <Button
+                            key={altId}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => onCompareClick(test, altId)}
+                            data-testid={`alt-link-${altId}`}
+                          >
+                            <GitCompare className="w-3 h-3 mr-1" />
+                            {altTest.name}
+                          </Button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -373,6 +369,9 @@ function FlowchartInner() {
   const [alternativesList, setAlternativesList] = useState<string[]>([]);
   const [currentAltIndex, setCurrentAltIndex] = useState(0);
   const { fitView } = useReactFlow();
+  const isMobile = useIsMobile();
+
+
 
   const handleCompareClick = (currentTest: StatTest, altId: string) => {
     const altTest = statisticalTests.find(t => t.id === altId);
@@ -572,6 +571,27 @@ function FlowchartInner() {
     ),
     startNode: StartNode,
   }), [handleNodeClick]);
+
+  if (isMobile) {
+    return (
+      <div className="h-screen flex flex-col items-center justify-center p-6 text-center bg-background">
+        <div className="mb-6 p-4 rounded-full bg-muted/50">
+          <Smartphone className="w-10 h-10 text-muted-foreground" />
+        </div>
+        <h2 className="text-xl font-semibold mb-3">Desktop View Recommended</h2>
+        <p className="text-muted-foreground max-w-sm mb-8">
+          The interactive flowchart is complex and optimized for larger screens. Please visit this page on a desktop or tablet for the best experience.
+        </p>
+        <div className="flex gap-4">
+          <Link href="/">
+            <Button variant="default">
+              Return Home
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex flex-col bg-background">
