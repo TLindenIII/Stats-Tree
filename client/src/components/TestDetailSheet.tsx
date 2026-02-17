@@ -8,7 +8,16 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CheckCircle2, AlertCircle, Lightbulb, ExternalLink, GitCompare, Code, Route, ArrowRight } from "lucide-react";
+import {
+  CheckCircle2,
+  AlertCircle,
+  Lightbulb,
+  ExternalLink,
+  GitCompare,
+  Code,
+  DraftingCompass,
+  ArrowRight,
+} from "lucide-react";
 import { statisticalTests, type StatTest } from "@/lib/statsData";
 import { useLocation } from "wouter";
 import { CodeBlock } from "@/components/ui/CodeBlock";
@@ -23,26 +32,31 @@ interface TestDetailSheetProps {
   showWizardButton?: boolean;
 }
 
-export function TestDetailSheet({ test, onClose, onAlternativeClick, showWizardButton = true }: TestDetailSheetProps) {
+export function TestDetailSheet({
+  test,
+  onClose,
+  onAlternativeClick,
+  showWizardButton = true,
+}: TestDetailSheetProps) {
   const [, setLocation] = useLocation();
-  
+
   if (!test) return null;
 
   return (
     <Dialog open={!!test} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden flex flex-col" data-testid="test-detail-sheet">
+      <DialogContent
+        className="max-w-2xl max-h-[90vh] p-0 overflow-hidden flex flex-col"
+        data-testid="test-detail-sheet"
+      >
         <DialogHeader className="px-6 pt-6 pb-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-center justify-between mb-2">
             <DialogTitle className="flex items-center gap-2 text-xl">
-              <Route className="w-5 h-5 text-primary" />
+              <DraftingCompass className="w-5 h-5 text-primary" />
               {test.name}
             </DialogTitle>
           </div>
           <DialogDescription>
-            <ReactMarkdown 
-              remarkPlugins={[remarkMath]} 
-              rehypePlugins={[rehypeKatex]}
-            >
+            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
               {test.description}
             </ReactMarkdown>
           </DialogDescription>
@@ -53,20 +67,21 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick, showWizardB
               <div>
                 <h3 className="font-semibold font-mono text-base">{test.name}</h3>
                 <div className="text-sm text-muted-foreground mt-1">
-                  <ReactMarkdown 
-                    remarkPlugins={[remarkMath]} 
-                    rehypePlugins={[rehypeKatex]}
-                  >
+                  <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                     {test.description}
                   </ReactMarkdown>
                 </div>
                 <div className="flex gap-3 mt-2 flex-wrap items-center">
                   <Badge variant="outline">{test.category}</Badge>
                   {test.outcome && (
-                    <span className="text-xs text-muted-foreground"><strong>Outcome:</strong> {test.outcome}</span>
+                    <span className="text-xs text-muted-foreground">
+                      <strong>Outcome:</strong> {test.outcome}
+                    </span>
                   )}
                   {test.design && (
-                    <span className="text-xs text-muted-foreground"><strong>Design:</strong> {test.design}</span>
+                    <span className="text-xs text-muted-foreground">
+                      <strong>Design:</strong> {test.design}
+                    </span>
                   )}
                   {test.wikipediaUrl && (
                     <a
@@ -82,7 +97,7 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick, showWizardB
                   )}
                 </div>
               </div>
-              
+
               <div>
                 <h4 className="text-sm font-medium flex items-center gap-1 mb-2">
                   <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
@@ -93,10 +108,7 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick, showWizardB
                     <li key={i} className="flex items-start gap-2">
                       <span className="text-muted-foreground/50">-</span>
                       <div className="markdown-inline">
-                        <ReactMarkdown 
-                          remarkPlugins={[remarkMath]} 
-                          rehypePlugins={[rehypeKatex]}
-                        >
+                        <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                           {a}
                         </ReactMarkdown>
                       </div>
@@ -104,7 +116,7 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick, showWizardB
                   ))}
                 </ul>
               </div>
-              
+
               <div>
                 <h4 className="text-sm font-medium flex items-center gap-1 mb-2">
                   <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-400" />
@@ -115,10 +127,7 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick, showWizardB
                     <li key={i} className="flex items-start gap-2">
                       <span className="text-muted-foreground/50">-</span>
                       <div className="markdown-inline">
-                        <ReactMarkdown 
-                          remarkPlugins={[remarkMath]} 
-                          rehypePlugins={[rehypeKatex]}
-                        >
+                        <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                           {w}
                         </ReactMarkdown>
                       </div>
@@ -126,7 +135,7 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick, showWizardB
                   ))}
                 </ul>
               </div>
-              
+
               {test.alternativeLinks && test.alternativeLinks.length > 0 && (
                 <div>
                   <h4 className="text-sm font-medium flex items-center gap-1 mb-2">
@@ -135,11 +144,14 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick, showWizardB
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {test.alternativeLinks.map((altId) => {
-                      const altTest = statisticalTests.find(t => t.id === altId);
+                      const altTest = statisticalTests.find((t) => t.id === altId);
                       if (!altTest) {
                         return (
                           <Badge key={altId} variant="secondary">
-                            {altId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                            {altId
+                              .split("-")
+                              .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                              .join(" ")}
                           </Badge>
                         );
                       }
@@ -159,7 +171,7 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick, showWizardB
                   </div>
                 </div>
               )}
-              
+
               <div>
                 <h4 className="text-sm font-medium flex items-center gap-1 mb-2">
                   <Code className="w-4 h-4 text-purple-600 dark:text-purple-400" />
@@ -168,23 +180,30 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick, showWizardB
                 <div className="space-y-3">
                   <div>
                     <h5 className="text-xs font-medium mb-1 flex items-center gap-2">
-                      <Badge variant="outline" className="text-[10px]">Python</Badge>
+                      <Badge variant="outline" className="text-[10px]">
+                        Python
+                      </Badge>
                     </h5>
-                    <CodeBlock code={test.pythonCode || `# Python code example coming soon`} lang="python" />
+                    <CodeBlock
+                      code={test.pythonCode || `# Python code example coming soon`}
+                      lang="python"
+                    />
                   </div>
                   <div>
                     <h5 className="text-xs font-medium mb-1 flex items-center gap-2">
-                      <Badge variant="outline" className="text-[10px]">R</Badge>
+                      <Badge variant="outline" className="text-[10px]">
+                        R
+                      </Badge>
                     </h5>
                     <CodeBlock code={test.rCode || `# R code example coming soon`} lang="r" />
                   </div>
                 </div>
               </div>
             </div>
-            
+
             {showWizardButton && (
-              <Button 
-                className="w-full" 
+              <Button
+                className="w-full"
                 onClick={() => setLocation("/wizard")}
                 data-testid="button-use-wizard"
               >

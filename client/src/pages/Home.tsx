@@ -1,7 +1,17 @@
 import { Link } from "@/lib/OfflineLink";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { ArrowRight, Target, Layers, CheckSquare, Route, GitBranch, BookOpen, Network, Wand2 } from "lucide-react";
+import {
+  ArrowRight,
+  Target,
+  Layers,
+  CheckSquare,
+  DraftingCompass,
+  GitBranch,
+  BookOpen,
+  Network,
+  Wand2,
+} from "lucide-react";
 import { statisticalTests, categoryGroups } from "@/lib/statsData";
 
 export default function Home() {
@@ -34,12 +44,12 @@ export default function Home() {
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2 font-semibold">
-            <Route className="w-5 h-5 text-primary" />
+            <DraftingCompass className="w-5 h-5 text-primary" />
             <span>StatsTree</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link 
-              href="/glossary" 
+            <Link
+              href="/glossary"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               Glossary
@@ -57,7 +67,8 @@ export default function Home() {
               <span className="text-primary"> Statistical Test</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              An interactive guide to help researchers select the appropriate statistical test based on their research goals, data structure, and study design.
+              An interactive guide to help researchers select the appropriate statistical test based
+              on their research goals, data structure, and study design.
             </p>
             <div className="flex justify-center gap-4 pt-4 flex-wrap">
               <Button size="lg" asChild>
@@ -115,12 +126,11 @@ export default function Home() {
         <section className="py-16 px-4 bg-muted/30">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <Layers className="w-12 h-12 text-primary mx-auto" />
-            <h2 className="text-2xl font-semibold">
-              Covers Common Research Scenarios
-            </h2>
+            <h2 className="text-2xl font-semibold">Covers Common Research Scenarios</h2>
             <p className="text-muted-foreground">
-              From comparing group means to assessing relationships, from parametric to non-parametric methods,
-              our decision tree covers the most common statistical analyses used in research.
+              From comparing group means to assessing relationships, from parametric to
+              non-parametric methods, our decision tree covers the most common statistical analyses
+              used in research.
             </p>
             <Button variant="outline" asChild>
               <Link href="/wizard" data-testid="button-get-started-footer">

@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Route,
+  DraftingCompass,
   CheckCircle2,
   AlertCircle,
   Lightbulb,
@@ -66,363 +66,684 @@ interface FlowNode {
   testIds?: string[];
 }
 
+// Also update the Start Screen icon mapping (snippet below).
 const flowchartNodes: FlowNode[] = [
+  // ── Root ─────────────────────────────────────────────────────────────
   { id: "start", label: "What is your research goal?", parentId: null, type: "start" },
 
-  { id: "goal-estimate", label: "Estimate a Parameter", parentId: "start", type: "decision" },
-  { id: "goal-compare", label: "Compare Groups", parentId: "start", type: "decision" },
-  { id: "goal-relationship", label: "Assess Relationships", parentId: "start", type: "decision" },
-  { id: "goal-predict", label: "Predict Outcomes", parentId: "start", type: "decision" },
-  { id: "goal-independence", label: "Test Independence", parentId: "start", type: "decision" },
-  { id: "goal-time", label: "Time/Sequential", parentId: "start", type: "decision" },
-  { id: "goal-unsupervised", label: "Discover Patterns", parentId: "start", type: "decision" },
-  { id: "goal-planning", label: "Study Planning", parentId: "start", type: "decision" },
-
-  { id: "estimate-continuous", label: "Continuous", parentId: "goal-estimate", type: "decision" },
-  { id: "estimate-binary", label: "Binary", parentId: "goal-estimate", type: "decision" },
-
-  { id: "compare-continuous", label: "Continuous", parentId: "goal-compare", type: "decision" },
-  { id: "compare-categorical", label: "Categorical", parentId: "goal-compare", type: "decision" },
-
+  // ── Goal (matches wizard step: goal) ─────────────────────────────────
   {
-    id: "relationship-continuous",
-    label: "Continuous",
-    parentId: "goal-relationship",
-    type: "decision",
-  },
-  { id: "relationship-ordinal", label: "Ordinal", parentId: "goal-relationship", type: "decision" },
-
-  { id: "predict-continuous", label: "Continuous", parentId: "goal-predict", type: "decision" },
-  { id: "predict-categorical", label: "Categorical", parentId: "goal-predict", type: "decision" },
-
-  {
-    id: "independence-categorical",
-    label: "Categorical Data",
-    parentId: "goal-independence",
-    type: "decision",
-  },
-
-  { id: "time-series", label: "Time Series", parentId: "goal-time", type: "decision" },
-  { id: "survival", label: "Survival/Event", parentId: "goal-time", type: "decision" },
-
-  { id: "clustering", label: "Clustering", parentId: "goal-unsupervised", type: "decision" },
-  {
-    id: "dimension",
-    label: "Dimension Reduction",
-    parentId: "goal-unsupervised",
-    type: "decision",
-  },
-
-  {
-    id: "est-cont-independent",
-    label: "Independent Samples",
-    parentId: "estimate-continuous",
+    id: "goal-estimate",
+    label: "Estimate a parameter (mean/proportion)",
+    parentId: "start",
     type: "decision",
   },
   {
-    id: "est-cont-paired",
-    label: "Paired Samples",
-    parentId: "estimate-continuous",
+    id: "goal-compare_groups",
+    label: "Compare groups (differences)",
+    parentId: "start",
+    type: "decision",
+  },
+  {
+    id: "goal-association",
+    label: "Measure association (correlation/relationship)",
+    parentId: "start",
+    type: "decision",
+  },
+  {
+    id: "goal-categorical_association",
+    label: "Categorical association / agreement",
+    parentId: "start",
+    type: "decision",
+  },
+  {
+    id: "goal-model_with_predictors",
+    label: "Model outcome with predictors",
+    parentId: "start",
+    type: "decision",
+  },
+  { id: "goal-unsupervised", label: "Unsupervised learning", parentId: "start", type: "decision" },
+  { id: "goal-time_series", label: "Time series", parentId: "start", type: "decision" },
+  { id: "goal-survival", label: "Survival / time-to-event", parentId: "start", type: "decision" },
+  {
+    id: "goal-power_planning",
+    label: "Power / sample size planning",
+    parentId: "start",
+    type: "decision",
+  },
+  {
+    id: "goal-diagnostics_posthoc_effectsize",
+    label: "Diagnostics / post-hoc / corrections / effect sizes",
+    parentId: "start",
+    type: "decision",
+  },
+
+  // ── Estimate branch (steps: estimate_target → estimate_reference_mean) ─
+  {
+    id: "estimate_target",
+    label: "What are you estimating?",
+    parentId: "goal-estimate",
     type: "decision",
   },
 
   {
-    id: "compare-independent",
-    label: "Independent Samples",
-    parentId: "compare-continuous",
+    id: "estimate_target-mean",
+    label: "Mean of a single sample",
+    parentId: "estimate_target",
     type: "decision",
   },
   {
-    id: "compare-paired",
-    label: "Paired/Matched",
-    parentId: "compare-continuous",
+    id: "estimate_reference_mean",
+    label: "Test against a reference value (μ₀)?",
+    parentId: "estimate_target-mean",
     type: "decision",
   },
   {
-    id: "compare-repeated",
-    label: "Repeated Measures",
-    parentId: "compare-continuous",
-    type: "decision",
-  },
-
-  {
-    id: "rel-cont-parametric",
-    label: "Parametric",
-    parentId: "relationship-continuous",
-    type: "decision",
-  },
-  {
-    id: "rel-cont-nonparametric",
-    label: "Non-parametric",
-    parentId: "relationship-continuous",
-    type: "decision",
-  },
-
-  {
-    id: "predict-cont-linear",
-    label: "Linear Models",
-    parentId: "predict-continuous",
-    type: "decision",
-  },
-  {
-    id: "predict-cont-regularized",
-    label: "Regularized",
-    parentId: "predict-continuous",
-    type: "decision",
-  },
-
-  {
-    id: "predict-cat-traditional",
-    label: "Traditional",
-    parentId: "predict-categorical",
-    type: "decision",
-  },
-  {
-    id: "predict-cat-ml",
-    label: "Machine Learning",
-    parentId: "predict-categorical",
-    type: "decision",
-  },
-
-  {
-    id: "est-ind-parametric",
-    label: "Parametric",
-    parentId: "est-cont-independent",
-    type: "decision",
-  },
-  {
-    id: "est-ind-nonparametric",
-    label: "Non-parametric",
-    parentId: "est-cont-independent",
-    type: "decision",
-  },
-
-  {
-    id: "est-paired-parametric",
-    label: "Parametric",
-    parentId: "est-cont-paired",
-    type: "decision",
-  },
-  {
-    id: "est-paired-nonparametric",
-    label: "Non-parametric",
-    parentId: "est-cont-paired",
-    type: "decision",
-  },
-
-  { id: "ind-parametric", label: "Parametric", parentId: "compare-independent", type: "decision" },
-  {
-    id: "ind-nonparametric",
-    label: "Non-parametric",
-    parentId: "compare-independent",
-    type: "decision",
-  },
-  { id: "paired-parametric", label: "Parametric", parentId: "compare-paired", type: "decision" },
-  {
-    id: "paired-nonparametric",
-    label: "Non-parametric",
-    parentId: "compare-paired",
-    type: "decision",
-  },
-
-  {
-    id: "test-est-ind-param",
-    label: "t-Test / CI",
-    parentId: "est-ind-parametric",
-    type: "test",
-    testIds: ["t-test-independent", "cohens-d", "hedges-g"],
-  },
-  {
-    id: "test-est-ind-nonparam",
-    label: "Bootstrap / Permutation",
-    parentId: "est-ind-nonparametric",
-    type: "test",
-    testIds: ["bootstrap", "permutation-test", "mann-whitney"],
-  },
-  {
-    id: "test-est-paired-param",
-    label: "Paired t-Test",
-    parentId: "est-paired-parametric",
-    type: "test",
-    testIds: ["paired-t-test", "cohens-d"],
-  },
-  {
-    id: "test-est-paired-nonparam",
-    label: "Wilcoxon / Bootstrap",
-    parentId: "est-paired-nonparametric",
-    type: "test",
-    testIds: ["wilcoxon-signed-rank", "bootstrap"],
-  },
-  {
-    id: "test-est-binary",
-    label: "Proportions / Odds",
-    parentId: "estimate-binary",
-    type: "test",
-    testIds: ["chi-square", "fisher-exact", "odds-ratio"],
-  },
-
-  {
-    id: "test-ttest",
-    label: "t-Test / ANOVA",
-    parentId: "ind-parametric",
+    id: "leaf-est-mean-yes",
+    label: "One-sample mean: test vs μ₀",
+    parentId: "estimate_reference_mean",
     type: "test",
     testIds: [
-      "t-test-independent",
-      "one-way-anova",
-      "two-way-anova",
+      "one-sample-t-test",
+      "wilcoxon-signed-rank",
+      "bootstrap",
+      "permutation-test",
+      "bayesian-t-test",
+    ],
+  },
+  {
+    id: "leaf-est-mean-no",
+    label: "One-sample mean: estimate/CI",
+    parentId: "estimate_reference_mean",
+    type: "test",
+    testIds: ["one-sample-t-test", "bootstrap", "bayesian-t-test", "wilcoxon-signed-rank"],
+  },
+
+  {
+    id: "leaf-est-prop",
+    label: "Single proportion / rate",
+    parentId: "estimate_target",
+    type: "test",
+    testIds: ["binomial-test", "one-proportion-z-test", "bootstrap"],
+  },
+
+  // ── Compare groups branch (steps: compare_outcome → compare_design_*) ──
+  {
+    id: "compare_outcome",
+    label: "What is the outcome type?",
+    parentId: "goal-compare_groups",
+    type: "decision",
+  },
+
+  // Continuous outcome path
+  {
+    id: "compare_outcome-continuous",
+    label: "Continuous / numeric",
+    parentId: "compare_outcome",
+    type: "decision",
+  },
+  {
+    id: "compare_design_cont",
+    label: "What is the design?",
+    parentId: "compare_outcome-continuous",
+    type: "decision",
+  },
+
+  {
+    id: "compare_design_cont-independent",
+    label: "Independent groups",
+    parentId: "compare_design_cont",
+    type: "decision",
+  },
+  {
+    id: "compare_groups_n",
+    label: "How many groups?",
+    parentId: "compare_design_cont-independent",
+    type: "decision",
+  },
+  {
+    id: "leaf-cmp-cont-ind-2",
+    label: "Two independent groups",
+    parentId: "compare_groups_n",
+    type: "test",
+    testIds: [
       "welch-t-test",
-      "welch-anova",
+      "t-test-independent",
+      "mann-whitney",
+      "bayesian-t-test",
+      "bootstrap",
+      "permutation-test",
     ],
   },
   {
-    id: "test-mann-whitney",
-    label: "Mann-Whitney / Kruskal-Wallis",
-    parentId: "ind-nonparametric",
-    type: "test",
-    testIds: ["mann-whitney", "kruskal-wallis", "permutation-test"],
+    id: "compare_factors_3g",
+    label: "How many factors define groups?",
+    parentId: "compare_groups_n",
+    type: "decision",
   },
   {
-    id: "test-paired-t",
-    label: "Paired t-Test",
-    parentId: "paired-parametric",
-    type: "test",
-    testIds: ["paired-t-test", "repeated-measures-anova"],
-  },
-  {
-    id: "test-wilcoxon",
-    label: "Wilcoxon / Friedman",
-    parentId: "paired-nonparametric",
-    type: "test",
-    testIds: ["wilcoxon-signed-rank", "friedman-test"],
-  },
-  {
-    id: "test-repeated",
-    label: "Mixed Models",
-    parentId: "compare-repeated",
-    type: "test",
-    testIds: ["linear-mixed-model", "glmm", "repeated-measures-anova"],
-  },
-  {
-    id: "test-chi-square",
-    label: "Chi-Square Tests",
-    parentId: "compare-categorical",
-    type: "test",
-    testIds: ["chi-square", "fisher-exact", "mcnemar-test", "cochran-q"],
-  },
-
-  {
-    id: "test-pearson",
-    label: "Pearson / Partial",
-    parentId: "rel-cont-parametric",
+    id: "leaf-cmp-cont-ind-3-1factor",
+    label: "3+ groups, 1 factor",
+    parentId: "compare_factors_3g",
     type: "test",
     testIds: [
-      "pearson-correlation",
-      "partial-correlation",
-      "point-biserial",
-      "intraclass-correlation",
+      "one-way-anova",
+      "welch-anova",
+      "kruskal-wallis",
+      "bayesian-anova",
+      "bootstrap",
+      "permutation-test",
     ],
   },
   {
-    id: "test-spearman",
-    label: "Spearman / Kendall",
-    parentId: "rel-cont-nonparametric",
+    id: "leaf-cmp-cont-ind-3-2plus",
+    label: "3+ groups, 2+ factors",
+    parentId: "compare_factors_3g",
     type: "test",
-    testIds: ["spearman-correlation", "kendall-tau"],
-  },
-  {
-    id: "test-ordinal-corr",
-    label: "Rank Correlations",
-    parentId: "relationship-ordinal",
-    type: "test",
-    testIds: ["spearman-correlation", "kendall-tau"],
+    testIds: ["two-way-anova", "ancova", "manova", "bayesian-anova"],
   },
 
   {
-    id: "test-linear-reg",
-    label: "Linear Regression",
-    parentId: "predict-cont-linear",
-    type: "test",
-    testIds: ["linear-regression", "multiple-regression", "robust-regression"],
+    id: "compare_design_cont-paired",
+    label: "Paired / repeated measures",
+    parentId: "compare_design_cont",
+    type: "decision",
   },
   {
-    id: "test-regularized",
-    label: "Lasso / Ridge / Elastic Net",
-    parentId: "predict-cont-regularized",
-    type: "test",
-    testIds: ["lasso-ridge", "elastic-net"],
+    id: "compare_conditions_n",
+    label: "How many conditions/timepoints?",
+    parentId: "compare_design_cont-paired",
+    type: "decision",
   },
   {
-    id: "test-logistic",
-    label: "Logistic / Ordinal",
-    parentId: "predict-cat-traditional",
+    id: "leaf-cmp-cont-paired-2",
+    label: "Paired, 2 conditions",
+    parentId: "compare_conditions_n",
     type: "test",
-    testIds: ["logistic-regression", "ordinal-regression", "probit-regression"],
+    testIds: [
+      "paired-t-test",
+      "wilcoxon-signed-rank",
+      "bayesian-t-test",
+      "bootstrap",
+      "permutation-test",
+    ],
   },
   {
-    id: "test-ml-class",
-    label: "ML Classifiers",
-    parentId: "predict-cat-ml",
+    id: "leaf-cmp-cont-repeated-3p",
+    label: "Repeated, 3+ conditions",
+    parentId: "compare_conditions_n",
+    type: "test",
+    testIds: [
+      "repeated-measures-anova",
+      "friedman-test",
+      "linear-mixed-model",
+      "bayesian-anova",
+      "bootstrap",
+      "permutation-test",
+    ],
+  },
+
+  // Categorical outcome path
+  {
+    id: "compare_outcome-categorical",
+    label: "Categorical (counts/proportions)",
+    parentId: "compare_outcome",
+    type: "decision",
+  },
+  {
+    id: "compare_design_cat",
+    label: "What is the design?",
+    parentId: "compare_outcome-categorical",
+    type: "decision",
+  },
+
+  {
+    id: "compare_design_cat-independent",
+    label: "Independent groups",
+    parentId: "compare_design_cat",
+    type: "decision",
+  },
+  {
+    id: "cat_table_shape",
+    label: "What best describes the table?",
+    parentId: "compare_design_cat-independent",
+    type: "decision",
+  },
+  {
+    id: "leaf-cmp-cat-2x2",
+    label: "2×2 table",
+    parentId: "cat_table_shape",
+    type: "test",
+    testIds: ["chi-square-2x2", "two-proportion-z-test", "fisher-exact"],
+  },
+  {
+    id: "leaf-cmp-cat-rxc",
+    label: "r×c table (>2×2)",
+    parentId: "cat_table_shape",
+    type: "test",
+    testIds: ["chi-square", "fisher-freeman-halton"],
+  },
+
+  {
+    id: "leaf-cmp-cat-paired-binary",
+    label: "Paired binary (pre/post on same units)",
+    parentId: "compare_design_cat",
+    type: "test",
+    testIds: ["mcnemar-test", "cochran-q"],
+  },
+
+  // ── Association branch (steps: assoc_types → partial_needed) ──────────
+  {
+    id: "assoc_types",
+    label: "What variables are you associating?",
+    parentId: "goal-association",
+    type: "decision",
+  },
+  {
+    id: "assoc_types-cont_cont",
+    label: "Continuous–continuous",
+    parentId: "assoc_types",
+    type: "decision",
+  },
+  {
+    id: "partial_needed",
+    label: "Control for other variables?",
+    parentId: "assoc_types-cont_cont",
+    type: "decision",
+  },
+  {
+    id: "leaf-assoc-contcont-nocontrol",
+    label: "No controls",
+    parentId: "partial_needed",
+    type: "test",
+    testIds: ["spearman-correlation", "pearson-correlation", "kendall-tau"],
+  },
+  {
+    id: "leaf-assoc-contcont-control",
+    label: "Control variables (partial)",
+    parentId: "partial_needed",
+    type: "test",
+    testIds: ["partial-correlation", "spearman-correlation", "pearson-correlation", "kendall-tau"],
+  },
+  {
+    id: "leaf-assoc-bincont",
+    label: "Binary–continuous",
+    parentId: "assoc_types",
+    type: "test",
+    testIds: ["point-biserial"],
+  },
+
+  // ── Categorical association / agreement (steps: cat_assoc_task → agreement_raters) ─
+  {
+    id: "cat_assoc_task",
+    label: "What do you need?",
+    parentId: "goal-categorical_association",
+    type: "decision",
+  },
+  {
+    id: "leaf-cat-independence",
+    label: "Test independence (contingency table)",
+    parentId: "cat_assoc_task",
+    type: "test",
+    testIds: ["chi-square", "fisher-exact", "fisher-freeman-halton"],
+  },
+  {
+    id: "agreement_raters",
+    label: "How many raters?",
+    parentId: "cat_assoc_task",
+    type: "decision",
+  },
+  {
+    id: "leaf-agree-2",
+    label: "Two raters",
+    parentId: "agreement_raters",
+    type: "test",
+    testIds: ["cohens-kappa"],
+  },
+  {
+    id: "leaf-agree-3p",
+    label: "Three or more raters",
+    parentId: "agreement_raters",
+    type: "test",
+    testIds: ["fleiss-kappa"],
+  },
+  {
+    id: "leaf-cat-effect-size",
+    label: "Effect size for association",
+    parentId: "cat_assoc_task",
+    type: "test",
+    testIds: ["cramers-v", "odds-ratio", "phi-coefficient"],
+  },
+
+  // ── Model with predictors (steps: model_outcome → model_preference_* → clustered_data) ─
+  {
+    id: "model_outcome",
+    label: "What is the outcome type?",
+    parentId: "goal-model_with_predictors",
+    type: "decision",
+  },
+
+  // Continuous
+  { id: "model_outcome-cont", label: "Continuous", parentId: "model_outcome", type: "decision" },
+  {
+    id: "model_preference_cont",
+    label: "What is your priority?",
+    parentId: "model_outcome-cont",
+    type: "decision",
+  },
+  {
+    id: "clustered_data-cont",
+    label: "Is the data clustered/repeated?",
+    parentId: "model_preference_cont",
+    type: "decision",
+  },
+  {
+    id: "leaf-mod-cont-interp",
+    label: "Interpretable inference (linear models)",
+    parentId: "clustered_data-cont",
+    type: "test",
+    testIds: [
+      "multiple-regression",
+      "linear-regression",
+      "robust-regression",
+      "quantile-regression",
+      "bayesian-regression",
+    ],
+  },
+  {
+    id: "leaf-mod-cont-regularized",
+    label: "Regularized (many predictors)",
+    parentId: "clustered_data-cont",
+    type: "test",
+    testIds: ["elastic-net", "lasso-ridge"],
+  },
+  {
+    id: "leaf-mod-cont-ml",
+    label: "Predictive ML (nonlinear)",
+    parentId: "clustered_data-cont",
     type: "test",
     testIds: [
       "random-forest",
-      "svm",
+      "gradient-boosting",
       "xgboost",
+      "lightgbm",
+      "catboost",
+      "svm",
       "knn",
-      "naive-bayes",
       "decision-tree",
       "neural-network-mlp",
     ],
   },
-
   {
-    id: "test-independence",
-    label: "Chi-Square / Fisher",
-    parentId: "independence-categorical",
+    id: "leaf-mod-cont-clustered",
+    label: "Clustered continuous outcome",
+    parentId: "clustered_data-cont",
     type: "test",
-    testIds: ["chi-square", "fisher-exact", "cramers-v", "cohens-kappa"],
+    testIds: ["linear-mixed-model", "bayesian-regression"],
   },
 
+  // Binary
+  { id: "model_outcome-bin", label: "Binary", parentId: "model_outcome", type: "decision" },
   {
-    id: "test-timeseries",
-    label: "ARIMA / Prophet",
-    parentId: "time-series",
-    type: "test",
-    testIds: ["arima", "exponential-smoothing", "prophet", "var", "granger-causality"],
+    id: "model_preference_bin",
+    label: "What is your priority?",
+    parentId: "model_outcome-bin",
+    type: "decision",
   },
   {
-    id: "test-survival",
-    label: "Survival Analysis",
-    parentId: "survival",
+    id: "clustered_data-bin",
+    label: "Is the data clustered/repeated?",
+    parentId: "model_preference_bin",
+    type: "decision",
+  },
+  {
+    id: "leaf-mod-bin-interp",
+    label: "Interpretable inference (logistic-type)",
+    parentId: "clustered_data-bin",
+    type: "test",
+    testIds: ["logistic-regression", "probit-regression", "bayesian-regression"],
+  },
+  {
+    id: "leaf-mod-bin-ml",
+    label: "Predictive ML (nonlinear)",
+    parentId: "clustered_data-bin",
     type: "test",
     testIds: [
-      "kaplan-meier",
-      "log-rank-test",
-      "cox-regression",
-      "accelerated-failure-time",
-      "competing-risks",
-      "random-survival-forest",
+      "random-forest",
+      "gradient-boosting",
+      "xgboost",
+      "lightgbm",
+      "catboost",
+      "svm",
+      "knn",
+      "decision-tree",
+      "naive-bayes",
+      "neural-network-mlp",
     ],
   },
   {
-    id: "test-clustering",
-    label: "Clustering Methods",
-    parentId: "clustering",
+    id: "leaf-mod-bin-clustered",
+    label: "Clustered binary outcome",
+    parentId: "clustered_data-bin",
+    type: "test",
+    testIds: ["glmm", "gee", "logistic-regression"],
+  },
+
+  // Count
+  { id: "model_outcome-count", label: "Count", parentId: "model_outcome", type: "decision" },
+  {
+    id: "clustered_data-count",
+    label: "Is the data clustered/repeated?",
+    parentId: "model_outcome-count",
+    type: "decision",
+  },
+  {
+    id: "leaf-mod-count",
+    label: "Count outcome (independent)",
+    parentId: "clustered_data-count",
+    type: "test",
+    testIds: ["poisson-regression", "negative-binomial", "zero-inflated-poisson"],
+  },
+  {
+    id: "leaf-mod-count-clustered",
+    label: "Clustered count outcome",
+    parentId: "clustered_data-count",
+    type: "test",
+    testIds: ["glmm", "negative-binomial", "poisson-regression", "gee"],
+  },
+
+  // Ordinal / multivariate / time-to-event (direct leaves in wizard)
+  {
+    id: "leaf-mod-ordinal",
+    label: "Ordinal outcome",
+    parentId: "model_outcome",
+    type: "test",
+    testIds: ["ordinal-regression"],
+  },
+  {
+    id: "leaf-mod-multivariate",
+    label: "Multiple continuous outcomes",
+    parentId: "model_outcome",
+    type: "test",
+    testIds: ["manova"],
+  },
+  {
+    id: "leaf-mod-time_to_event",
+    label: "Time-to-event outcome",
+    parentId: "model_outcome",
+    type: "test",
+    testIds: ["cox-regression", "accelerated-failure-time", "random-survival-forest"],
+  },
+
+  // ── Unsupervised (step: unsup_task) ──────────────────────────────────
+  {
+    id: "unsup_task",
+    label: "What do you want to do?",
+    parentId: "goal-unsupervised",
+    type: "decision",
+  },
+  {
+    id: "leaf-unsup-clustering",
+    label: "Clustering",
+    parentId: "unsup_task",
     type: "test",
     testIds: ["kmeans", "hierarchical-clustering", "dbscan", "gaussian-mixture"],
   },
   {
-    id: "test-dimension",
-    label: "PCA / Factor Analysis",
-    parentId: "dimension",
+    id: "leaf-unsup-dimred",
+    label: "Dimension reduction / embedding",
+    parentId: "unsup_task",
     type: "test",
     testIds: ["pca", "factor-analysis", "tsne", "umap"],
   },
+
+  // ── Time series (step: ts_task) ──────────────────────────────────────
   {
-    id: "test-planning",
-    label: "Power & Sample Size",
-    parentId: "goal-planning",
+    id: "ts_task",
+    label: "What is your primary time-series task?",
+    parentId: "goal-time_series",
+    type: "decision",
+  },
+  {
+    id: "leaf-ts-forecast",
+    label: "Forecasting",
+    parentId: "ts_task",
+    type: "test",
+    testIds: ["arima", "exponential-smoothing", "prophet"],
+  },
+  {
+    id: "leaf-ts-stationarity",
+    label: "Stationarity check",
+    parentId: "ts_task",
+    type: "test",
+    testIds: ["adf-test"],
+  },
+  {
+    id: "leaf-ts-adequacy",
+    label: "Model adequacy / autocorrelation",
+    parentId: "ts_task",
+    type: "test",
+    testIds: ["ljung-box"],
+  },
+  {
+    id: "leaf-ts-var",
+    label: "Multivariate dynamics",
+    parentId: "ts_task",
+    type: "test",
+    testIds: ["var", "granger-causality"],
+  },
+  {
+    id: "leaf-ts-granger",
+    label: "Causality between series",
+    parentId: "ts_task",
+    type: "test",
+    testIds: ["granger-causality", "var"],
+  },
+
+  // ── Survival (step: surv_task) ───────────────────────────────────────
+  { id: "surv_task", label: "What do you need?", parentId: "goal-survival", type: "decision" },
+  {
+    id: "leaf-surv-describe",
+    label: "Describe survival curve",
+    parentId: "surv_task",
+    type: "test",
+    testIds: ["kaplan-meier"],
+  },
+  {
+    id: "leaf-surv-compare",
+    label: "Compare survival curves",
+    parentId: "surv_task",
+    type: "test",
+    testIds: ["log-rank-test", "kaplan-meier"],
+  },
+  {
+    id: "leaf-surv-model",
+    label: "Model survival with covariates",
+    parentId: "surv_task",
+    type: "test",
+    testIds: [
+      "cox-regression",
+      "accelerated-failure-time",
+      "competing-risks",
+      "random-survival-forest",
+      "kaplan-meier",
+    ],
+  },
+
+  // ── Power planning (leaf in wizard) ──────────────────────────────────
+  {
+    id: "leaf-power",
+    label: "Power / sample size planning",
+    parentId: "goal-power_planning",
     type: "test",
     testIds: ["power-analysis"],
+  },
+
+  // ── Diagnostics (step: diag_task) ────────────────────────────────────
+  {
+    id: "diag_task",
+    label: "What do you need?",
+    parentId: "goal-diagnostics_posthoc_effectsize",
+    type: "decision",
+  },
+  {
+    id: "leaf-diag-normality",
+    label: "Normality check",
+    parentId: "diag_task",
+    type: "test",
+    testIds: ["shapiro-wilk", "anderson-darling", "dagostino-pearson", "kolmogorov-smirnov"],
+  },
+  {
+    id: "leaf-diag-equalvar",
+    label: "Equal variance check",
+    parentId: "diag_task",
+    type: "test",
+    testIds: ["levene-test", "brown-forsythe", "bartlett-test", "fligner-killeen", "hartley-fmax"],
+  },
+  {
+    id: "leaf-diag-autocorr",
+    label: "Regression autocorrelation",
+    parentId: "diag_task",
+    type: "test",
+    testIds: ["durbin-watson", "ljung-box"],
+  },
+  {
+    id: "leaf-diag-heterosk",
+    label: "Heteroskedasticity",
+    parentId: "diag_task",
+    type: "test",
+    testIds: ["breusch-pagan"],
+  },
+  {
+    id: "leaf-diag-multiple",
+    label: "Multiple testing correction",
+    parentId: "diag_task",
+    type: "test",
+    testIds: ["holm-bonferroni", "bonferroni", "benjamini-hochberg"],
+  },
+  {
+    id: "leaf-diag-posthoc",
+    label: "Post-hoc comparisons",
+    parentId: "diag_task",
+    type: "test",
+    testIds: ["tukey-hsd", "games-howell", "scheffe-test", "dunnett-test", "dunn-test"],
+  },
+  {
+    id: "leaf-diag-effect",
+    label: "Effect size",
+    parentId: "diag_task",
+    type: "test",
+    testIds: [
+      "cohens-d",
+      "hedges-g",
+      "eta-squared",
+      "omega-squared",
+      "epsilon-squared",
+      "odds-ratio",
+      "cramers-v",
+      "rank-biserial",
+      "phi-coefficient",
+    ],
   },
 ];
 
@@ -518,7 +839,7 @@ function TestDetailPanel({
       >
         <DialogHeader className="px-6 pt-6 pb-4 border-b bg-muted/30">
           <DialogTitle className="flex items-center gap-2 text-xl">
-            <Route className="w-5 h-5 text-primary" />
+            <DraftingCompass className="w-5 h-5 text-primary" />
             {tests.length === 1 ? tests[0].name : `${tests.length} Related Tests`}
           </DialogTitle>
           <DialogDescription>
@@ -992,7 +1313,7 @@ function FlowchartInner() {
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2 font-semibold">
-            <Route className="w-5 h-5 text-primary" />
+            <DraftingCompass className="w-5 h-5 text-primary" />
             <span>StatsTree</span>
           </Link>
           <div className="flex items-center gap-2">
@@ -1048,13 +1369,19 @@ function FlowchartInner() {
                   >
                     <div className="p-3 rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                       {node.id === "goal-estimate" && <Target className="w-6 h-6" />}
-                      {node.id === "goal-compare" && <Scale className="w-6 h-6" />}
-                      {node.id === "goal-relationship" && <TrendingUp className="w-6 h-6" />}
-                      {node.id === "goal-predict" && <LineChart className="w-6 h-6" />}
-                      {node.id === "goal-independence" && <Split className="w-6 h-6" />}
-                      {node.id === "goal-time" && <CalendarClock className="w-6 h-6" />}
+                      {node.id === "goal-compare_groups" && <Scale className="w-6 h-6" />}
+                      {node.id === "goal-association" && <TrendingUp className="w-6 h-6" />}
+                      {node.id === "goal-categorical_association" && <Split className="w-6 h-6" />}
+                      {node.id === "goal-model_with_predictors" && (
+                        <LineChart className="w-6 h-6" />
+                      )}
                       {node.id === "goal-unsupervised" && <Shapes className="w-6 h-6" />}
-                      {node.id === "goal-planning" && <ClipboardList className="w-6 h-6" />}
+                      {node.id === "goal-time_series" && <CalendarClock className="w-6 h-6" />}
+                      {node.id === "goal-survival" && <LineChart className="w-6 h-6" />}
+                      {node.id === "goal-power_planning" && <ClipboardList className="w-6 h-6" />}
+                      {node.id === "goal-diagnostics_posthoc_effectsize" && (
+                        <Code className="w-6 h-6" />
+                      )}
                     </div>
                     <div>
                       <h3 className="font-semibold text-lg mb-2">{node.label}</h3>
