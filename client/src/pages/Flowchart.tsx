@@ -27,7 +27,26 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Route, CheckCircle2, AlertCircle, Lightbulb, ArrowRight, RotateCcw, ChevronRight, ExternalLink, GitCompare, Code } from "lucide-react";
+import {
+  Route,
+  CheckCircle2,
+  AlertCircle,
+  Lightbulb,
+  ArrowRight,
+  RotateCcw,
+  ChevronRight,
+  ExternalLink,
+  GitCompare,
+  Code,
+  Target,
+  Scale,
+  TrendingUp,
+  LineChart,
+  Split,
+  CalendarClock,
+  Shapes,
+  ClipboardList,
+} from "lucide-react";
 import { statisticalTests, StatTest } from "@/lib/statsData";
 import { useWizardContext } from "@/contexts/WizardContext";
 import { CompareSheet } from "@/components/CompareSheet";
@@ -49,7 +68,7 @@ interface FlowNode {
 
 const flowchartNodes: FlowNode[] = [
   { id: "start", label: "What is your research goal?", parentId: null, type: "start" },
-  
+
   { id: "goal-estimate", label: "Estimate a Parameter", parentId: "start", type: "decision" },
   { id: "goal-compare", label: "Compare Groups", parentId: "start", type: "decision" },
   { id: "goal-relationship", label: "Assess Relationships", parentId: "start", type: "decision" },
@@ -58,92 +77,368 @@ const flowchartNodes: FlowNode[] = [
   { id: "goal-time", label: "Time/Sequential", parentId: "start", type: "decision" },
   { id: "goal-unsupervised", label: "Discover Patterns", parentId: "start", type: "decision" },
   { id: "goal-planning", label: "Study Planning", parentId: "start", type: "decision" },
-  
+
   { id: "estimate-continuous", label: "Continuous", parentId: "goal-estimate", type: "decision" },
   { id: "estimate-binary", label: "Binary", parentId: "goal-estimate", type: "decision" },
-  
+
   { id: "compare-continuous", label: "Continuous", parentId: "goal-compare", type: "decision" },
   { id: "compare-categorical", label: "Categorical", parentId: "goal-compare", type: "decision" },
-  
-  { id: "relationship-continuous", label: "Continuous", parentId: "goal-relationship", type: "decision" },
+
+  {
+    id: "relationship-continuous",
+    label: "Continuous",
+    parentId: "goal-relationship",
+    type: "decision",
+  },
   { id: "relationship-ordinal", label: "Ordinal", parentId: "goal-relationship", type: "decision" },
-  
+
   { id: "predict-continuous", label: "Continuous", parentId: "goal-predict", type: "decision" },
   { id: "predict-categorical", label: "Categorical", parentId: "goal-predict", type: "decision" },
-  
-  { id: "independence-categorical", label: "Categorical Data", parentId: "goal-independence", type: "decision" },
-  
+
+  {
+    id: "independence-categorical",
+    label: "Categorical Data",
+    parentId: "goal-independence",
+    type: "decision",
+  },
+
   { id: "time-series", label: "Time Series", parentId: "goal-time", type: "decision" },
   { id: "survival", label: "Survival/Event", parentId: "goal-time", type: "decision" },
-  
+
   { id: "clustering", label: "Clustering", parentId: "goal-unsupervised", type: "decision" },
-  { id: "dimension", label: "Dimension Reduction", parentId: "goal-unsupervised", type: "decision" },
-  
-  { id: "est-cont-independent", label: "Independent Samples", parentId: "estimate-continuous", type: "decision" },
-  { id: "est-cont-paired", label: "Paired Samples", parentId: "estimate-continuous", type: "decision" },
-  
-  { id: "compare-independent", label: "Independent Samples", parentId: "compare-continuous", type: "decision" },
-  { id: "compare-paired", label: "Paired/Matched", parentId: "compare-continuous", type: "decision" },
-  { id: "compare-repeated", label: "Repeated Measures", parentId: "compare-continuous", type: "decision" },
-  
-  { id: "rel-cont-parametric", label: "Parametric", parentId: "relationship-continuous", type: "decision" },
-  { id: "rel-cont-nonparametric", label: "Non-parametric", parentId: "relationship-continuous", type: "decision" },
-  
-  { id: "predict-cont-linear", label: "Linear Models", parentId: "predict-continuous", type: "decision" },
-  { id: "predict-cont-regularized", label: "Regularized", parentId: "predict-continuous", type: "decision" },
-  
-  { id: "predict-cat-traditional", label: "Traditional", parentId: "predict-categorical", type: "decision" },
-  { id: "predict-cat-ml", label: "Machine Learning", parentId: "predict-categorical", type: "decision" },
-  
-  { id: "est-ind-parametric", label: "Parametric", parentId: "est-cont-independent", type: "decision" },
-  { id: "est-ind-nonparametric", label: "Non-parametric", parentId: "est-cont-independent", type: "decision" },
-  
-  { id: "est-paired-parametric", label: "Parametric", parentId: "est-cont-paired", type: "decision" },
-  { id: "est-paired-nonparametric", label: "Non-parametric", parentId: "est-cont-paired", type: "decision" },
-  
+  {
+    id: "dimension",
+    label: "Dimension Reduction",
+    parentId: "goal-unsupervised",
+    type: "decision",
+  },
+
+  {
+    id: "est-cont-independent",
+    label: "Independent Samples",
+    parentId: "estimate-continuous",
+    type: "decision",
+  },
+  {
+    id: "est-cont-paired",
+    label: "Paired Samples",
+    parentId: "estimate-continuous",
+    type: "decision",
+  },
+
+  {
+    id: "compare-independent",
+    label: "Independent Samples",
+    parentId: "compare-continuous",
+    type: "decision",
+  },
+  {
+    id: "compare-paired",
+    label: "Paired/Matched",
+    parentId: "compare-continuous",
+    type: "decision",
+  },
+  {
+    id: "compare-repeated",
+    label: "Repeated Measures",
+    parentId: "compare-continuous",
+    type: "decision",
+  },
+
+  {
+    id: "rel-cont-parametric",
+    label: "Parametric",
+    parentId: "relationship-continuous",
+    type: "decision",
+  },
+  {
+    id: "rel-cont-nonparametric",
+    label: "Non-parametric",
+    parentId: "relationship-continuous",
+    type: "decision",
+  },
+
+  {
+    id: "predict-cont-linear",
+    label: "Linear Models",
+    parentId: "predict-continuous",
+    type: "decision",
+  },
+  {
+    id: "predict-cont-regularized",
+    label: "Regularized",
+    parentId: "predict-continuous",
+    type: "decision",
+  },
+
+  {
+    id: "predict-cat-traditional",
+    label: "Traditional",
+    parentId: "predict-categorical",
+    type: "decision",
+  },
+  {
+    id: "predict-cat-ml",
+    label: "Machine Learning",
+    parentId: "predict-categorical",
+    type: "decision",
+  },
+
+  {
+    id: "est-ind-parametric",
+    label: "Parametric",
+    parentId: "est-cont-independent",
+    type: "decision",
+  },
+  {
+    id: "est-ind-nonparametric",
+    label: "Non-parametric",
+    parentId: "est-cont-independent",
+    type: "decision",
+  },
+
+  {
+    id: "est-paired-parametric",
+    label: "Parametric",
+    parentId: "est-cont-paired",
+    type: "decision",
+  },
+  {
+    id: "est-paired-nonparametric",
+    label: "Non-parametric",
+    parentId: "est-cont-paired",
+    type: "decision",
+  },
+
   { id: "ind-parametric", label: "Parametric", parentId: "compare-independent", type: "decision" },
-  { id: "ind-nonparametric", label: "Non-parametric", parentId: "compare-independent", type: "decision" },
+  {
+    id: "ind-nonparametric",
+    label: "Non-parametric",
+    parentId: "compare-independent",
+    type: "decision",
+  },
   { id: "paired-parametric", label: "Parametric", parentId: "compare-paired", type: "decision" },
-  { id: "paired-nonparametric", label: "Non-parametric", parentId: "compare-paired", type: "decision" },
-  
-  { id: "test-est-ind-param", label: "t-Test / CI", parentId: "est-ind-parametric", type: "test", testIds: ["t-test-independent", "cohens-d", "hedges-g"] },
-  { id: "test-est-ind-nonparam", label: "Bootstrap / Permutation", parentId: "est-ind-nonparametric", type: "test", testIds: ["bootstrap", "permutation-test", "mann-whitney"] },
-  { id: "test-est-paired-param", label: "Paired t-Test", parentId: "est-paired-parametric", type: "test", testIds: ["paired-t-test", "cohens-d"] },
-  { id: "test-est-paired-nonparam", label: "Wilcoxon / Bootstrap", parentId: "est-paired-nonparametric", type: "test", testIds: ["wilcoxon-signed-rank", "bootstrap"] },
-  { id: "test-est-binary", label: "Proportions / Odds", parentId: "estimate-binary", type: "test", testIds: ["chi-square", "fisher-exact", "odds-ratio"] },
-  
-  { id: "test-ttest", label: "t-Test / ANOVA", parentId: "ind-parametric", type: "test", testIds: ["t-test-independent", "one-way-anova", "two-way-anova", "welch-t-test", "welch-anova"] },
-  { id: "test-mann-whitney", label: "Mann-Whitney / Kruskal-Wallis", parentId: "ind-nonparametric", type: "test", testIds: ["mann-whitney", "kruskal-wallis", "permutation-test"] },
-  { id: "test-paired-t", label: "Paired t-Test", parentId: "paired-parametric", type: "test", testIds: ["paired-t-test", "repeated-measures-anova"] },
-  { id: "test-wilcoxon", label: "Wilcoxon / Friedman", parentId: "paired-nonparametric", type: "test", testIds: ["wilcoxon-signed-rank", "friedman-test"] },
-  { id: "test-repeated", label: "Mixed Models", parentId: "compare-repeated", type: "test", testIds: ["linear-mixed-model", "glmm", "repeated-measures-anova"] },
-  { id: "test-chi-square", label: "Chi-Square Tests", parentId: "compare-categorical", type: "test", testIds: ["chi-square", "fisher-exact", "mcnemar-test", "cochran-q"] },
-  
-  { id: "test-pearson", label: "Pearson / Partial", parentId: "rel-cont-parametric", type: "test", testIds: ["pearson-correlation", "partial-correlation", "point-biserial", "intraclass-correlation"] },
-  { id: "test-spearman", label: "Spearman / Kendall", parentId: "rel-cont-nonparametric", type: "test", testIds: ["spearman-correlation", "kendall-tau"] },
-  { id: "test-ordinal-corr", label: "Rank Correlations", parentId: "relationship-ordinal", type: "test", testIds: ["spearman-correlation", "kendall-tau"] },
-  
-  { id: "test-linear-reg", label: "Linear Regression", parentId: "predict-cont-linear", type: "test", testIds: ["linear-regression", "multiple-regression", "robust-regression"] },
-  { id: "test-regularized", label: "Lasso / Ridge / Elastic Net", parentId: "predict-cont-regularized", type: "test", testIds: ["lasso-ridge", "elastic-net"] },
-  { id: "test-logistic", label: "Logistic / Ordinal", parentId: "predict-cat-traditional", type: "test", testIds: ["logistic-regression", "ordinal-regression", "probit-regression"] },
-  { id: "test-ml-class", label: "ML Classifiers", parentId: "predict-cat-ml", type: "test", testIds: ["random-forest", "svm", "xgboost", "knn", "naive-bayes", "decision-tree", "neural-network-mlp"] },
-  
-  { id: "test-independence", label: "Chi-Square / Fisher", parentId: "independence-categorical", type: "test", testIds: ["chi-square", "fisher-exact", "cramers-v", "cohens-kappa"] },
-  
-  { id: "test-timeseries", label: "ARIMA / Prophet", parentId: "time-series", type: "test", testIds: ["arima", "exponential-smoothing", "prophet", "var", "granger-causality"] },
-  { id: "test-survival", label: "Survival Analysis", parentId: "survival", type: "test", testIds: ["kaplan-meier", "log-rank-test", "cox-regression", "accelerated-failure-time", "competing-risks", "random-survival-forest"] },
-  { id: "test-clustering", label: "Clustering Methods", parentId: "clustering", type: "test", testIds: ["kmeans", "hierarchical-clustering", "dbscan", "gaussian-mixture"] },
-  { id: "test-dimension", label: "PCA / Factor Analysis", parentId: "dimension", type: "test", testIds: ["pca", "factor-analysis", "tsne", "umap"] },
-  { id: "test-planning", label: "Power & Sample Size", parentId: "goal-planning", type: "test", testIds: ["power-analysis"] },
+  {
+    id: "paired-nonparametric",
+    label: "Non-parametric",
+    parentId: "compare-paired",
+    type: "decision",
+  },
+
+  {
+    id: "test-est-ind-param",
+    label: "t-Test / CI",
+    parentId: "est-ind-parametric",
+    type: "test",
+    testIds: ["t-test-independent", "cohens-d", "hedges-g"],
+  },
+  {
+    id: "test-est-ind-nonparam",
+    label: "Bootstrap / Permutation",
+    parentId: "est-ind-nonparametric",
+    type: "test",
+    testIds: ["bootstrap", "permutation-test", "mann-whitney"],
+  },
+  {
+    id: "test-est-paired-param",
+    label: "Paired t-Test",
+    parentId: "est-paired-parametric",
+    type: "test",
+    testIds: ["paired-t-test", "cohens-d"],
+  },
+  {
+    id: "test-est-paired-nonparam",
+    label: "Wilcoxon / Bootstrap",
+    parentId: "est-paired-nonparametric",
+    type: "test",
+    testIds: ["wilcoxon-signed-rank", "bootstrap"],
+  },
+  {
+    id: "test-est-binary",
+    label: "Proportions / Odds",
+    parentId: "estimate-binary",
+    type: "test",
+    testIds: ["chi-square", "fisher-exact", "odds-ratio"],
+  },
+
+  {
+    id: "test-ttest",
+    label: "t-Test / ANOVA",
+    parentId: "ind-parametric",
+    type: "test",
+    testIds: [
+      "t-test-independent",
+      "one-way-anova",
+      "two-way-anova",
+      "welch-t-test",
+      "welch-anova",
+    ],
+  },
+  {
+    id: "test-mann-whitney",
+    label: "Mann-Whitney / Kruskal-Wallis",
+    parentId: "ind-nonparametric",
+    type: "test",
+    testIds: ["mann-whitney", "kruskal-wallis", "permutation-test"],
+  },
+  {
+    id: "test-paired-t",
+    label: "Paired t-Test",
+    parentId: "paired-parametric",
+    type: "test",
+    testIds: ["paired-t-test", "repeated-measures-anova"],
+  },
+  {
+    id: "test-wilcoxon",
+    label: "Wilcoxon / Friedman",
+    parentId: "paired-nonparametric",
+    type: "test",
+    testIds: ["wilcoxon-signed-rank", "friedman-test"],
+  },
+  {
+    id: "test-repeated",
+    label: "Mixed Models",
+    parentId: "compare-repeated",
+    type: "test",
+    testIds: ["linear-mixed-model", "glmm", "repeated-measures-anova"],
+  },
+  {
+    id: "test-chi-square",
+    label: "Chi-Square Tests",
+    parentId: "compare-categorical",
+    type: "test",
+    testIds: ["chi-square", "fisher-exact", "mcnemar-test", "cochran-q"],
+  },
+
+  {
+    id: "test-pearson",
+    label: "Pearson / Partial",
+    parentId: "rel-cont-parametric",
+    type: "test",
+    testIds: [
+      "pearson-correlation",
+      "partial-correlation",
+      "point-biserial",
+      "intraclass-correlation",
+    ],
+  },
+  {
+    id: "test-spearman",
+    label: "Spearman / Kendall",
+    parentId: "rel-cont-nonparametric",
+    type: "test",
+    testIds: ["spearman-correlation", "kendall-tau"],
+  },
+  {
+    id: "test-ordinal-corr",
+    label: "Rank Correlations",
+    parentId: "relationship-ordinal",
+    type: "test",
+    testIds: ["spearman-correlation", "kendall-tau"],
+  },
+
+  {
+    id: "test-linear-reg",
+    label: "Linear Regression",
+    parentId: "predict-cont-linear",
+    type: "test",
+    testIds: ["linear-regression", "multiple-regression", "robust-regression"],
+  },
+  {
+    id: "test-regularized",
+    label: "Lasso / Ridge / Elastic Net",
+    parentId: "predict-cont-regularized",
+    type: "test",
+    testIds: ["lasso-ridge", "elastic-net"],
+  },
+  {
+    id: "test-logistic",
+    label: "Logistic / Ordinal",
+    parentId: "predict-cat-traditional",
+    type: "test",
+    testIds: ["logistic-regression", "ordinal-regression", "probit-regression"],
+  },
+  {
+    id: "test-ml-class",
+    label: "ML Classifiers",
+    parentId: "predict-cat-ml",
+    type: "test",
+    testIds: [
+      "random-forest",
+      "svm",
+      "xgboost",
+      "knn",
+      "naive-bayes",
+      "decision-tree",
+      "neural-network-mlp",
+    ],
+  },
+
+  {
+    id: "test-independence",
+    label: "Chi-Square / Fisher",
+    parentId: "independence-categorical",
+    type: "test",
+    testIds: ["chi-square", "fisher-exact", "cramers-v", "cohens-kappa"],
+  },
+
+  {
+    id: "test-timeseries",
+    label: "ARIMA / Prophet",
+    parentId: "time-series",
+    type: "test",
+    testIds: ["arima", "exponential-smoothing", "prophet", "var", "granger-causality"],
+  },
+  {
+    id: "test-survival",
+    label: "Survival Analysis",
+    parentId: "survival",
+    type: "test",
+    testIds: [
+      "kaplan-meier",
+      "log-rank-test",
+      "cox-regression",
+      "accelerated-failure-time",
+      "competing-risks",
+      "random-survival-forest",
+    ],
+  },
+  {
+    id: "test-clustering",
+    label: "Clustering Methods",
+    parentId: "clustering",
+    type: "test",
+    testIds: ["kmeans", "hierarchical-clustering", "dbscan", "gaussian-mixture"],
+  },
+  {
+    id: "test-dimension",
+    label: "PCA / Factor Analysis",
+    parentId: "dimension",
+    type: "test",
+    testIds: ["pca", "factor-analysis", "tsne", "umap"],
+  },
+  {
+    id: "test-planning",
+    label: "Power & Sample Size",
+    parentId: "goal-planning",
+    type: "test",
+    testIds: ["power-analysis"],
+  },
 ];
 
-function DecisionNode({ data, selected }: { data: { label: string; isSelected: boolean; hasChildren: boolean }; selected?: boolean }) {
+function DecisionNode({
+  data,
+  selected,
+}: {
+  data: { label: string; isSelected: boolean; hasChildren: boolean };
+  selected?: boolean;
+}) {
   const isHighlighted = data.isSelected;
   return (
-    <div 
+    <div
       className={`px-4 py-3 rounded-md border shadow-sm min-w-[140px] max-w-[180px] cursor-pointer transition-all duration-200 ${
-        isHighlighted 
-          ? "bg-primary/20 border-primary ring-2 ring-primary/30" 
+        isHighlighted
+          ? "bg-primary/20 border-primary ring-2 ring-primary/30"
           : "bg-card hover-elevate"
       }`}
     >
@@ -159,9 +454,15 @@ function DecisionNode({ data, selected }: { data: { label: string; isSelected: b
   );
 }
 
-function TestNode({ data, onClick }: { data: { label: string; testIds: string[] }; onClick?: () => void }) {
+function TestNode({
+  data,
+  onClick,
+}: {
+  data: { label: string; testIds: string[] };
+  onClick?: () => void;
+}) {
   return (
-    <div 
+    <div
       className="px-3 py-2 rounded-md border-2 border-primary bg-primary/10 min-w-[120px] max-w-[160px] cursor-pointer hover-elevate"
       onClick={onClick}
       data-testid={`flowchart-test-node-${data.testIds[0]}`}
@@ -177,29 +478,52 @@ function TestNode({ data, onClick }: { data: { label: string; testIds: string[] 
   );
 }
 
-function StartNode({ data }: { data: { label: string } }) {
+function StartNode({ data }: { data: { label: string; isInteractive?: boolean } }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
-    <div className="px-5 py-3 rounded-full bg-primary text-primary-foreground font-semibold shadow-md">
-      <div className="text-sm text-center">{data.label}</div>
+    <div
+      className={`px-5 py-3 rounded-full bg-primary text-primary-foreground font-semibold shadow-md transition-all duration-200 ${
+        data.isInteractive ? "cursor-pointer hover:bg-primary/90" : ""
+      }`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div className="text-sm text-center min-w-[200px]">
+        {data.isInteractive && hovered ? "Change Research Goal" : data.label}
+      </div>
       <Handle type="source" position={Position.Bottom} className="w-2 h-2 !bg-primary-foreground" />
     </div>
   );
 }
 
-function TestDetailPanel({ tests, open, onClose, onCompareClick }: { tests: StatTest[]; open: boolean; onClose: () => void; onCompareClick: (currentTest: StatTest, altId: string) => void }) {
+function TestDetailPanel({
+  tests,
+  open,
+  onClose,
+  onCompareClick,
+}: {
+  tests: StatTest[];
+  open: boolean;
+  onClose: () => void;
+  onCompareClick: (currentTest: StatTest, altId: string) => void;
+}) {
   const [, setLocation] = useLocation();
-  
+
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[85vh] p-0 overflow-hidden" data-testid="flowchart-test-detail">
+      <DialogContent
+        className="max-w-2xl max-h-[85vh] p-0 overflow-hidden"
+        data-testid="flowchart-test-detail"
+      >
         <DialogHeader className="px-6 pt-6 pb-4 border-b bg-muted/30">
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Route className="w-5 h-5 text-primary" />
             {tests.length === 1 ? tests[0].name : `${tests.length} Related Tests`}
           </DialogTitle>
           <DialogDescription>
-            {tests.length === 1 
-              ? tests[0].description 
+            {tests.length === 1
+              ? tests[0].description
               : "Click on a test to view details or use the wizard for recommendations."}
           </DialogDescription>
         </DialogHeader>
@@ -210,24 +534,25 @@ function TestDetailPanel({ tests, open, onClose, onCompareClick }: { tests: Stat
                 <div>
                   <h3 className="font-semibold font-mono text-base">{test.name}</h3>
                   <div className="text-sm text-muted-foreground mt-1">
-                    <ReactMarkdown 
-                      remarkPlugins={[remarkMath]} 
-                      rehypePlugins={[rehypeKatex]}
-                    >
+                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                       {test.description}
                     </ReactMarkdown>
                   </div>
                   <div className="flex gap-3 mt-2 flex-wrap items-center">
                     <Badge variant="outline">{test.category}</Badge>
                     {test.outcome && (
-                      <span className="text-xs text-muted-foreground"><strong>Outcome:</strong> {test.outcome}</span>
+                      <span className="text-xs text-muted-foreground">
+                        <strong>Outcome:</strong> {test.outcome}
+                      </span>
                     )}
                     {test.design && (
-                      <span className="text-xs text-muted-foreground"><strong>Design:</strong> {test.design}</span>
+                      <span className="text-xs text-muted-foreground">
+                        <strong>Design:</strong> {test.design}
+                      </span>
                     )}
-                  {test.wikipediaUrl && (
-                    <a
-                      href={test.wikipediaUrl}
+                    {test.wikipediaUrl && (
+                      <a
+                        href={test.wikipediaUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
@@ -239,7 +564,7 @@ function TestDetailPanel({ tests, open, onClose, onCompareClick }: { tests: Stat
                     )}
                   </div>
                 </div>
-                
+
                 <div>
                   <h4 className="text-sm font-medium flex items-center gap-1 mb-2">
                     <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
@@ -250,10 +575,7 @@ function TestDetailPanel({ tests, open, onClose, onCompareClick }: { tests: Stat
                       <li key={i} className="flex items-start gap-2">
                         <span className="text-muted-foreground/50">-</span>
                         <div className="markdown-inline">
-                          <ReactMarkdown 
-                            remarkPlugins={[remarkMath]} 
-                            rehypePlugins={[rehypeKatex]}
-                          >
+                          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                             {a}
                           </ReactMarkdown>
                         </div>
@@ -261,7 +583,7 @@ function TestDetailPanel({ tests, open, onClose, onCompareClick }: { tests: Stat
                     ))}
                   </ul>
                 </div>
-                
+
                 <div>
                   <h4 className="text-sm font-medium flex items-center gap-1 mb-2">
                     <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-400" />
@@ -272,10 +594,7 @@ function TestDetailPanel({ tests, open, onClose, onCompareClick }: { tests: Stat
                       <li key={i} className="flex items-start gap-2">
                         <span className="text-muted-foreground/50">-</span>
                         <div className="markdown-inline">
-                          <ReactMarkdown 
-                            remarkPlugins={[remarkMath]} 
-                            rehypePlugins={[rehypeKatex]}
-                          >
+                          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                             {w}
                           </ReactMarkdown>
                         </div>
@@ -283,7 +602,7 @@ function TestDetailPanel({ tests, open, onClose, onCompareClick }: { tests: Stat
                     ))}
                   </ul>
                 </div>
-                
+
                 {test.alternativeLinks && test.alternativeLinks.length > 0 && (
                   <div>
                     <h4 className="text-sm font-medium flex items-center gap-1 mb-2">
@@ -292,11 +611,14 @@ function TestDetailPanel({ tests, open, onClose, onCompareClick }: { tests: Stat
                     </h4>
                     <div className="flex flex-wrap gap-2">
                       {test.alternativeLinks.map((altId) => {
-                        const altTest = statisticalTests.find(t => t.id === altId);
+                        const altTest = statisticalTests.find((t) => t.id === altId);
                         if (!altTest) {
                           return (
                             <Badge key={altId} variant="secondary">
-                              {altId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                              {altId
+                                .split("-")
+                                .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                                .join(" ")}
                             </Badge>
                           );
                         }
@@ -316,7 +638,7 @@ function TestDetailPanel({ tests, open, onClose, onCompareClick }: { tests: Stat
                     </div>
                   </div>
                 )}
-                
+
                 <div>
                   <h4 className="text-sm font-medium flex items-center gap-1 mb-2">
                     <Code className="w-4 h-4 text-purple-600 dark:text-purple-400" />
@@ -325,13 +647,20 @@ function TestDetailPanel({ tests, open, onClose, onCompareClick }: { tests: Stat
                   <div className="space-y-3">
                     <div>
                       <h5 className="text-xs font-medium mb-1 flex items-center gap-2">
-                        <Badge variant="outline" className="text-[10px]">Python</Badge>
+                        <Badge variant="outline" className="text-[10px]">
+                          Python
+                        </Badge>
                       </h5>
-                      <CodeBlock code={test.pythonCode || `# Python code example coming soon`} lang="python" />
+                      <CodeBlock
+                        code={test.pythonCode || `# Python code example coming soon`}
+                        lang="python"
+                      />
                     </div>
                     <div>
                       <h5 className="text-xs font-medium mb-1 flex items-center gap-2">
-                        <Badge variant="outline" className="text-[10px]">R</Badge>
+                        <Badge variant="outline" className="text-[10px]">
+                          R
+                        </Badge>
                       </h5>
                       <CodeBlock code={test.rCode || `# R code example coming soon`} lang="r" />
                     </div>
@@ -339,9 +668,9 @@ function TestDetailPanel({ tests, open, onClose, onCompareClick }: { tests: Stat
                 </div>
               </div>
             ))}
-            
-            <Button 
-              className="w-full" 
+
+            <Button
+              className="w-full"
               onClick={() => setLocation("/wizard")}
               data-testid="button-use-wizard"
             >
@@ -356,7 +685,7 @@ function TestDetailPanel({ tests, open, onClose, onCompareClick }: { tests: Stat
 }
 
 function getChildren(parentId: string): FlowNode[] {
-  return flowchartNodes.filter(n => n.parentId === parentId);
+  return flowchartNodes.filter((n) => n.parentId === parentId);
 }
 
 function FlowchartInner() {
@@ -371,14 +700,12 @@ function FlowchartInner() {
   const { fitView } = useReactFlow();
   const isMobile = useIsMobile();
 
-
-
   const handleCompareClick = (currentTest: StatTest, altId: string) => {
-    const altTest = statisticalTests.find(t => t.id === altId);
+    const altTest = statisticalTests.find((t) => t.id === altId);
     if (altTest) {
       const alternatives = currentTest.alternativeLinks || [];
       const altIndex = alternatives.indexOf(altId);
-      
+
       setCurrentBaseTest(currentTest);
       setAlternativesList(alternatives);
       setCurrentAltIndex(altIndex >= 0 ? altIndex : 0);
@@ -390,7 +717,7 @@ function FlowchartInner() {
   const handlePrevAlt = () => {
     if (currentAltIndex > 0 && currentBaseTest) {
       const newIndex = currentAltIndex - 1;
-      const altTest = statisticalTests.find(t => t.id === alternativesList[newIndex]);
+      const altTest = statisticalTests.find((t) => t.id === alternativesList[newIndex]);
       if (altTest) {
         setCurrentAltIndex(newIndex);
         setCompareTests([currentBaseTest, altTest]);
@@ -401,7 +728,7 @@ function FlowchartInner() {
   const handleNextAlt = () => {
     if (currentAltIndex < alternativesList.length - 1 && currentBaseTest) {
       const newIndex = currentAltIndex + 1;
-      const altTest = statisticalTests.find(t => t.id === alternativesList[newIndex]);
+      const altTest = statisticalTests.find((t) => t.id === alternativesList[newIndex]);
       if (altTest) {
         setCurrentAltIndex(newIndex);
         setCompareTests([currentBaseTest, altTest]);
@@ -410,14 +737,14 @@ function FlowchartInner() {
   };
 
   const removeFromCompare = (testId: string) => {
-    const updated = compareTests.filter(t => t.id !== testId);
+    const updated = compareTests.filter((t) => t.id !== testId);
     setCompareTests(updated);
     if (updated.length === 0) {
       setShowCompare(false);
     }
   };
 
-  const selectedIds = useMemo(() => selections.map(s => s.nodeId), [selections]);
+  const selectedIds = useMemo(() => selections.map((s) => s.nodeId), [selections]);
 
   const { visibleNodes, visibleEdges } = useMemo(() => {
     const nodeWidth = 200;
@@ -425,19 +752,32 @@ function FlowchartInner() {
     const edgeStyle = { stroke: "hsl(var(--muted-foreground))", strokeWidth: 1.5 };
     const selectedEdgeStyle = { stroke: "hsl(var(--primary))", strokeWidth: 2.5 };
 
-    const nodesToShow = new Set<string>(["start"]);
-    const startChildren = getChildren("start");
-    startChildren.forEach(c => nodesToShow.add(c.id));
+    // Determine the root for display
+    // If we have selections, the first selection (goal) is our "root"
+    // If no selections, we show nothing here (Start Screen is shown instead)
+    const rootNodeId = selections.length > 0 ? selections[0].nodeId : "start";
 
-    selectedIds.forEach(id => {
-      nodesToShow.add(id);
-      const children = getChildren(id);
-      children.forEach(c => nodesToShow.add(c.id));
-    });
+    const nodesToShow = new Set<string>([rootNodeId]);
+
+    // If we are at the real start, show its children (though this case is handled by Start Screen now)
+    if (rootNodeId === "start") {
+      const startChildren = getChildren("start");
+      startChildren.forEach((c) => nodesToShow.add(c.id));
+    } else {
+      // If we have a goal selected, we need to show the goal + active path + ALL children of selected nodes
+      // This ensures siblings remain visible as we go deeper
+      nodesToShow.add(rootNodeId);
+
+      selections.forEach((selection) => {
+        nodesToShow.add(selection.nodeId);
+        const children = getChildren(selection.nodeId);
+        children.forEach((c) => nodesToShow.add(c.id));
+      });
+    }
 
     const getLayerForNode = (nodeId: string, depth = 0): number => {
-      const node = flowchartNodes.find(n => n.id === nodeId);
-      if (!node || !node.parentId) return depth;
+      const node = flowchartNodes.find((n) => n.id === nodeId);
+      if (!node || !node.parentId || nodeId === rootNodeId) return depth;
       return getLayerForNode(node.parentId, depth + 1);
     };
 
@@ -445,15 +785,20 @@ function FlowchartInner() {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
 
-    const positionNode = (nodeId: string, parentX: number, siblingIndex: number, siblingCount: number): void => {
-      const node = flowchartNodes.find(n => n.id === nodeId);
+    const positionNode = (
+      nodeId: string,
+      parentX: number,
+      siblingIndex: number,
+      siblingCount: number
+    ): void => {
+      const node = flowchartNodes.find((n) => n.id === nodeId);
       if (!node || !nodesToShow.has(nodeId)) return;
 
       const layer = getLayerForNode(nodeId);
       const y = layer * layerGap;
-      
+
       let x: number;
-      if (!node.parentId) {
+      if (nodeId === rootNodeId) {
         x = 0;
       } else {
         const spreadWidth = (siblingCount - 1) * nodeWidth;
@@ -464,9 +809,17 @@ function FlowchartInner() {
       nodePositions.set(nodeId, { x, y });
 
       const isSelected = selectedIds.includes(nodeId);
-      const hasChildren = getChildren(nodeId).length > 0;
+      const hasChildren = getChildren(node.id).length > 0;
 
-      if (node.type === "start") {
+      // Special case: The goal node (root of this view) should look like a start node/question
+      if (nodeId === rootNodeId && nodeId !== "start") {
+        nodes.push({
+          id: node.id,
+          type: "startNode", // Resuse startNode styling for the goal question
+          position: { x, y },
+          data: { label: node.label, isInteractive: true },
+        });
+      } else if (node.type === "start") {
         nodes.push({
           id: node.id,
           type: "startNode",
@@ -489,88 +842,130 @@ function FlowchartInner() {
         });
       }
 
+      // Draw edge if parent is visible AND parent is not the "start" node (unless root is start)
+      // Because we want to hide connections to the global "start" if we are rooted at "goal"
       if (node.parentId && nodesToShow.has(node.parentId)) {
-        const isOnSelectedPath = selectedIds.includes(nodeId) || selectedIds.includes(node.parentId);
-        edges.push({
-          id: `${node.parentId}-to-${nodeId}`,
-          source: node.parentId,
-          target: nodeId,
-          style: isOnSelectedPath ? selectedEdgeStyle : edgeStyle,
-          animated: node.type === "test",
-        });
+        if (node.parentId !== "start" || rootNodeId === "start") {
+          const isOnSelectedPath =
+            selectedIds.includes(nodeId) || selectedIds.includes(node.parentId);
+          edges.push({
+            id: `${node.parentId}-to-${nodeId}`,
+            source: node.parentId,
+            target: nodeId,
+            style: isOnSelectedPath ? selectedEdgeStyle : edgeStyle,
+            animated: node.type === "test",
+          });
+        }
       }
 
-      const visibleChildren = getChildren(nodeId).filter(c => nodesToShow.has(c.id));
+      const visibleChildren = getChildren(nodeId).filter((c) => nodesToShow.has(c.id));
       visibleChildren.forEach((child, i) => {
         positionNode(child.id, x, i, visibleChildren.length);
       });
     };
 
-    positionNode("start", 0, 0, 1);
+    positionNode(rootNodeId, 0, 0, 1);
 
     return { visibleNodes: nodes, visibleEdges: edges };
-  }, [selectedIds]);
+  }, [selectedIds, selections]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(visibleNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(visibleEdges);
 
+  // Update logic to remove "start" node special handling since we want to zoom correctly
   useEffect(() => {
     setNodes(visibleNodes);
     setEdges(visibleEdges);
-    setTimeout(() => fitView({ padding: 0.3, duration: 300 }), 50);
+
+    // Smart zoom logic -- simplified because tree is strictly controlled now
+    // We just want to fit view because the view IS the context
+    setTimeout(() => {
+      fitView({
+        padding: 0.1, // Match standard Fit View button (usually 0.1)
+        duration: 800,
+      });
+    }, 100);
   }, [visibleNodes, visibleEdges, setNodes, setEdges, fitView]);
 
-  const getNodeDepth = useCallback((nodeId: string, depth = 0): number => {
-    const node = flowchartNodes.find(n => n.id === nodeId);
-    if (!node || !node.parentId) return depth;
-    return getNodeDepth(node.parentId, depth + 1);
-  }, []);
+  const getNodeDepth = useCallback(
+    (nodeId: string, depth = 0): number => {
+      const node = flowchartNodes.find((n) => n.id === nodeId);
+      if (!node) return depth; // Node not found, return current depth
 
-  const handleNodeClick = useCallback((_: any, node: Node) => {
-    if (node.type === "startNode") return;
-    
-    if (node.type === "testNode") {
-      const testIds = (node.data as any).testIds || [];
-      const tests = testIds
-        .map((id: string) => statisticalTests.find(t => t.id === id))
-        .filter((t: StatTest | undefined): t is StatTest => t !== undefined);
-      if (tests.length > 0) {
-        setSelectedTests(tests);
-        setDetailOpen(true);
+      // If this node is the root of the current view, its depth is 0 relative to the view,
+      // but we need to return the accumulated 'depth' from the recursion to show its distance from our probe
+      if (selections.length > 0 && nodeId === selections[0].nodeId) {
+        return depth;
       }
-      return;
-    }
+      // If no selections, "start" is the root
+      if (selections.length === 0 && nodeId === "start") {
+        return depth;
+      }
 
-    const flowNode = flowchartNodes.find(n => n.id === node.id);
-    if (flowNode) {
-      const clickedDepth = getNodeDepth(node.id);
-      
-      const selectionIndexAtDepth = selections.findIndex(sel => {
-        return getNodeDepth(sel.nodeId) >= clickedDepth;
-      });
-      
-      if (selectionIndexAtDepth >= 0) {
-        removeSelectionsAfter(selectionIndexAtDepth);
+      if (!node.parentId) return depth; // No parent, so it's a root (either global "start" or a goal node)
+
+      return getNodeDepth(node.parentId, depth + 1);
+    },
+    [selections]
+  );
+
+  const handleNodeClick = useCallback(
+    (_: any, node: Node) => {
+      // If clicking the root goal node, reset
+      if (selections.length > 0 && node.id === selections[0].nodeId) {
+        clearSelections();
+        return;
       }
-      
-      addSelection(node.id, flowNode.label);
-    }
-  }, [addSelection, removeSelectionsAfter, selections, getNodeDepth]);
+
+      if (node.type === "startNode") return;
+
+      if (node.type === "testNode") {
+        const testIds = (node.data as any).testIds || [];
+        const tests = testIds
+          .map((id: string) => statisticalTests.find((t) => t.id === id))
+          .filter((t: StatTest | undefined): t is StatTest => t !== undefined);
+        if (tests.length > 0) {
+          setSelectedTests(tests);
+          setDetailOpen(true);
+        }
+        return;
+      }
+
+      const flowNode = flowchartNodes.find((n) => n.id === node.id);
+      if (flowNode) {
+        // Logic for changing selection
+        // If we click a node higher up in the current view (but below root), we unwind
+
+        const clickedDepth = getNodeDepth(node.id);
+
+        const selectionIndexAtDepth = selections.findIndex((sel) => {
+          return getNodeDepth(sel.nodeId) >= clickedDepth;
+        });
+
+        if (selectionIndexAtDepth >= 0) {
+          removeSelectionsAfter(selectionIndexAtDepth);
+        }
+
+        addSelection(node.id, flowNode.label);
+      }
+    },
+    [addSelection, removeSelectionsAfter, selections, getNodeDepth, clearSelections]
+  );
 
   const handleReset = useCallback(() => {
     clearSelections();
   }, [clearSelections]);
 
-  const nodeTypes = useMemo(() => ({
-    decisionNode: DecisionNode,
-    testNode: (props: any) => (
-      <TestNode 
-        {...props} 
-        onClick={() => handleNodeClick(null, props)}
-      />
-    ),
-    startNode: StartNode,
-  }), [handleNodeClick]);
+  const nodeTypes = useMemo(
+    () => ({
+      decisionNode: DecisionNode,
+      testNode: (props: any) => (
+        <TestNode {...props} onClick={() => handleNodeClick(null, props)} />
+      ),
+      startNode: StartNode,
+    }),
+    [handleNodeClick]
+  );
 
   if (isMobile) {
     return (
@@ -580,13 +975,12 @@ function FlowchartInner() {
         </div>
         <h2 className="text-xl font-semibold mb-3">Desktop View Recommended</h2>
         <p className="text-muted-foreground max-w-sm mb-8">
-          The interactive flowchart is complex and optimized for larger screens. Please visit this page on a desktop or tablet for the best experience.
+          The interactive flowchart is complex and optimized for larger screens. Please visit this
+          page on a desktop or tablet for the best experience.
         </p>
         <div className="flex gap-4">
           <Link href="/">
-            <Button variant="default">
-              Return Home
-            </Button>
+            <Button variant="default">Return Home</Button>
           </Link>
         </div>
       </div>
@@ -602,29 +996,18 @@ function FlowchartInner() {
             <span>StatsTree</span>
           </Link>
           <div className="flex items-center gap-2">
-            {selections.length > 0 && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={handleReset}
-                data-testid="button-reset-flowchart"
-              >
-                <RotateCcw className="h-4 w-4 mr-1" />
-                Start Over
-              </Button>
-            )}
             <NavLinks currentPage="flowchart" />
             <ThemeToggle />
           </div>
         </div>
-        
+
         {selections.length > 0 && (
           <div className="px-4 pb-3 flex items-center gap-2 flex-wrap">
             <span className="text-xs text-muted-foreground">Path:</span>
             {selections.map((sel, i) => (
               <div key={sel.nodeId} className="flex items-center gap-1">
-                <Badge 
-                  variant="secondary" 
+                <Badge
+                  variant="secondary"
                   className="text-xs cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
                   onClick={() => {
                     removeSelectionsAfter(i + 1);
@@ -643,45 +1026,86 @@ function FlowchartInner() {
       </header>
 
       <div className="flex-1 relative">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onNodeClick={handleNodeClick}
-          nodeTypes={nodeTypes}
-          fitView
-          fitViewOptions={{ padding: 0.3 }}
-          minZoom={0.3}
-          maxZoom={2}
-          proOptions={{ hideAttribution: true }}
-        >
-          <Controls 
-            className="!bg-background !border !shadow-md"
-            showInteractive={false}
-          />
-          <Background 
-            variant={BackgroundVariant.Dots} 
-            gap={20} 
-            size={1}
-            color="hsl(var(--muted-foreground) / 0.2)"
-          />
-        </ReactFlow>
+        {selections.length === 0 ? (
+          <div className="absolute inset-0 bg-background overflow-y-auto">
+            <div className="max-w-5xl mx-auto px-6 py-12">
+              <div className="text-center mb-12">
+                <h1 className="text-3xl font-bold tracking-tight mb-3">
+                  What is your research goal?
+                </h1>
+                <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                  Select the description that best matches what you are trying to find out from your
+                  data.
+                </p>
+              </div>
 
-        <div className="absolute bottom-4 left-4 bg-background/95 border rounded-md p-3 shadow-sm text-xs text-muted-foreground max-w-xs">
-          <p className="font-medium text-foreground mb-1">How to use:</p>
-          <ul className="space-y-1">
-            <li>- Click on a choice to reveal the next level</li>
-            <li>- Your path is shown in the header</li>
-            <li>- Click colored test nodes to view details</li>
-            <li>- Use "Start Over" to begin a new path</li>
-          </ul>
-        </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {getChildren("start").map((node) => (
+                  <div
+                    key={node.id}
+                    className="group relative p-6 bg-card hover:bg-accent/50 border rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col items-center text-center space-y-4"
+                    onClick={() => addSelection(node.id, node.label)}
+                  >
+                    <div className="p-3 rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                      {node.id === "goal-estimate" && <Target className="w-6 h-6" />}
+                      {node.id === "goal-compare" && <Scale className="w-6 h-6" />}
+                      {node.id === "goal-relationship" && <TrendingUp className="w-6 h-6" />}
+                      {node.id === "goal-predict" && <LineChart className="w-6 h-6" />}
+                      {node.id === "goal-independence" && <Split className="w-6 h-6" />}
+                      {node.id === "goal-time" && <CalendarClock className="w-6 h-6" />}
+                      {node.id === "goal-unsupervised" && <Shapes className="w-6 h-6" />}
+                      {node.id === "goal-planning" && <ClipboardList className="w-6 h-6" />}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg mb-2">{node.label}</h3>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all absolute bottom-6 right-6" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            nodesDraggable={false}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onNodeClick={handleNodeClick}
+            nodeTypes={nodeTypes}
+            fitView
+            fitViewOptions={{ padding: 0.3 }}
+            minZoom={0.3}
+            maxZoom={2}
+            proOptions={{ hideAttribution: true }}
+          >
+            <Controls className="!bg-background !border !shadow-md" showInteractive={false} />
+            <Background
+              variant={BackgroundVariant.Dots}
+              gap={20}
+              size={1}
+              color="hsl(var(--muted-foreground) / 0.2)"
+            />
+          </ReactFlow>
+        )}
+
+        {selections.length > 0 && (
+          <div className="absolute bottom-4 right-4 bg-background/95 border rounded-md p-3 shadow-sm text-xs text-muted-foreground max-w-xs">
+            <p className="font-medium text-foreground mb-1">How to use:</p>
+            <ul className="space-y-1">
+              <li>- Click on a choice to reveal the next level</li>
+              <li>- Click the blue root node to select another tree</li>
+              <li>- Your path is shown in the header</li>
+              <li>- Click colored test nodes to view details</li>
+            </ul>
+          </div>
+        )}
       </div>
 
-      <TestDetailPanel 
-        tests={selectedTests} 
-        open={detailOpen} 
+      <TestDetailPanel
+        tests={selectedTests}
+        open={detailOpen}
         onClose={() => setDetailOpen(false)}
         onCompareClick={handleCompareClick}
       />

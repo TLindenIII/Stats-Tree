@@ -35,37 +35,46 @@ function scoreText(text: string, query: string): number {
   const lowerText = text.toLowerCase();
   const lowerQuery = query.toLowerCase().trim();
   if (!lowerQuery) return 0;
-  
+
   // Exact match - highest score
   if (lowerText === lowerQuery) return 1000;
-  
+
   // Starts with query - very high
   if (lowerText.startsWith(lowerQuery)) return 800;
-  
+
   // Contains exact query phrase as substring - high priority for multi-word queries
   if (lowerText.includes(lowerQuery)) {
     // Bonus points based on query length (longer phrases = more specific = higher score)
     return 600 + Math.min(lowerQuery.length * 10, 200);
   }
-  
+
   // Word-level matching
   const textWords = lowerText.split(/\s+/);
-  const queryWords = lowerQuery.split(/\s+/).filter(w => w.length > 0);
+  const queryWords = lowerQuery.split(/\s+/).filter((w) => w.length > 0);
   let wordScore = 0;
   let matchedWords = 0;
-  
+
   for (const qWord of queryWords) {
     // Skip single-character words for individual scoring (but they count in phrase match above)
     if (qWord.length === 1) continue;
-    
+
     let bestWordMatch = 0;
     for (const word of textWords) {
       // Exact word match
-      if (word === qWord) { bestWordMatch = Math.max(bestWordMatch, 400); continue; }
+      if (word === qWord) {
+        bestWordMatch = Math.max(bestWordMatch, 400);
+        continue;
+      }
       // Word starts with query word
-      if (word.startsWith(qWord)) { bestWordMatch = Math.max(bestWordMatch, 300); continue; }
+      if (word.startsWith(qWord)) {
+        bestWordMatch = Math.max(bestWordMatch, 300);
+        continue;
+      }
       // Word contains query word
-      if (word.includes(qWord)) { bestWordMatch = Math.max(bestWordMatch, 200); continue; }
+      if (word.includes(qWord)) {
+        bestWordMatch = Math.max(bestWordMatch, 200);
+        continue;
+      }
       // Fuzzy match with typo tolerance (for words 3+ chars)
       if (qWord.length >= 3 && word.length >= 3) {
         const distance = levenshteinDistance(word.slice(0, Math.max(qWord.length, 5)), qWord);
@@ -78,13 +87,13 @@ function scoreText(text: string, query: string): number {
     if (bestWordMatch > 0) matchedWords++;
     wordScore += bestWordMatch;
   }
-  
+
   return wordScore;
 }
 
 function getSearchScore(test: StatTest, query: string): number {
   if (!query.trim()) return 1; // No query = show all equally
-  
+
   // Field weights - name is most important
   const weights = {
     name: 10,
@@ -92,24 +101,25 @@ function getSearchScore(test: StatTest, query: string): number {
     whenToUse: 3,
     assumptions: 2,
     category: 2,
-    methodFamily: 2
+    methodFamily: 2,
   };
-  
+
   let totalScore = 0;
-  
+
   totalScore += scoreText(test.name, query) * weights.name;
   totalScore += scoreText(test.description, query) * weights.description;
   totalScore += scoreText(test.category, query) * weights.category;
-  totalScore += scoreText(test.methodFamily, query) * weights.methodFamily;
-  
+
   // Array fields - take best match
   const whenToUseScore = test.whenToUse.reduce((max, t) => Math.max(max, scoreText(t, query)), 0);
   totalScore += whenToUseScore * weights.whenToUse;
-  
-  const assumptionScore = test.assumptions.reduce((max, a) => Math.max(max, scoreText(a, query)), 0);
+
+  const assumptionScore = test.assumptions.reduce(
+    (max, a) => Math.max(max, scoreText(a, query)),
+    0
+  );
   totalScore += assumptionScore * weights.assumptions;
-  
-  
+
   return totalScore;
 }
 
@@ -130,11 +140,9 @@ export default function AllTests() {
   const searchString = useSearch();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedMethodFamily, setSelectedMethodFamily] = useState<string | null>(null);
   const [selectedOutcomeScale, setSelectedOutcomeScale] = useState<string | null>(null);
   const [selectedDesign, setSelectedDesign] = useState<string | null>(null);
-  const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
-  
+
   const [selectedTest, setSelectedTest] = useState<StatTest | null>(null);
   const [compareTests, setCompareTests] = useState<StatTest[]>([]);
   const [showCompare, setShowCompare] = useState(false);
@@ -144,7 +152,7 @@ export default function AllTests() {
     const params = new URLSearchParams(searchString);
     const testId = params.get("test");
     if (testId) {
-      const test = statisticalTests.find(t => t.id === testId);
+      const test = statisticalTests.find((t) => t.id === testId);
       if (test) {
         setSelectedTest(test);
       }
@@ -153,67 +161,53 @@ export default function AllTests() {
 
   const getFilteredTests = (excludeFilter?: string) => {
     return statisticalTests.filter((test) => {
-      const searchMatches = excludeFilter === 'search' || matchesSearch(test, searchQuery);
-      const matchesCategory = excludeFilter === 'category' || selectedCategory === null || 
-        categoryGroups.find(g => g.id === selectedCategory)?.tests.includes(test.id);
-      const matchesMethodFamily = excludeFilter === 'methodFamily' || selectedMethodFamily === null ||
-        test.methodFamily === selectedMethodFamily;
-      const matchesOutcomeScale = excludeFilter === 'outcomeScale' || selectedOutcomeScale === null ||
+      const searchMatches = excludeFilter === "search" || matchesSearch(test, searchQuery);
+      const matchesCategory =
+        excludeFilter === "category" ||
+        selectedCategory === null ||
+        categoryGroups.find((g) => g.id === selectedCategory)?.tests.includes(test.id);
+      const matchesOutcomeScale =
+        excludeFilter === "outcomeScale" ||
+        selectedOutcomeScale === null ||
         test.outcome === selectedOutcomeScale;
-      const matchesDesign = excludeFilter === 'design' || selectedDesign === null ||
-        test.design === selectedDesign;
-      const matchesLevel = excludeFilter === 'level' || selectedLevel === null ||
-        test.level === selectedLevel;
-      return searchMatches && matchesCategory && matchesMethodFamily && matchesOutcomeScale && matchesDesign && matchesLevel;
+      const matchesDesign =
+        excludeFilter === "design" || selectedDesign === null || test.design === selectedDesign;
+      return searchMatches && matchesCategory && matchesOutcomeScale && matchesDesign;
     });
   };
 
-  const methodFamilies = useMemo(() => {
-    const availableTests = getFilteredTests('methodFamily');
-    return Array.from(new Set(availableTests.map(t => t.methodFamily))).sort();
-  }, [searchQuery, selectedCategory, selectedOutcomeScale, selectedDesign, selectedLevel]);
-
   const outcomeScales = useMemo(() => {
-    const availableTests = getFilteredTests('outcomeScale');
-    return Array.from(new Set(availableTests.map(t => t.outcome).filter(Boolean))).sort() as string[];
-  }, [searchQuery, selectedCategory, selectedMethodFamily, selectedDesign, selectedLevel]);
+    const availableTests = getFilteredTests("outcomeScale");
+    return Array.from(
+      new Set(availableTests.map((t) => t.outcome).filter(Boolean))
+    ).sort() as string[];
+  }, [searchQuery, selectedCategory, selectedDesign]);
 
   const designs = useMemo(() => {
-    const availableTests = getFilteredTests('design');
-    return Array.from(new Set(availableTests.map(t => t.design).filter(Boolean))).sort() as string[];
-  }, [searchQuery, selectedCategory, selectedMethodFamily, selectedOutcomeScale, selectedLevel]);
+    const availableTests = getFilteredTests("design");
+    return Array.from(
+      new Set(availableTests.map((t) => t.design).filter(Boolean))
+    ).sort() as string[];
+  }, [searchQuery, selectedCategory, selectedOutcomeScale]);
 
-  const levels = useMemo(() => {
-    const order = ["basic", "intermediate", "advanced"];
-    const availableTests = getFilteredTests('level');
-    const unique = Array.from(new Set(availableTests.map(t => t.level).filter(Boolean))) as string[];
-    return unique.sort((a, b) => order.indexOf(a) - order.indexOf(b));
-  }, [searchQuery, selectedCategory, selectedMethodFamily, selectedOutcomeScale, selectedDesign]);
-
-  const filteredCategories = useMemo(() => {
-    const availableTests = getFilteredTests('category');
-    const categoryIdsWithTests = new Set<string>();
-    availableTests.forEach(test => {
-      categoryGroups.forEach(group => {
-        if (group.tests.includes(test.id)) {
-          categoryIdsWithTests.add(group.id);
-        }
-      });
-    });
-    return categoryGroups.filter(g => categoryIdsWithTests.has(g.id));
-  }, [searchQuery, selectedMethodFamily, selectedOutcomeScale, selectedDesign, selectedLevel]);
+  const categoriesWithCounts = useMemo(() => {
+    const availableTests = getFilteredTests("category");
+    return categoryGroups
+      .map((group) => {
+        const count = availableTests.filter((t) => group.tests.includes(t.id)).length;
+        return {
+          ...group,
+          count,
+        };
+      })
+      .filter((g) => g.count > 0);
+  }, [searchQuery, selectedOutcomeScale, selectedDesign]);
 
   useEffect(() => {
-    if (selectedCategory !== null && !filteredCategories.some(c => c.id === selectedCategory)) {
+    if (selectedCategory !== null && !categoriesWithCounts.some((c) => c.id === selectedCategory)) {
       setSelectedCategory(null);
     }
-  }, [filteredCategories, selectedCategory]);
-
-  useEffect(() => {
-    if (selectedMethodFamily !== null && !methodFamilies.includes(selectedMethodFamily)) {
-      setSelectedMethodFamily(null);
-    }
-  }, [methodFamilies, selectedMethodFamily]);
+  }, [categoriesWithCounts, selectedCategory]);
 
   useEffect(() => {
     if (selectedOutcomeScale !== null && !outcomeScales.includes(selectedOutcomeScale)) {
@@ -227,51 +221,40 @@ export default function AllTests() {
     }
   }, [designs, selectedDesign]);
 
-  useEffect(() => {
-    if (selectedLevel !== null && !levels.includes(selectedLevel)) {
-      setSelectedLevel(null);
-    }
-  }, [levels, selectedLevel]);
-
   // Pagination state
   const [visibleCount, setVisibleCount] = useState(12);
 
   // Reset visible count when filters change
   useEffect(() => {
     setVisibleCount(12);
-  }, [searchQuery, selectedCategory, selectedMethodFamily, selectedOutcomeScale, selectedDesign, selectedLevel]);
+  }, [searchQuery, selectedCategory, selectedOutcomeScale, selectedDesign]);
 
   const filteredTests = useMemo(() => {
     const filtered = statisticalTests.filter((test) => {
       // Use query directly for filtering
       const searchMatches = matchesSearch(test, searchQuery);
-      
-      const matchesCat = selectedCategory === null || 
-        categoryGroups.find(g => g.id === selectedCategory)?.tests.includes(test.id);
-      
-      const matchesMethodFamily = selectedMethodFamily === null ||
-        test.methodFamily === selectedMethodFamily;
-      
-      const matchesOutcomeScale = selectedOutcomeScale === null ||
-        test.outcome === selectedOutcomeScale;
-      
-      const matchesDesign = selectedDesign === null ||
-        test.design === selectedDesign;
-      
-      const matchesLevel = selectedLevel === null ||
-        test.level === selectedLevel;
-      
-      return searchMatches && matchesCat && matchesMethodFamily && 
-             matchesOutcomeScale && matchesDesign && matchesLevel;
+
+      const matchesCat =
+        selectedCategory === null ||
+        categoryGroups.find((g) => g.id === selectedCategory)?.tests.includes(test.id);
+
+      const matchesOutcomeScale =
+        selectedOutcomeScale === null || test.outcome === selectedOutcomeScale;
+
+      const matchesDesign = selectedDesign === null || test.design === selectedDesign;
+
+      return searchMatches && matchesCat && matchesOutcomeScale && matchesDesign;
     });
-    
+
     // Sort by relevance when there's a search query
     if (searchQuery.trim()) {
-      return filtered.sort((a, b) => getSearchScore(b, searchQuery) - getSearchScore(a, searchQuery));
+      return filtered.sort(
+        (a, b) => getSearchScore(b, searchQuery) - getSearchScore(a, searchQuery)
+      );
     }
-    
+
     return filtered;
-  }, [searchQuery, selectedCategory, selectedMethodFamily, selectedOutcomeScale, selectedDesign, selectedLevel]);
+  }, [searchQuery, selectedCategory, selectedOutcomeScale, selectedDesign]);
 
   // Get visible tests for rendering
   const visibleTests = useMemo(() => {
@@ -279,25 +262,23 @@ export default function AllTests() {
   }, [filteredTests, visibleCount]);
 
   const handleLoadMore = () => {
-    setVisibleCount(prev => prev + 12);
+    setVisibleCount((prev) => prev + 12);
   };
 
-  const hasActiveFilters = selectedCategory !== null || selectedMethodFamily !== null ||
-    selectedOutcomeScale !== null || selectedDesign !== null || selectedLevel !== null;
+  const hasActiveFilters =
+    selectedCategory !== null || selectedOutcomeScale !== null || selectedDesign !== null;
 
   const clearAllFilters = () => {
     setSelectedCategory(null);
-    setSelectedMethodFamily(null);
     setSelectedOutcomeScale(null);
     setSelectedDesign(null);
-    setSelectedLevel(null);
     setSearchQuery("");
   };
 
   const toggleCompare = useCallback((test: StatTest) => {
-    setCompareTests(prev => {
-      if (prev.some(t => t.id === test.id)) {
-        return prev.filter(t => t.id !== test.id);
+    setCompareTests((prev) => {
+      if (prev.some((t) => t.id === test.id)) {
+        return prev.filter((t) => t.id !== test.id);
       } else if (prev.length < 3) {
         return [...prev, test];
       }
@@ -310,9 +291,9 @@ export default function AllTests() {
   }, []);
 
   const handleAlternativeClick = useCallback((altId: string) => {
-    const altTest = statisticalTests.find(t => t.id === altId);
+    const altTest = statisticalTests.find((t) => t.id === altId);
     if (altTest) {
-      setSelectedTest(current => {
+      setSelectedTest((current) => {
         if (current) {
           setCompareTests([current, altTest]);
         }
@@ -321,7 +302,6 @@ export default function AllTests() {
       setShowCompare(true);
     }
   }, []);
-
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -343,7 +323,8 @@ export default function AllTests() {
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold">All Statistical Tests</h1>
             <p className="text-muted-foreground">
-              Browse our complete library of {statisticalTests.length} statistical tests and their use cases.
+              Browse our complete library of {statisticalTests.length} statistical tests and their
+              use cases.
             </p>
           </div>
 
@@ -360,22 +341,7 @@ export default function AllTests() {
                   data-testid="input-search-tests"
                 />
               </div>
-              <Select
-                value={selectedMethodFamily ?? "all"}
-                onValueChange={(value) => setSelectedMethodFamily(value === "all" ? null : value)}
-              >
-                <SelectTrigger className="w-40" data-testid="select-method-family">
-                  <SelectValue placeholder="Method" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Methods</SelectItem>
-                  {methodFamilies.map((family) => (
-                    <SelectItem key={family} value={family}>
-                      {family}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+
               <Select
                 value={selectedOutcomeScale ?? "all"}
                 onValueChange={(value) => setSelectedOutcomeScale(value === "all" ? null : value)}
@@ -387,7 +353,10 @@ export default function AllTests() {
                   <SelectItem value="all">All Outcomes</SelectItem>
                   {outcomeScales.map((scale) => (
                     <SelectItem key={scale} value={scale}>
-                      {scale}
+                      {scale
+                        .split(/[_-]/)
+                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(" ")}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -403,23 +372,10 @@ export default function AllTests() {
                   <SelectItem value="all">All Designs</SelectItem>
                   {designs.map((design) => (
                     <SelectItem key={design} value={design}>
-                      {design}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select
-                value={selectedLevel ?? "all"}
-                onValueChange={(value) => setSelectedLevel(value === "all" ? null : value)}
-              >
-                <SelectTrigger className="w-36" data-testid="select-level">
-                  <SelectValue placeholder="Level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Levels</SelectItem>
-                  {levels.map((level) => (
-                    <SelectItem key={level} value={level}>
-                      {level.charAt(0).toUpperCase() + level.slice(1)}
+                      {design
+                        .split(/[_-]/)
+                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(" ")}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -433,9 +389,18 @@ export default function AllTests() {
                 onClick={() => setSelectedCategory(null)}
                 data-testid="filter-all"
               >
-                All Categories
+                All Categories{" "}
+                <span
+                  className={`ml-1 ${
+                    selectedCategory === null
+                      ? "text-primary-foreground"
+                      : "text-muted-foreground/70"
+                  }`}
+                >
+                  ({statisticalTests.length})
+                </span>
               </Button>
-              {filteredCategories.map((category) => (
+              {categoriesWithCounts.map((category) => (
                 <Button
                   key={category.id}
                   variant={selectedCategory === category.id ? "default" : "outline"}
@@ -444,13 +409,27 @@ export default function AllTests() {
                   data-testid={`filter-${category.id}`}
                 >
                   {category.label}
+                  <span
+                    className={`ml-1 ${
+                      selectedCategory === category.id
+                        ? "text-primary-foreground"
+                        : "text-muted-foreground/70"
+                    }`}
+                  >
+                    ({category.count})
+                  </span>
                 </Button>
               ))}
             </div>
 
             {hasActiveFilters && (
               <div className="flex justify-center">
-                <Button variant="ghost" size="sm" onClick={clearAllFilters} data-testid="button-clear-filters">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearAllFilters}
+                  data-testid="button-clear-filters"
+                >
                   <X className="w-4 h-4 mr-1" />
                   Clear all filters
                 </Button>
@@ -461,9 +440,9 @@ export default function AllTests() {
           {compareTests.length > 0 && (
             <div className="flex items-center justify-center gap-2 flex-wrap">
               <span className="text-sm text-muted-foreground">Comparing:</span>
-              {compareTests.map(test => (
-                <Badge 
-                  key={test.id} 
+              {compareTests.map((test) => (
+                <Badge
+                  key={test.id}
                   variant="secondary"
                   className="cursor-pointer"
                   onClick={() => toggleCompare(test)}
@@ -482,9 +461,9 @@ export default function AllTests() {
                 <X className="w-4 h-4 mr-1" />
                 Clear All
               </Button>
-              <Button 
-                variant="default" 
-                size="sm" 
+              <Button
+                variant="default"
+                size="sm"
                 onClick={() => setShowCompare(true)}
                 data-testid="button-compare"
               >
@@ -498,15 +477,17 @@ export default function AllTests() {
             {visibleTests.length > 0 ? (
               <>
                 {visibleTests.map((test) => (
-                  <TestResultCard 
-                    key={test.id} 
+                  <TestResultCard
+                    key={test.id}
                     test={test}
                     onViewDetails={() => handleTestClick(test)}
                     onCompare={() => toggleCompare(test)}
-                    isComparing={compareTests.some(t => t.id === test.id)}
-                    canCompare={compareTests.length < 3 || compareTests.some(t => t.id === test.id)}
+                    isComparing={compareTests.some((t) => t.id === test.id)}
+                    canCompare={
+                      compareTests.length < 3 || compareTests.some((t) => t.id === test.id)
+                    }
                     onAlternativeClick={(altId) => {
-                      const altTest = statisticalTests.find(t => t.id === altId);
+                      const altTest = statisticalTests.find((t) => t.id === altId);
                       if (altTest) {
                         setCompareTests([test, altTest]);
                         setShowCompare(true);
@@ -514,7 +495,7 @@ export default function AllTests() {
                     }}
                   />
                 ))}
-                
+
                 {visibleTests.length < filteredTests.length && (
                   <div className="flex justify-center pt-4">
                     <Button variant="outline" onClick={handleLoadMore}>
@@ -541,7 +522,7 @@ export default function AllTests() {
         </div>
       </main>
 
-      <TestDetailSheet 
+      <TestDetailSheet
         test={selectedTest}
         onClose={() => setSelectedTest(null)}
         onAlternativeClick={handleAlternativeClick}
@@ -551,7 +532,9 @@ export default function AllTests() {
         tests={compareTests}
         open={showCompare}
         onClose={() => setShowCompare(false)}
-        onRemoveTest={(testId: string) => setCompareTests(compareTests.filter(t => t.id !== testId))}
+        onRemoveTest={(testId: string) =>
+          setCompareTests(compareTests.filter((t) => t.id !== testId))
+        }
         context="browse"
       />
     </div>

@@ -18,7 +18,7 @@ const mockTest: StatTest = {
   ],
   methodFamily: "Parametric",
   category: "Group Comparison",
-  rules: { requires: { goal: "compare_groups" } },
+  
 };
 
 export default function TestResultCardExample() {

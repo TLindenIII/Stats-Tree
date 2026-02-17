@@ -8,7 +8,16 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { CheckCircle, AlertCircle, Info, ArrowRight, Eye, GitCompare, ExternalLink, Code } from "lucide-react";
+import {
+  CheckCircle,
+  AlertCircle,
+  Info,
+  ArrowRight,
+  Eye,
+  GitCompare,
+  ExternalLink,
+  Code,
+} from "lucide-react";
 import { statisticalTests, type StatTest } from "@/lib/statsData";
 import { CodeBlock } from "@/components/ui/CodeBlock";
 import ReactMarkdown from "react-markdown";
@@ -25,21 +34,15 @@ interface TestResultCardProps {
   onAlternativeClick?: (testId: string) => void;
 }
 
-export const TestResultCard = React.memo(function TestResultCard({ 
-  test, 
-  isPrimary = false, 
+export const TestResultCard = React.memo(function TestResultCard({
+  test,
+  isPrimary = false,
   onViewDetails,
   onCompare,
   isComparing = false,
   canCompare = true,
-  onAlternativeClick
+  onAlternativeClick,
 }: TestResultCardProps) {
-  const levelColors: Record<string, string> = {
-    basic: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100",
-    intermediate: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100",
-    advanced: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100",
-  };
-
   return (
     <Card
       className={isPrimary ? "border-blue-500 border-2 shadow-md" : ""}
@@ -57,21 +60,12 @@ export const TestResultCard = React.memo(function TestResultCard({
           </div>
           <div className="flex gap-2 flex-wrap">
             <Badge variant="outline">{test.category}</Badge>
-            <Badge variant="secondary">{test.methodFamily}</Badge>
-            {test.level && (
-              <Badge className={levelColors[test.level] || ""}>
-                {test.level.charAt(0).toUpperCase() + test.level.slice(1)}
-              </Badge>
-            )}
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="text-muted-foreground">
-          <ReactMarkdown 
-            remarkPlugins={[remarkMath]} 
-            rehypePlugins={[rehypeKatex]}
-          >
+          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
             {test.description}
           </ReactMarkdown>
         </div>
@@ -79,13 +73,19 @@ export const TestResultCard = React.memo(function TestResultCard({
         {(test.outcome || test.design || test.predictorStructure || test.wikipediaUrl) && (
           <div className="flex gap-4 text-sm text-muted-foreground flex-wrap">
             {test.outcome && (
-              <span><strong>Outcome:</strong> {test.outcome}</span>
+              <span>
+                <strong>Outcome:</strong> {test.outcome}
+              </span>
             )}
             {test.design && (
-              <span><strong>Design:</strong> {test.design}</span>
+              <span>
+                <strong>Design:</strong> {test.design}
+              </span>
             )}
             {test.predictorStructure && (
-              <span><strong>Predictors:</strong> {test.predictorStructure}</span>
+              <span>
+                <strong>Predictors:</strong> {test.predictorStructure}
+              </span>
             )}
             {test.wikipediaUrl && (
               <a
@@ -116,10 +116,7 @@ export const TestResultCard = React.memo(function TestResultCard({
                   <li key={i} className="flex items-start gap-2 text-sm">
                     <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                     <div className="markdown-inline">
-                      <ReactMarkdown 
-                        remarkPlugins={[remarkMath]} 
-                        rehypePlugins={[rehypeKatex]}
-                      >
+                      <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                         {assumption}
                       </ReactMarkdown>
                     </div>
@@ -142,10 +139,7 @@ export const TestResultCard = React.memo(function TestResultCard({
                   <li key={i} className="flex items-start gap-2 text-sm">
                     <ArrowRight className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                     <div className="markdown-inline">
-                      <ReactMarkdown 
-                        remarkPlugins={[remarkMath]} 
-                        rehypePlugins={[rehypeKatex]}
-                      >
+                      <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                         {use}
                       </ReactMarkdown>
                     </div>
@@ -155,58 +149,60 @@ export const TestResultCard = React.memo(function TestResultCard({
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="alternatives">
-            <AccordionTrigger className="text-sm font-medium">
-              <span className="flex items-center gap-2">
-                <ArrowRight className="w-4 h-4" />
-                Alternative Tests
-              </span>
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="flex flex-wrap gap-2">
-                {test.alternativeLinks && test.alternativeLinks.length > 0 ? (
-                  test.alternativeLinks.map((altId) => {
-                    const altTest = statisticalTests.find(t => t.id === altId);
-                    if (!altTest) {
-                      return (
-                        <Badge key={altId} variant="outline">
-                          {altId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-                        </Badge>
-                      );
-                    }
-                    return onAlternativeClick ? (
-                      <Button
-                        key={altId}
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onAlternativeClick(altId)}
-                        data-testid={`alt-link-${altId}`}
-                      >
-                        {altTest.name}
-                      </Button>
-                    ) : (
-                      <a
-                        key={altId}
-                        href={`/tests?test=${altId}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        data-testid={`alt-link-${altId}`}
-                      >
+          {!isPrimary && (
+            <AccordionItem value="alternatives">
+              <AccordionTrigger className="text-sm font-medium">
+                <span className="flex items-center gap-2">
+                  <ArrowRight className="w-4 h-4" />
+                  Alternative Tests
+                </span>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="flex flex-wrap gap-2">
+                  {test.alternativeLinks && test.alternativeLinks.length > 0 ? (
+                    test.alternativeLinks.map((altId) => {
+                      const altTest = statisticalTests.find((t) => t.id === altId);
+                      if (!altTest) {
+                        return (
+                          <Badge key={altId} variant="outline">
+                            {altId
+                              .split("-")
+                              .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                              .join(" ")}
+                          </Badge>
+                        );
+                      }
+                      return onAlternativeClick ? (
                         <Button
+                          key={altId}
                           variant="outline"
                           size="sm"
+                          onClick={() => onAlternativeClick(altId)}
+                          data-testid={`alt-link-${altId}`}
                         >
                           {altTest.name}
                         </Button>
-                      </a>
-                    );
-                  })
-                ) : (
-                  <span className="text-sm text-muted-foreground">No alternatives listed.</span>
-                )}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
+                      ) : (
+                        <a
+                          key={altId}
+                          href={`/tests?test=${altId}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          data-testid={`alt-link-${altId}`}
+                        >
+                          <Button variant="outline" size="sm">
+                            {altTest.name}
+                          </Button>
+                        </a>
+                      );
+                    })
+                  ) : (
+                    <span className="text-sm text-muted-foreground">No alternatives listed.</span>
+                  )}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          )}
 
           <AccordionItem value="code-examples">
             <AccordionTrigger className="text-sm font-medium">
@@ -219,13 +215,20 @@ export const TestResultCard = React.memo(function TestResultCard({
               <div className="space-y-4">
                 <div>
                   <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">Python</Badge>
+                    <Badge variant="outline" className="text-xs">
+                      Python
+                    </Badge>
                   </h5>
-                  <CodeBlock code={test.pythonCode || `# Python code example coming soon`} lang="python" />
+                  <CodeBlock
+                    code={test.pythonCode || `# Python code example coming soon`}
+                    lang="python"
+                  />
                 </div>
                 <div>
                   <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">R</Badge>
+                    <Badge variant="outline" className="text-xs">
+                      R
+                    </Badge>
                   </h5>
                   <CodeBlock code={test.rCode || `# R code example coming soon`} lang="r" />
                 </div>
@@ -237,15 +240,20 @@ export const TestResultCard = React.memo(function TestResultCard({
         {(onViewDetails || onCompare) && (
           <div className="flex gap-2 pt-2">
             {onViewDetails && (
-              <Button variant="outline" size="sm" onClick={onViewDetails} data-testid={`view-details-${test.id}`}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onViewDetails}
+                data-testid={`view-details-${test.id}`}
+              >
                 <Eye className="w-4 h-4 mr-2" />
                 View Details
               </Button>
             )}
             {onCompare && (
-              <Button 
-                variant={isComparing ? "default" : "outline"} 
-                size="sm" 
+              <Button
+                variant={isComparing ? "default" : "outline"}
+                size="sm"
                 onClick={onCompare}
                 disabled={!canCompare && !isComparing}
                 data-testid={`compare-${test.id}`}

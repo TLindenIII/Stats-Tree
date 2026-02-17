@@ -8,6 +8,7 @@ interface Option {
 
 interface WizardQuestionProps {
   question: string;
+  description?: string;
   options: Option[];
   selectedValue: string | null;
   onSelect: (value: string) => void;
@@ -15,13 +16,17 @@ interface WizardQuestionProps {
 
 export function WizardQuestion({
   question,
+  description,
   options,
   selectedValue,
   onSelect,
 }: WizardQuestionProps) {
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold text-center">{question}</h2>
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-semibold">{question}</h2>
+        {description && <p className="text-muted-foreground">{description}</p>}
+      </div>
       <div className="grid gap-3 max-w-xl mx-auto">
         {options.map((option) => (
           <SelectionCard

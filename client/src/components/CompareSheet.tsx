@@ -1,14 +1,16 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CheckCircle, AlertCircle, ArrowRight, GitCompare, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  CheckCircle,
+  AlertCircle,
+  ArrowRight,
+  GitCompare,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import type { StatTest } from "@/lib/statsData";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
@@ -26,30 +28,27 @@ interface CompareSheetProps {
   context?: "wizard" | "browse";
 }
 
-export function CompareSheet({ 
-  tests, 
-  open, 
-  onClose, 
+export function CompareSheet({
+  tests,
+  open,
+  onClose,
   onRemoveTest,
   onPrev,
   onNext,
   hasPrev = false,
   hasNext = false,
-  context = "wizard"
+  context = "wizard",
 }: CompareSheetProps) {
   if (tests.length === 0) return null;
-
-  const levelColors: Record<string, string> = {
-    basic: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100",
-    intermediate: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100",
-    advanced: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100",
-  };
 
   const showNavigation = onPrev && onNext && (hasPrev || hasNext);
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className={`max-h-[90vh] p-0 overflow-hidden ${tests.length === 3 ? 'max-w-[90vw]' : 'max-w-4xl'}`} data-testid="compare-sheet">
+      <DialogContent
+        className={`max-h-[90vh] p-0 overflow-hidden ${tests.length === 3 ? "max-w-[90vw]" : "max-w-4xl"}`}
+        data-testid="compare-sheet"
+      >
         <DialogHeader className="px-6 pt-6 pb-4 border-b bg-muted/30">
           <DialogTitle className="flex items-center gap-2 text-xl">
             <GitCompare className="w-5 h-5 text-primary" />
@@ -58,36 +57,36 @@ export function CompareSheet({
         </DialogHeader>
 
         <ScrollArea className="max-h-[calc(90vh-100px)]">
-          <div className={`p-6 grid gap-4 grid-cols-1 ${tests.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
+          <div
+            className={`p-6 grid gap-4 grid-cols-1 ${tests.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2"}`}
+          >
             {tests.map((test, index) => (
-              <Card 
-                key={test.id} 
-                className={`relative flex flex-col ${context === "wizard" && index === 0 ? 'border-primary' : ''}`} 
+              <Card
+                key={test.id}
+                className={`relative flex flex-col ${context === "wizard" && index === 0 ? "border-primary" : ""}`}
                 data-testid={`compare-card-${test.id}`}
               >
                 {context === "wizard" && index === 0 && (
                   <Badge className="absolute -top-2.5 left-3 text-xs w-fit">Recommended</Badge>
                 )}
                 {context === "wizard" && index === 1 && (
-                  <Badge variant="secondary" className="absolute -top-2.5 left-3 text-xs w-fit">Alternative</Badge>
+                  <Badge variant="secondary" className="absolute -top-2.5 left-3 text-xs w-fit">
+                    Alternative
+                  </Badge>
                 )}
                 <CardHeader className="pb-3 pt-6">
-                  <CardTitle className="font-mono text-base leading-tight min-h-[2.5rem]">{test.name}</CardTitle>
+                  <CardTitle className="font-mono text-base leading-tight min-h-[2.5rem]">
+                    {test.name}
+                  </CardTitle>
                   <div className="flex gap-1 flex-wrap mt-2 min-h-[1.75rem]">
-                    <Badge variant="outline" className="text-xs">{test.category}</Badge>
-                    {test.level && (
-                      <Badge className={`text-xs ${levelColors[test.level] || ""}`}>
-                        {test.level.charAt(0).toUpperCase() + test.level.slice(1)}
-                      </Badge>
-                    )}
+                    <Badge variant="outline" className="text-xs">
+                      {test.category}
+                    </Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm">
                   <div className="text-muted-foreground text-xs min-h-[3rem]">
-                    <ReactMarkdown 
-                      remarkPlugins={[remarkMath]} 
-                      rehypePlugins={[rehypeKatex]}
-                    >
+                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                       {test.description}
                     </ReactMarkdown>
                   </div>
@@ -123,8 +122,8 @@ export function CompareSheet({
                         <li key={i} className="flex items-start gap-1.5 text-xs">
                           <CheckCircle className="w-3 h-3 text-primary mt-0.5 flex-shrink-0" />
                           <div className="markdown-inline">
-                            <ReactMarkdown 
-                              remarkPlugins={[remarkMath]} 
+                            <ReactMarkdown
+                              remarkPlugins={[remarkMath]}
                               rehypePlugins={[rehypeKatex]}
                             >
                               {assumption}
@@ -150,8 +149,8 @@ export function CompareSheet({
                         <li key={i} className="flex items-start gap-1.5 text-xs">
                           <ArrowRight className="w-3 h-3 text-muted-foreground mt-0.5 flex-shrink-0" />
                           <div className="markdown-inline">
-                            <ReactMarkdown 
-                              remarkPlugins={[remarkMath]} 
+                            <ReactMarkdown
+                              remarkPlugins={[remarkMath]}
                               rehypePlugins={[rehypeKatex]}
                             >
                               {use}

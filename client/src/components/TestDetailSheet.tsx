@@ -30,12 +30,14 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick, showWizardB
 
   return (
     <Dialog open={!!test} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[85vh] p-0 overflow-hidden" data-testid="test-detail-sheet">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b bg-muted/30">
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <Route className="w-5 h-5 text-primary" />
-            {test.name}
-          </DialogTitle>
+      <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden flex flex-col" data-testid="test-detail-sheet">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex items-center justify-between mb-2">
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Route className="w-5 h-5 text-primary" />
+              {test.name}
+            </DialogTitle>
+          </div>
           <DialogDescription>
             <ReactMarkdown 
               remarkPlugins={[remarkMath]} 
@@ -45,7 +47,7 @@ export function TestDetailSheet({ test, onClose, onAlternativeClick, showWizardB
             </ReactMarkdown>
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="max-h-[calc(85vh-140px)]">
+        <ScrollArea className="flex-1">
           <div className="p-6 space-y-6">
             <div className="space-y-4 p-4 bg-muted/50 rounded-md">
               <div>

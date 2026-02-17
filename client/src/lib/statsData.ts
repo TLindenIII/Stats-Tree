@@ -1,106 +1,3 @@
-// ── Union types for WizardContext ──────────────────────────────────────
-
-/** matches wizardLogic.tag_schema.goal */
-export type Goal =
-  | "compare_groups"
-  | "association"
-  | "categorical_association"
-  | "model_with_predictors"
-  | "unsupervised"
-  | "time_series"
-  | "survival"
-  | "power_planning"
-  | "diagnostics_posthoc_effectsize"
-  | "estimate";
-
-/** matches wizardLogic.tag_schema.outcome */
-export type Outcome =
-  | "continuous"
-  | "binary"
-  | "categorical"
-  | "count"
-  | "ordinal"
-  | "time_to_event"
-  | "none";
-
-/** matches wizardLogic.tag_schema.design */
-export type Design =
-  | "independent"
-  | "paired"
-  | "repeated"
-  | "clustered"
-  | "time-series"
-  | "longitudinal"
-  | "factorial"
-  | "none";
-
-/** matches wizardLogic.tag_schema.groups */
-export type Groups = "two" | "three_plus" | "none";
-
-/** matches wizardLogic.tag_schema.factors */
-export type Factors = "one" | "two_plus" | "none";
-
-/** matches wizardLogic.tag_schema.task */
-export type Task =
-  | "independence_test"
-  | "agreement"
-  | "effect_size"
-  | "forecasting"
-  | "stationarity"
-  | "model_adequacy"
-  | "multivariate_dynamics"
-  | "causality"
-  | "describe_survival"
-  | "compare_survival"
-  | "model_survival"
-  | "clustering"
-  | "dim_reduction"
-  | "power_sample_size"
-  | "none";
-
-/** matches wizardLogic.tag_schema.modeling_preference */
-export type ModelingPreference = "interpretable" | "predictive_ml" | "regularized" | "none";
-
-// ── WizardContext ──────────────────────────────────────────────────────
-
-export interface WizardContext {
-  goal?: Goal;
-  outcome?: Outcome;
-  design?: Design;
-  groups?: Groups;
-  factors?: Factors;
-  task?: Task;
-  modeling_preference?: ModelingPreference;
-  assoc_pair?: "cont_cont" | "bin_cont" | "other" | "unknown";
-  control_vars?: "yes" | "no" | "unknown";
-  diag?: "normality" | "equal_variance" | "autocorr" | "heterosk" | "multiple_testing" | "posthoc" | "effect_size" | "unknown";
-}
-
-// ── Wizard Step & Test interfaces ──────────────────────────────────────
-
-export interface WizardStep {
-  id: keyof WizardContext;
-  title: string;
-  question: string;
-  options: {
-    value: string;
-    label: string;
-    description?: string;
-  }[];
-  askWhen?: (ctx: WizardContext) => boolean;
-}
-
-export type TestKind = "primary" | "assumption" | "posthoc" | "diagnostic" | "effectsize" | "resampling" | "planning";
-
-export interface StatTestRule {
-  /** Hard constraints: must all pass if present */
-  requires?: Partial<WizardContext>;
-  /** Soft scoring boosts */
-  boosts?: Partial<Record<keyof WizardContext, Record<string, number>>>;
-  /** What kind of method this is */
-  kind?: TestKind;
-}
-
 export interface StatTest {
   id: string;
   wikipediaUrl?: string | null;
@@ -109,17 +6,15 @@ export interface StatTest {
   assumptions: string[];
   whenToUse: string[];
 
-  methodFamily: string;
   category: string;
 
-  outcome?: Outcome | null;
+  outcome?: string | null;
   predictorStructure?: string | null;
-  design?: Design | null;
-  level?: string | null;
+  design?: string | null;
   alternativeLinks?: string[];
   pythonCode?: string;
   rCode?: string;
-  rules: StatTestRule;
+  // rules property removed
 }
 
 // ── Recommendation output ──────────────────────────────────────────────
@@ -130,32 +25,126 @@ export interface Recommendation {
   companions: StatTest[];
 }
 
-
-
 export const statisticalTests: StatTest[] = [
+  // One Sample
+  {
+    id: "one-sample-t-test",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Student%27s_t-test#One-sample_t-test",
+    name: "One-Sample t-Test",
+    description:
+      "Tests whether the mean of a single sample differs from a specified reference (hypothesized) mean.",
+    assumptions: [
+      "Independent observations",
+      "Numeric outcome",
+      "Population (or sample) approximately normal, or n large with no extreme outliers",
+    ],
+    whenToUse: [
+      "Compare a sample mean to a known/hypothesized value ($\mu_0$)",
+      "You have one group and a continuous outcome",
+      "You want a t-based CI and p-value for the mean difference from $\mu_0$",
+    ],
+    category: "One Sample",
+    outcome: "continuous",
+    predictorStructure: "none",
+    design: "independent",
+    alternativeLinks: ["wilcoxon-signed-rank", "permutation-test", "bayesian-t-test"],
+    pythonCode: `
+# x is a 1D array-like of observations
+# mu0 is the hypothesized population mean
+mu0 = 0.0
+t_stat, p_val = scipy.stats.ttest_1samp(x, popmean=mu0)
+
+# Optional: (1 - alpha) confidence interval for mean difference (mean(x) - mu0)
+alpha = 0.05
+x = np.asarray(x, dtype=float)
+n = x.size
+df = n - 1
+diff_mean = x.mean() - mu0
+se = x.std(ddof=1) / np.sqrt(n)
+tcrit = scipy.stats.t.ppf(1 - alpha / 2, df)
+ci = (diff_mean - tcrit * se, diff_mean + tcrit * se)
+  `.trim(),
+    rCode: `
+# x is a numeric vector of observations
+# mu0 is the hypothesized population mean
+mu0 <- 0
+t_out <- t.test(x, mu = mu0)
+# Optional: extract t statistic, p-value, and confidence interval
+t_stat <- unname(t_out$statistic)
+p_val  <- t_out$p.value
+ci     <- t_out$conf.int
+  `.trim(),
+  },
+  {
+    id: "one-proportion-z-test",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/One-proportion_z-test",
+    name: "One-Proportion z-Test",
+    description:
+      "Normal-approximation test for whether a sample proportion differs from a hypothesized value.",
+    assumptions: [
+      "Binary outcome",
+      "Independent trials",
+      "Large-sample normal approximation is reasonable (e.g., n*p0 and n*(1-p0) sufficiently large)",
+    ],
+    whenToUse: [
+      "One-sample proportion test against p0 with moderate/large n",
+      "Quick approximation when exact binomial is not required",
+    ],
+    category: "One Sample",
+    outcome: "binary",
+    predictorStructure: "none",
+    design: "independent",
+    alternativeLinks: ["binomial-test"],
+    pythonCode: ``,
+    rCode: ``,
+  },
+  {
+    id: "binomial-test",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Binomial_test",
+    name: "Exact Binomial Test",
+    description:
+      "Exact test for whether the probability of success in Bernoulli trials differs from a hypothesized value; also provides exact confidence intervals.",
+    assumptions: [
+      "Binary outcome (success/failure)",
+      "Independent trials",
+      "Constant probability of success across trials",
+    ],
+    whenToUse: [
+      "One-sample proportion test against a hypothesized p0",
+      "Small samples or when normal approximation is questionable",
+      "Exact CI for a proportion",
+    ],
+    category: "One Sample",
+    outcome: "binary",
+    predictorStructure: "none",
+    design: "independent",
+    alternativeLinks: ["one-proportion-z-test", "bootstrap"],
+    pythonCode: ``,
+    rCode: ``,
+  },
+
   // Group Comparison - Parametric
   {
     id: "t-test-independent",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Student%27s_t-test",
     name: "Independent Samples (Pooled) t-Test",
-    description: "Compares means of two independent groups to determine if they are statistically different.",
+    description:
+      "Compares means of two independent groups to determine if they are statistically different.",
     assumptions: [
       "Independent observations within and between groups",
       "Numeric outcome",
       "Difference of means ~ normal (or n large; no extreme outliers)",
-      "Variances similar"
+      "Variances similar",
     ],
     whenToUse: [
       "Compare means of two independent groups",
       "Data roughly symmetric or n moderately large",
-      "Variances similar"
+      "Variances similar",
     ],
-    methodFamily: "Parametric",
     category: "Group Comparison",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["mann-whitney", "welch-t-test", "bayesian-t-test"],
     pythonCode: `
 # a and b are 1D arrays of observations
@@ -165,34 +154,28 @@ t_pooled, p_val = scipy.stats.ttest_ind(a, b, equal_var=True)
 # a and b are numeric vectors of observations
 t_pooled <- t.test(a, b, var.equal = TRUE)
 `.trim(),
-    rules: {
-      requires: { goal: "compare_groups", outcome: "continuous", groups: "two", design: "independent" },
-      boosts: {
-      },
-    },
   },
   {
     id: "paired-t-test",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Student%27s_t-test",
     name: "Paired Samples t-Test",
-    description: "Compares means from the same group at two different times or under two different conditions.",
+    description:
+      "Compares means from the same group at two different times or under two different conditions.",
     assumptions: [
       "Paired/matched observations",
       "Pairs independent of other pairs",
       "Numeric outcome",
-      "Differences $d_i = x_{1,i} - x_{2,i}$ ~ normal (or n large; no extreme outliers in $d_i$)"
+      "Differences $d_i = x_{1,i} - x_{2,i}$ ~ normal (or n large; no extreme outliers in $d_i$)",
     ],
     whenToUse: [
       "Before-after / within-subject comparisons",
       "Matched pairs / crossover designs",
-      "Analyze the mean of within-pair differences"
+      "Analyze the mean of within-pair differences",
     ],
-    methodFamily: "Parametric",
     category: "Group Comparison",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "paired",
-    level: "basic",
     alternativeLinks: ["wilcoxon-signed-rank"],
     pythonCode: `
 # a and b are paired 1D arrays: each position i is the same subject/unit measured twice
@@ -204,77 +187,94 @@ t_paired, p_val = scipy.stats.ttest_rel(a, b)
 # (e.g., pre vs post, or condition A vs condition B), so length(a) == length(b).
 t_paired <- t.test(a, b, paired = TRUE)
     `.trim(),
-    rules: {
-      requires: { goal: "compare_groups", outcome: "continuous", groups: "two", design: "paired" },
-      boosts: {
-      },
-    },
   },
   {
     id: "one-way-anova",
     wikipediaUrl: "https://en.wikipedia.org/wiki/One-way_analysis_of_variance",
     name: "One-Way ANOVA",
-    description: "Tests whether there are statistically significant differences between the means of three or more independent groups.",
-    assumptions: ["Normal distribution in each group", "Equal variances (homoscedasticity)", "Independent observations"],
+    description:
+      "Tests whether there are statistically significant differences between the means of three or more independent groups.",
+    assumptions: [
+      "Normal distribution in each group",
+      "Equal variances (homoscedasticity)",
+      "Independent observations",
+    ],
     whenToUse: ["Comparing 3+ group means", "One categorical predictor", "Continuous outcome"],
-    methodFamily: "Parametric",
     category: "Group Comparison",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["kruskal-wallis", "welch-anova", "bayesian-anova"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "compare_groups", outcome: "continuous", groups: "three_plus", design: "independent" },
-    boosts: {
-    },
-  },
   },
   {
     id: "two-way-anova",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Two-way_analysis_of_variance",
     name: "Two-Way ANOVA",
-    description: "Tests the effect of two independent categorical variables on a continuous outcome, including their interaction.",
-    assumptions: ["Normal distribution", "Equal variances", "Independent observations", "No significant outliers"],
-    whenToUse: ["Two categorical predictors", "Factorial experimental design", "Testing interaction effects"],
-    methodFamily: "Parametric",
+    description:
+      "Tests the effect of two independent categorical variables on a continuous outcome, including their interaction.",
+    assumptions: [
+      "Normal distribution",
+      "Equal variances",
+      "Independent observations",
+      "No significant outliers",
+    ],
+    whenToUse: [
+      "Two categorical predictors",
+      "Factorial experimental design",
+      "Testing interaction effects",
+    ],
     category: "Group Comparison",
     outcome: "continuous",
     predictorStructure: "multiple categorical",
     design: "factorial",
-    level: "intermediate",
     alternativeLinks: ["linear-mixed-model", "manova"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "compare_groups", outcome: "continuous", groups: "three_plus", design: "independent" },
-    boosts: {
-    },
-  },
   },
   {
     id: "repeated-measures-anova",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Repeated_measures_design",
     name: "Repeated Measures ANOVA",
-    description: "Tests differences across multiple time points or conditions for the same subjects.",
+    description:
+      "Tests differences across multiple time points or conditions for the same subjects.",
     assumptions: ["Sphericity", "Normal distribution", "No significant outliers"],
-    whenToUse: ["Multiple measurements on same subjects", "Longitudinal within-subject design", "Before-during-after comparisons"],
-    methodFamily: "Parametric",
+    whenToUse: [
+      "Multiple measurements on same subjects",
+      "Longitudinal within-subject design",
+      "Before-during-after comparisons",
+    ],
     category: "Group Comparison",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "repeated",
-    level: "intermediate",
     alternativeLinks: ["friedman-test", "linear-mixed-model"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "compare_groups", outcome: "continuous", groups: "three_plus", design: "repeated" },
-    boosts: {
-    },
   },
+  {
+    id: "two-proportion-z-test",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Two-proportion_z-test",
+    name: "Two-Proportion z-Test",
+    description:
+      "Tests whether two independent proportions differ using a normal approximation (pooled under the null).",
+    assumptions: [
+      "Binary outcome",
+      "Independent samples",
+      "Large-sample normal approximation is reasonable in both groups",
+    ],
+    whenToUse: [
+      "Compare two independent proportions (A vs B)",
+      "Moderate/large sample sizes with expected successes/failures sufficiently large",
+    ],
+    category: "Categorical",
+    outcome: "binary",
+    predictorStructure: "single categorical",
+    design: "independent",
+    alternativeLinks: ["fisher-exact", "chi-square-2x2"],
+    pythonCode: ``,
+    rCode: ``,
   },
   // Group Comparison - Non-parametric
   {
@@ -282,162 +282,147 @@ t_paired <- t.test(a, b, paired = TRUE)
     wikipediaUrl: "https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test",
     name: "Mann-Whitney U Test",
     description: "Non-parametric test that compares distributions of two independent groups.",
-    assumptions: ["Independent samples", "Ordinal or continuous outcome", "Similar distribution shapes"],
+    assumptions: [
+      "Independent samples",
+      "Ordinal or continuous outcome",
+      "Similar distribution shapes",
+    ],
     whenToUse: ["Non-normal distributions", "Ordinal data", "Small sample sizes"],
-    methodFamily: "Nonparametric",
     category: "Group Comparison",
     outcome: "ordinal",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["t-test-independent", "permutation-test"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "compare_groups", groups: "two", design: "independent" },
-    boosts: {
-      outcome: { continuous: 2, ordinal: 3 },
-    },
-  },
   },
   {
     id: "wilcoxon-signed-rank",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test",
     name: "Wilcoxon Signed-Rank Test",
     description: "Non-parametric test for comparing two related samples or repeated measurements.",
-    assumptions: ["Paired observations", "Ordinal or continuous outcome", "Symmetric distribution of differences"],
-    whenToUse: ["Paired data with non-normal differences", "Ordinal outcomes", "Before-after comparisons"],
-    methodFamily: "Nonparametric",
+    assumptions: [
+      "Paired observations",
+      "Ordinal or continuous outcome",
+      "Symmetric distribution of differences",
+    ],
+    whenToUse: [
+      "Paired data with non-normal differences",
+      "Ordinal outcomes",
+      "Before-after comparisons",
+    ],
     category: "Group Comparison",
     outcome: "ordinal",
     predictorStructure: "single categorical",
     design: "paired",
-    level: "basic",
     alternativeLinks: ["paired-t-test"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "compare_groups", groups: "two", design: "paired" },
-    boosts: {
-      outcome: { continuous: 2, ordinal: 3 },
-    },
-  },
   },
   {
     id: "kruskal-wallis",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Kruskal%E2%80%93Wallis_test",
     name: "Kruskal-Wallis H Test",
-    description: "Non-parametric alternative to one-way ANOVA for comparing three or more independent groups.",
-    assumptions: ["Independent samples", "Ordinal or continuous outcome", "Similar distribution shapes"],
-    whenToUse: ["Comparing 3+ groups with non-normal data", "Ordinal outcomes", "Unequal group sizes"],
-    methodFamily: "Nonparametric",
+    description:
+      "Non-parametric alternative to one-way ANOVA for comparing three or more independent groups.",
+    assumptions: [
+      "Independent samples",
+      "Ordinal or continuous outcome",
+      "Similar distribution shapes",
+    ],
+    whenToUse: [
+      "Comparing 3+ groups with non-normal data",
+      "Ordinal outcomes",
+      "Unequal group sizes",
+    ],
     category: "Group Comparison",
     outcome: "ordinal",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["one-way-anova", "dunn-test"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "compare_groups", groups: "three_plus", design: "independent" },
-    boosts: {
-      outcome: { continuous: 2, ordinal: 3 },
-    },
-  },
   },
   {
     id: "friedman-test",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Friedman_test",
     name: "Friedman Test",
-    description: "Non-parametric alternative to repeated measures ANOVA for ordinal or non-normal data.",
-    assumptions: ["Related samples", "Ordinal or continuous outcome", "Same subjects across conditions"],
+    description:
+      "Non-parametric alternative to repeated measures ANOVA for ordinal or non-normal data.",
+    assumptions: [
+      "Related samples",
+      "Ordinal or continuous outcome",
+      "Same subjects across conditions",
+    ],
     whenToUse: ["Repeated measures with non-normal data", "Ordinal outcomes", "Blocked designs"],
-    methodFamily: "Nonparametric",
     category: "Group Comparison",
     outcome: "ordinal",
     predictorStructure: "single categorical",
     design: "repeated",
-    level: "intermediate",
     alternativeLinks: ["repeated-measures-anova"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "compare_groups", groups: "three_plus", design: "repeated" },
-    boosts: {
-      outcome: { continuous: 2, ordinal: 3 },
-    },
   },
-  },
+
   // Relationship/Correlation
   {
     id: "pearson-correlation",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Pearson_correlation_coefficient",
     name: "Pearson Correlation",
     description: "Measures the linear relationship between two continuous variables.",
-    assumptions: ["Linear relationship", "Bivariate normality", "No outliers", "Continuous variables"],
-    whenToUse: ["Measuring linear association", "Both variables continuous", "Normally distributed data"],
-    methodFamily: "Parametric",
+    assumptions: [
+      "Linear relationship",
+      "Bivariate normality",
+      "No outliers",
+      "Continuous variables",
+    ],
+    whenToUse: [
+      "Measuring linear association",
+      "Both variables continuous",
+      "Normally distributed data",
+    ],
     category: "Correlation",
     outcome: "continuous",
     predictorStructure: "single continuous",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["spearman-correlation", "kendall-tau"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "association" },
-    boosts: {
-      outcome: { continuous: 3 },
-    },
-  },
   },
   {
     id: "spearman-correlation",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient",
     name: "Spearman Rank Correlation",
     description: "Non-parametric measure of monotonic relationship between two variables.",
-    assumptions: ["Monotonic relationship", "Ordinal or continuous data", "Independent observations"],
+    assumptions: [
+      "Monotonic relationship",
+      "Ordinal or continuous data",
+      "Independent observations",
+    ],
     whenToUse: ["Non-linear monotonic relationships", "Ordinal data", "Outliers present"],
-    methodFamily: "Nonparametric",
     category: "Correlation",
     outcome: "ordinal",
     predictorStructure: "single continuous",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["pearson-correlation", "kendall-tau"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "association" },
-    boosts: {
-      outcome: { continuous: 2, ordinal: 3 },
-    },
-  },
   },
   {
     id: "partial-correlation",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Partial_correlation",
     name: "Partial Correlation",
-    description: "Measures association between two variables while controlling for one or more other variables.",
+    description:
+      "Measures association between two variables while controlling for one or more other variables.",
     assumptions: ["Linear relationships", "No multicollinearity", "Continuous variables"],
     whenToUse: ["Controlling for confounders", "Isolating relationships", "Multiple predictors"],
-    methodFamily: "Parametric",
     category: "Correlation",
     outcome: "continuous",
     predictorStructure: "multiple continuous",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["multiple-regression"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "association" },
-    boosts: {
-      outcome: { continuous: 3 },
-    },
-  },
   },
   // Regression
   {
@@ -445,94 +430,86 @@ t_paired <- t.test(a, b, paired = TRUE)
     wikipediaUrl: "https://en.wikipedia.org/wiki/Linear_regression",
     name: "Linear Regression",
     description: "Models the relationship between a continuous outcome and one or more predictors.",
-    assumptions: ["Linear relationship", "Normal residuals", "Homoscedasticity", "Independence of errors"],
-    whenToUse: ["Predicting continuous outcomes", "Multiple predictors", "Quantifying relationships"],
-    methodFamily: "Regression-based",
+    assumptions: [
+      "Linear relationship",
+      "Normal residuals",
+      "Homoscedasticity",
+      "Independence of errors",
+    ],
+    whenToUse: [
+      "Predicting continuous outcomes",
+      "Multiple predictors",
+      "Quantifying relationships",
+    ],
     category: "Regression",
     outcome: "continuous",
     predictorStructure: "single continuous",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["multiple-regression", "robust-regression", "bayesian-regression"],
     pythonCode: "",
-    rCode: "",  
-    rules: {
-    requires: { goal: "model_with_predictors", outcome: "continuous" },
-    boosts: {
-      modeling_preference: { inference: 3, prediction: 1 },
-    },
-  },
+    rCode: "",
   },
   {
     id: "multiple-regression",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Linear_regression",
     name: "Multiple Linear Regression",
-    description: "Models relationship between continuous outcome and multiple predictors simultaneously.",
-    assumptions: ["Linear relationships", "Normal residuals", "No multicollinearity", "Homoscedasticity"],
+    description:
+      "Models relationship between continuous outcome and multiple predictors simultaneously.",
+    assumptions: [
+      "Linear relationships",
+      "Normal residuals",
+      "No multicollinearity",
+      "Homoscedasticity",
+    ],
     whenToUse: ["Multiple predictors", "Controlling for confounders", "Prediction with covariates"],
-    methodFamily: "Regression-based",
     category: "Regression",
     outcome: "continuous",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["linear-regression", "lasso-ridge", "elastic-net"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", outcome: "continuous" },
-    boosts: {
-      modeling_preference: { inference: 3, prediction: 1 },
-    },
-  },
   },
   {
     id: "logistic-regression",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Logistic_regression",
     name: "Logistic Regression",
     description: "Models the probability of a binary outcome based on one or more predictors.",
-    assumptions: ["Binary outcome", "Independence of observations", "No multicollinearity", "Linear relationship with log-odds"],
+    assumptions: [
+      "Binary outcome",
+      "Independence of observations",
+      "No multicollinearity",
+      "Linear relationship with log-odds",
+    ],
     whenToUse: ["Binary classification", "Odds ratio estimation", "Multiple predictors"],
-    methodFamily: "Regression-based",
     category: "Regression",
     outcome: "binary",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["probit-regression", "random-forest", "svm"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", outcome: "binary" },
-    boosts: {
-      modeling_preference: { interpretable: 3, predictive_ml: 1 },
-      design: { none: 1 },
-    },
-  },
   },
   {
     id: "poisson-regression",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Poisson_regression",
     name: "Poisson Regression",
-    description: "Models count data as a function of predictors, assuming counts follow a Poisson distribution.",
-    assumptions: ["Count outcome", "Mean equals variance", "Independence", "Log-linear relationship"],
+    description:
+      "Models count data as a function of predictors, assuming counts follow a Poisson distribution.",
+    assumptions: [
+      "Count outcome",
+      "Mean equals variance",
+      "Independence",
+      "Log-linear relationship",
+    ],
     whenToUse: ["Count outcomes", "Rate data", "Event frequencies"],
-    methodFamily: "Regression-based",
     category: "Regression",
     outcome: "count",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["negative-binomial", "zero-inflated-poisson"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", outcome: "count" },
-    boosts: {
-      modeling_preference: { interpretable: 3, predictive_ml: 1 },
-      design: { none: 1 },
-    },
-  },
   },
   {
     id: "ordinal-regression",
@@ -541,47 +518,38 @@ t_paired <- t.test(a, b, paired = TRUE)
     description: "Models ordinal outcomes with three or more ordered categories.",
     assumptions: ["Ordinal outcome", "Proportional odds", "Independence"],
     whenToUse: ["Ordinal outcomes (Likert scales)", "Ranked categories", "Multiple predictors"],
-    methodFamily: "Regression-based",
     category: "Regression",
     outcome: "ordinal",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["logistic-regression", "multinomial-logistic"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", outcome: "ordinal" },
-    boosts: {
-      modeling_preference: { interpretable: 3, predictive_ml: 1 },
-      design: { none: 1 },
-    },
-  },
   },
   // Categorical Analysis
   {
     id: "chi-square",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Chi-squared_test",
     name: "Chi-Square Test of Independence",
-    description: "Tests whether there is a significant association between two categorical variables.",
-    assumptions: ["Expected cell count >= 5 in 80% of cells", "Independent observations", "Categorical variables"],
-    whenToUse: ["Testing association between categorical variables", "Contingency tables", "Independence testing"],
-    methodFamily: "Nonparametric",
+    description:
+      "Tests whether there is a significant association between two categorical variables.",
+    assumptions: [
+      "Expected cell count >= 5 in 80% of cells",
+      "Independent observations",
+      "Categorical variables",
+    ],
+    whenToUse: [
+      "Testing association between categorical variables",
+      "Contingency tables",
+      "Independence testing",
+    ],
     category: "Categorical",
     outcome: "categorical",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["fisher-exact", "cramers-v"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { outcome: "categorical" },
-    boosts: {
-      goal: { categorical_assoc: 3, compare: 3 },
-
-    },
-  },
   },
   {
     id: "chi-square-2x2",
@@ -590,46 +558,54 @@ t_paired <- t.test(a, b, paired = TRUE)
     description: "Tests association between two binary variables (large sample).",
     assumptions: ["Expected cell count >= 5", "Independent observations", "2x2 table"],
     whenToUse: ["Testing association in 2x2 tables", "Sample size sufficient"],
-    methodFamily: "Nonparametric",
     category: "Categorical",
     outcome: "categorical",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["fisher-exact", "mcnemar-test"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { outcome: "categorical" },
-    boosts: {
-      goal: { categorical_assoc: 3, compare: 3 },
-
-    },
   },
+  {
+    id: "fisher-freeman-halton",
+    wikipediaUrl:
+      "https://en.wikipedia.org/wiki/Fisher%27s_exact_test#Freeman%E2%80%93Halton_extension",
+    name: "Fisher-Freeman-Halton Exact Test (rxc)",
+    description:
+      "Exact test of independence for rxc contingency tables (extension of Fisher's exact test).",
+    assumptions: [
+      "rxc contingency table",
+      "Fixed marginals (conditional framework)",
+      "Independence",
+    ],
+    whenToUse: [
+      "Small sample categorical association in rxc tables",
+      "Expected counts too small for chi-square approximation",
+      "Exact p-value preferred over asymptotic chi-square",
+    ],
+    category: "Categorical",
+    outcome: "categorical",
+    predictorStructure: "single categorical",
+    design: "independent",
+    alternativeLinks: ["chi-square", "fisher-exact"],
+    pythonCode: ``,
+    rCode: ``,
   },
   {
     id: "fisher-exact",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Fisher%27s_exact_test",
     name: "Fisher's Exact Test",
-    description: "Exact test for association in 2x2 contingency tables, especially with small samples.",
+    description:
+      "Exact test for association in 2x2 contingency tables, especially with small samples.",
     assumptions: ["2x2 table", "Fixed marginals", "Independent observations"],
     whenToUse: ["Small sample sizes", "Expected counts < 5", "2x2 tables"],
-    methodFamily: "Nonparametric",
     category: "Categorical",
     outcome: "categorical",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["chi-square"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { groups: "two", design: "independent" },
-    boosts: {
-      goal: { categorical_assoc: 3, compare: 3 },
-
-    },
-  },
   },
   {
     id: "mcnemar-test",
@@ -638,71 +614,80 @@ t_paired <- t.test(a, b, paired = TRUE)
     description: "Tests for differences in paired proportions or matched case-control studies.",
     assumptions: ["Paired binary data", "Matched samples", "Sufficient discordant pairs"],
     whenToUse: ["Before-after binary outcomes", "Matched pairs", "Diagnostic test comparison"],
-    methodFamily: "Nonparametric",
     category: "Categorical",
     outcome: "binary",
     predictorStructure: "single categorical",
     design: "paired",
-    level: "intermediate",
     alternativeLinks: ["cochran-q"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "compare_groups", design: "paired" },
-    boosts: {
-    },
-  },
   },
   // Mixed/Multilevel Models
   {
     id: "linear-mixed-model",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Linear_mixed-effects_model",
     name: "Linear Mixed Model",
-    description: "Models continuous outcomes with both fixed and random effects for hierarchical/clustered data.",
-    assumptions: ["Normal residuals", "Linear relationships", "Random effects normally distributed"],
+    description:
+      "Models continuous outcomes with both fixed and random effects for hierarchical/clustered data.",
+    assumptions: [
+      "Normal residuals",
+      "Linear relationships",
+      "Random effects normally distributed",
+    ],
     whenToUse: ["Clustered/nested data", "Repeated measures", "Unbalanced designs"],
-    methodFamily: "Mixed Models",
     category: "Mixed Models",
     outcome: "continuous",
     predictorStructure: "multiple mixed",
     design: "longitudinal",
-    level: "advanced",
     alternativeLinks: ["glmm", "repeated-measures-anova"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", design: "clustered" },
-    boosts: {
-      outcome: { continuous: 3 },
-      design: { clustered: 3, repeated: 2 },
-      modeling_preference: { inference: 2 },
-    },
-  },
   },
   {
     id: "glmm",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Generalized_linear_mixed_model",
     name: "Generalized Linear Mixed Model",
     description: "Extends GLM to include random effects for non-normal outcomes with clustering.",
-    assumptions: ["Appropriate link function", "Random effects specification", "Conditional independence"],
-    whenToUse: ["Non-normal outcomes with clustering", "Binary/count data in hierarchical structures"],
-    methodFamily: "Mixed Models",
+    assumptions: [
+      "Appropriate link function",
+      "Random effects specification",
+      "Conditional independence",
+    ],
+    whenToUse: [
+      "Non-normal outcomes with clustering",
+      "Binary/count data in hierarchical structures",
+    ],
     category: "Mixed Models",
     outcome: "binary",
     predictorStructure: "multiple mixed",
     design: "longitudinal",
-    level: "advanced",
     alternativeLinks: ["linear-mixed-model", "gee"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", design: "clustered" },
-    boosts: {
-      outcome: { binary: 3, count: 3, ordinal: 2 },
-      design: { clustered: 3, repeated: 2 },
-      modeling_preference: { inference: 2 },
-    },
   },
+  {
+    id: "gee",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Generalized_estimating_equation",
+    name: "Generalized Estimating Equations (GEE)",
+    description:
+      "Marginal (population-averaged) regression for correlated/clustered data, specifying a working correlation structure.",
+    assumptions: [
+      "Clustered or repeated observations",
+      "Correct mean model specification",
+      "Working correlation structure chosen (robust sandwich SEs mitigate misspecification)",
+    ],
+    whenToUse: [
+      "Repeated measures / clustered outcomes when interest is population-averaged effects",
+      "Binary/count/continuous outcomes with correlated responses",
+      "Alternative to GLMM when random effects are not the focus",
+    ],
+    category: "Mixed Models",
+    outcome: "binary",
+    predictorStructure: "multiple mixed",
+    design: "clustered",
+    alternativeLinks: ["glmm", "linear-mixed-model"],
+    pythonCode: ``,
+    rCode: ``,
   },
   // Time Series
   {
@@ -710,44 +695,35 @@ t_paired <- t.test(a, b, paired = TRUE)
     wikipediaUrl: "https://en.wikipedia.org/wiki/Autoregressive_integrated_moving_average",
     name: "ARIMA Model",
     description: "Autoregressive integrated moving average model for time series forecasting.",
-    assumptions: ["Stationarity (after differencing)", "No seasonality (or use SARIMA)", "Constant variance"],
+    assumptions: [
+      "Stationarity (after differencing)",
+      "No seasonality (or use SARIMA)",
+      "Constant variance",
+    ],
     whenToUse: ["Time series forecasting", "Trend modeling", "Autocorrelated data"],
-    methodFamily: "Time-series",
     category: "Time Series",
     outcome: "continuous",
     predictorStructure: "none",
     design: "time-series",
-    level: "intermediate",
     alternativeLinks: ["exponential-smoothing", "prophet", "var"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "time_series", task: "forecasting" },
-    boosts: {
-    },
-  },
   },
   {
     id: "exponential-smoothing",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Exponential_smoothing",
     name: "Exponential Smoothing",
-    description: "Weighted moving average methods for time series forecasting with trend and seasonality.",
+    description:
+      "Weighted moving average methods for time series forecasting with trend and seasonality.",
     assumptions: ["Regular time intervals", "Stationary error variance"],
     whenToUse: ["Short-term forecasting", "Trend and seasonality", "Simpler interpretation"],
-    methodFamily: "Time-series",
     category: "Time Series",
     outcome: "continuous",
     predictorStructure: "none",
     design: "time-series",
-    level: "intermediate",
     alternativeLinks: ["arima", "prophet"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "time_series", task: "forecasting" },
-    boosts: {
-    },
-  },
   },
   // Survival Analysis
   {
@@ -755,23 +731,23 @@ t_paired <- t.test(a, b, paired = TRUE)
     wikipediaUrl: "https://en.wikipedia.org/wiki/Kaplan%E2%80%93Meier_estimator",
     name: "Kaplan-Meier Estimator",
     description: "Non-parametric estimator of survival function from time-to-event data.",
-    assumptions: ["Independent censoring", "Well-defined time origin", "No competing risks (or adjust)"],
-    whenToUse: ["Estimating survival curves", "Handling censored data", "Descriptive survival analysis"],
-    methodFamily: "Survival",
+    assumptions: [
+      "Independent censoring",
+      "Well-defined time origin",
+      "No competing risks (or adjust)",
+    ],
+    whenToUse: [
+      "Estimating survival curves",
+      "Handling censored data",
+      "Descriptive survival analysis",
+    ],
     category: "Survival Analysis",
     outcome: "time_to_event",
     predictorStructure: "none",
     design: "longitudinal",
-    level: "intermediate",
     alternativeLinks: ["log-rank-test", "cox-regression"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "survival", task: "describe_survival" },
-    boosts: {
-      goal: { survival: 3, compare: 1 },
-    },
-  },
   },
   {
     id: "log-rank-test",
@@ -779,45 +755,37 @@ t_paired <- t.test(a, b, paired = TRUE)
     name: "Log-Rank Test",
     description: "Compares survival distributions between two or more groups.",
     assumptions: ["Proportional hazards", "Independent censoring", "Non-informative censoring"],
-    whenToUse: ["Comparing survival curves", "Clinical trial endpoints", "Time-to-event comparisons"],
-    methodFamily: "Survival",
+    whenToUse: [
+      "Comparing survival curves",
+      "Clinical trial endpoints",
+      "Time-to-event comparisons",
+    ],
     category: "Survival Analysis",
     outcome: "time_to_event",
     predictorStructure: "single categorical",
     design: "longitudinal",
-    level: "intermediate",
     alternativeLinks: ["kaplan-meier", "cox-regression"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "survival", task: "compare_survival" },
-    boosts: {
-      goal: { survival: 3, compare: 1 },
-    },
-  },
   },
   {
     id: "cox-regression",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Proportional_hazards_model",
     name: "Cox Proportional Hazards",
     description: "Semi-parametric regression model for time-to-event data with covariates.",
-    assumptions: ["Proportional hazards", "Independent censoring", "Linear covariate effects on log-hazard"],
+    assumptions: [
+      "Proportional hazards",
+      "Independent censoring",
+      "Linear covariate effects on log-hazard",
+    ],
     whenToUse: ["Survival with covariates", "Hazard ratio estimation", "Adjusting for confounders"],
-    methodFamily: "Survival",
     category: "Survival Analysis",
     outcome: "time_to_event",
     predictorStructure: "multiple mixed",
     design: "longitudinal",
-    level: "advanced",
     alternativeLinks: ["kaplan-meier", "accelerated-failure-time", "random-survival-forest"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "survival", task: "model_survival" },
-    boosts: {
-      goal: { survival: 3, compare: 1 },
-    },
-  },
   },
   // Unsupervised Learning
   {
@@ -827,20 +795,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     description: "Partitions observations into k clusters by minimizing within-cluster variance.",
     assumptions: ["Spherical clusters", "Similar cluster sizes", "Numeric features"],
     whenToUse: ["Finding natural groupings", "Customer segmentation", "Pattern discovery"],
-    methodFamily: "Machine Learning",
     category: "Clustering",
     outcome: "continuous",
     predictorStructure: "none",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["hierarchical-clustering", "dbscan", "gaussian-mixture"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "unsupervised", task: "clustering" },
-    boosts: {
-    },
-  },
   },
   {
     id: "hierarchical-clustering",
@@ -848,21 +809,18 @@ t_paired <- t.test(a, b, paired = TRUE)
     name: "Hierarchical Clustering",
     description: "Builds a tree of clusters using agglomerative or divisive approaches.",
     assumptions: ["Meaningful distance metric", "Appropriate linkage method"],
-    whenToUse: ["Exploring cluster hierarchy", "Dendrogram visualization", "Unknown number of clusters"],
-    methodFamily: "Machine Learning",
+    whenToUse: [
+      "Exploring cluster hierarchy",
+      "Dendrogram visualization",
+      "Unknown number of clusters",
+    ],
     category: "Clustering",
     outcome: "continuous",
     predictorStructure: "none",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["kmeans", "dbscan"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "unsupervised", task: "clustering" },
-    boosts: {
-    },
-  },
   },
   {
     id: "pca",
@@ -870,21 +828,18 @@ t_paired <- t.test(a, b, paired = TRUE)
     name: "Principal Component Analysis",
     description: "Reduces dimensionality by finding orthogonal directions of maximum variance.",
     assumptions: ["Linear relationships", "Continuous variables", "Standardized features"],
-    whenToUse: ["Dimension reduction", "Feature extraction", "Visualization of high-dimensional data"],
-    methodFamily: "Multivariate",
+    whenToUse: [
+      "Dimension reduction",
+      "Feature extraction",
+      "Visualization of high-dimensional data",
+    ],
     category: "Dimension Reduction",
     outcome: "continuous",
     predictorStructure: "none",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["factor-analysis", "tsne", "umap"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "unsupervised", task: "dim_reduction" },
-    boosts: {
-    },
-  },
   },
   {
     id: "factor-analysis",
@@ -892,45 +847,35 @@ t_paired <- t.test(a, b, paired = TRUE)
     name: "Factor Analysis",
     description: "Identifies latent factors underlying observed variables.",
     assumptions: ["Linear relationships", "Multivariate normality", "Sufficient sample size"],
-    whenToUse: ["Scale development", "Latent construct identification", "Data reduction with theory"],
-    methodFamily: "Multivariate",
+    whenToUse: [
+      "Scale development",
+      "Latent construct identification",
+      "Data reduction with theory",
+    ],
     category: "Dimension Reduction",
     outcome: "continuous",
     predictorStructure: "none",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["pca"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "unsupervised", task: "dim_reduction" },
-    boosts: {
-    },
-  },
   },
   // Machine Learning
   {
     id: "random-forest",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Random_forest",
     name: "Random Forest",
-    description: "Ensemble of decision trees for classification or regression with improved accuracy.",
+    description:
+      "Ensemble of decision trees for classification or regression with improved accuracy.",
     assumptions: ["No strict distributional assumptions", "Sufficient training data"],
     whenToUse: ["Complex non-linear relationships", "Feature importance", "Robust predictions"],
-    methodFamily: "Machine Learning",
     category: "Prediction",
     outcome: "continuous",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["gradient-boosting", "xgboost", "decision-tree"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
-    boosts: {
-      outcome: { continuous: 2, binary: 2 },
-    },
-  },
   },
   {
     id: "gradient-boosting",
@@ -939,21 +884,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     description: "Sequentially builds weak learners to minimize prediction errors.",
     assumptions: ["Sufficient training data", "Proper hyperparameter tuning"],
     whenToUse: ["High prediction accuracy", "Structured/tabular data", "Competitions"],
-    methodFamily: "Machine Learning",
     category: "Prediction",
     outcome: "continuous",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["random-forest", "xgboost", "lightgbm"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
-    boosts: {
-      outcome: { continuous: 2, binary: 2 },
-    },
-  },
   },
   {
     id: "lasso-ridge",
@@ -962,24 +899,15 @@ t_paired <- t.test(a, b, paired = TRUE)
     description: "Regularized regression methods that shrink coefficients to prevent overfitting.",
     assumptions: ["Linear relationships", "Standardized predictors recommended"],
     whenToUse: ["High-dimensional data", "Multicollinearity", "Variable selection (Lasso)"],
-    methodFamily: "Regression-based",
     category: "Prediction",
     outcome: "continuous",
     predictorStructure: "multiple continuous",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["elastic-net", "multiple-regression"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors" },
-    boosts: {
-      outcome: { continuous: 3 },
-      modeling_preference: { inference: 1, prediction: 2 },
-    },
   },
-  },
-  // Resampling/Bootstrap
+  // RESAMPLING
   {
     id: "bootstrap",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Bootstrapping_(statistics)",
@@ -987,22 +915,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     description: "Resampling method to estimate sampling distributions and confidence intervals.",
     assumptions: ["Representative sample", "Independent observations"],
     whenToUse: ["Unknown sampling distribution", "Complex statistics", "Small samples"],
-    methodFamily: "Resampling",
     category: "Resampling",
     outcome: "continuous",
     predictorStructure: "none",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["permutation-test"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { estimate: 3, compare: 1 },
-    },
-    kind: "resampling",
-  },
   },
   {
     id: "permutation-test",
@@ -1011,23 +930,61 @@ t_paired <- t.test(a, b, paired = TRUE)
     description: "Non-parametric test using random permutations to generate null distribution.",
     assumptions: ["Exchangeability under null", "Independent observations"],
     whenToUse: ["No distributional assumptions", "Small samples", "Complex test statistics"],
-    methodFamily: "Permutation-based",
     category: "Resampling",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["bootstrap", "mann-whitney"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { estimate: 3, compare: 1 },
-    },
-    kind: "resampling",
   },
+  {
+    id: "cross-validation",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Cross-validation_(statistics)",
+    name: "Cross-Validation",
+    description:
+      "Resampling procedure used to estimate out-of-sample model performance by repeatedly splitting data into training and validation sets.",
+    assumptions: [
+      "Validation strategy matches the data-generating structure (IID for standard CV; grouped/time-aware CV when needed).",
+      "No data leakage: preprocessing and feature selection are fit within each training fold only.",
+    ],
+    whenToUse: [
+      "Estimate generalization performance",
+      "Compare models or hyperparameters",
+      "Prevent overfitting during model selection",
+    ],
+    category: "Resampling",
+    outcome: "any",
+    predictorStructure: "any",
+    design: "resampling",
+    alternativeLinks: ["bootstrap", "jackknife"],
+    pythonCode: "",
+    rCode: "",
   },
+  {
+    id: "jackknife",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Jackknife_resampling",
+    name: "Jackknife",
+    description:
+      "Leave-one-out resampling method used to estimate bias and standard error of a statistic by recomputing it after omitting each observation in turn.",
+    assumptions: [
+      "Most reliable for smooth statistics (e.g., means, regression coefficients).",
+      "Can be unstable for non-smooth statistics (e.g., medians/quantiles) or very small samples.",
+    ],
+    whenToUse: [
+      "Estimate standard error of a statistic",
+      "Estimate bias of an estimator",
+      "Quick influence-style sensitivity checks",
+    ],
+    category: "Resampling",
+    outcome: "any",
+    predictorStructure: "none",
+    design: "resampling",
+    alternativeLinks: ["bootstrap", "cross-validation"],
+    pythonCode: "",
+    rCode: "",
+  },
+
   // Power Analysis
   {
     id: "power-analysis",
@@ -1036,70 +993,29 @@ t_paired <- t.test(a, b, paired = TRUE)
     description: "Calculates required sample size or statistical power for detecting an effect.",
     assumptions: ["Specified effect size", "Known alpha level", "Appropriate test selection"],
     whenToUse: ["Study planning", "Grant applications", "Sample size justification"],
-    methodFamily: "Planning",
     category: "Study Planning",
     outcome: "continuous",
     predictorStructure: "none",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: [],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "power_planning" },
-    kind: "planning",
-  },
-  },
-  
-  // === ASSUMPTION & DIAGNOSTIC TESTS ===
-  // Equal Variance Tests
-  {
-    id: "levene-test",
-    wikipediaUrl: "https://en.wikipedia.org/wiki/Levene%27s_test",
-    name: "Levene's Test",
-    description: "Tests the null hypothesis that all groups have equal variances. More robust to non-normality than Bartlett's test.",
-    assumptions: ["Independent samples", "Continuous or ordinal data"],
-    whenToUse: ["Checking homogeneity of variance before ANOVA", "Non-normal data", "Robust variance testing"],
-    methodFamily: "Diagnostic",
-    category: "Assumption Testing",
-    outcome: "continuous",
-    predictorStructure: "single categorical",
-    design: "independent",
-    level: "basic",
-    alternativeLinks: ["bartlett-test", "brown-forsythe", "fligner-killeen"],
-    pythonCode: "",
-    rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 2, utilities: 3 },
-    },
-    kind: "assumption",
-  },
   },
   {
     id: "bartlett-test",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Bartlett%27s_test",
     name: "Bartlett's Test",
-    description: "Tests equality of variances across groups, sensitive to departures from normality.",
+    description:
+      "Tests equality of variances across groups, sensitive to departures from normality.",
     assumptions: ["Normal distribution in each group", "Independent samples"],
     whenToUse: ["Variance homogeneity testing", "Normally distributed data", "Before ANOVA"],
-    methodFamily: "Diagnostic",
     category: "Assumption Testing",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["levene-test", "brown-forsythe"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 2, utilities: 3 },
-    },
-    kind: "assumption",
-  },
   },
   {
     id: "brown-forsythe",
@@ -1108,143 +1024,106 @@ t_paired <- t.test(a, b, paired = TRUE)
     description: "Robust test for equality of variances using deviations from group medians.",
     assumptions: ["Independent samples", "Continuous data"],
     whenToUse: ["Variance testing with skewed data", "Outlier-resistant variance comparison"],
-    methodFamily: "Diagnostic",
     category: "Assumption Testing",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["levene-test", "bartlett-test"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 2, utilities: 3 },
-    },
-    kind: "assumption",
-  },
   },
   {
     id: "fligner-killeen",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Fligner%E2%80%93Killeen_test",
     name: "Fligner-Killeen Test",
-    description: "Non-parametric test for homogeneity of variances, highly robust to non-normality.",
+    description:
+      "Non-parametric test for homogeneity of variances, highly robust to non-normality.",
     assumptions: ["Independent samples", "Ordinal or continuous data"],
     whenToUse: ["Severe non-normality", "Robust variance testing", "Small samples"],
-    methodFamily: "Diagnostic",
     category: "Assumption Testing",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["levene-test"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 1, utilities: 3 },
-    },
-    kind: "assumption",
-  },
   },
   {
     id: "hartley-fmax",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Hartley%27s_test",
     name: "Hartley's F-max Test",
-    description: "Quick test for variance homogeneity using ratio of largest to smallest group variance.",
+    description:
+      "Quick test for variance homogeneity using ratio of largest to smallest group variance.",
     assumptions: ["Equal sample sizes", "Normal distribution", "Independent samples"],
     whenToUse: ["Quick variance ratio check", "Balanced designs", "Preliminary analysis"],
-    methodFamily: "Diagnostic",
     category: "Assumption Testing",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["levene-test", "bartlett-test"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 1, utilities: 3 },
-    },
-    kind: "assumption",
-  },
   },
   // Normality Tests
   {
     id: "shapiro-wilk",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test",
     name: "Shapiro-Wilk Test",
-    description: "Tests whether a sample comes from a normally distributed population. Considered one of the most powerful normality tests.",
+    description:
+      "Tests whether a sample comes from a normally distributed population. Considered one of the most powerful normality tests.",
     assumptions: ["Sample size typically between 3-5000", "Independent observations"],
-    whenToUse: ["Checking normality assumption", "Small to moderate samples", "Before parametric tests"],
-    methodFamily: "Diagnostic",
+    whenToUse: [
+      "Checking normality assumption",
+      "Small to moderate samples",
+      "Before parametric tests",
+    ],
     category: "Assumption Testing",
     outcome: "continuous",
     predictorStructure: "none",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["kolmogorov-smirnov", "anderson-darling", "dagostino-pearson"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 2, model: 1, utilities: 3 },
-    },
-    kind: "assumption",
-  },
   },
   {
     id: "kolmogorov-smirnov",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test",
     name: "Kolmogorov-Smirnov Test",
-    description: "Compares sample distribution to a reference distribution (often normal) or compares two samples.",
+    description:
+      "Compares sample distribution to a reference distribution (often normal) or compares two samples.",
     assumptions: ["Continuous distribution", "Independent observations"],
-    whenToUse: ["Testing any distributional assumption", "Comparing two distributions", "Large samples"],
-    methodFamily: "Diagnostic",
+    whenToUse: [
+      "Testing any distributional assumption",
+      "Comparing two distributions",
+      "Large samples",
+    ],
     category: "Assumption Testing",
     outcome: "continuous",
     predictorStructure: "none",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["shapiro-wilk", "anderson-darling"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 1, model: 1, utilities: 3 },
-    },
-    kind: "assumption",
-  },
   },
   {
     id: "anderson-darling",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Anderson%E2%80%93Darling_test",
     name: "Anderson-Darling Test",
-    description: "Tests whether a sample comes from a specified distribution, with more weight on tails than KS test.",
+    description:
+      "Tests whether a sample comes from a specified distribution, with more weight on tails than KS test.",
     assumptions: ["Continuous distribution", "Known reference distribution"],
-    whenToUse: ["Normality testing with tail sensitivity", "Distribution fitting", "Quality control"],
-    methodFamily: "Diagnostic",
+    whenToUse: [
+      "Normality testing with tail sensitivity",
+      "Distribution fitting",
+      "Quality control",
+    ],
     category: "Assumption Testing",
     outcome: "continuous",
     predictorStructure: "none",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["shapiro-wilk", "kolmogorov-smirnov"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 1, model: 1, utilities: 3 },
-    },
-    kind: "assumption",
-  },
   },
   {
     id: "dagostino-pearson",
@@ -1253,22 +1132,38 @@ t_paired <- t.test(a, b, paired = TRUE)
     description: "Omnibus test combining skewness and kurtosis to test for normality.",
     assumptions: ["Sample size > 20", "Independent observations"],
     whenToUse: ["Moderate to large samples", "Detecting non-normality from skewness/kurtosis"],
-    methodFamily: "Diagnostic",
     category: "Assumption Testing",
     outcome: "continuous",
     predictorStructure: "none",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["shapiro-wilk"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 1, model: 1, utilities: 3 },
-    },
-    kind: "assumption",
   },
+  // Variance Tests
+  {
+    id: "levene-test",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Levene%27s_test",
+    name: "Levene's Test",
+    description:
+      "Tests equality of variances across groups; more robust than Bartlett’s when normality is violated.",
+    assumptions: [
+      "Independent samples",
+      "Continuous (or at least ordinal) outcome",
+      "Grouping variable defines 2+ groups",
+    ],
+    whenToUse: [
+      "Checking homogeneity of variance before ANOVA/t-tests",
+      "When normality is questionable (preferred over Bartlett’s)",
+      "Comparing spread across multiple groups",
+    ],
+    category: "Assumption Testing",
+    outcome: "continuous",
+    predictorStructure: "single categorical",
+    design: "independent",
+    alternativeLinks: ["brown-forsythe", "fligner-killeen", "bartlett-test"],
+    pythonCode: "",
+    rCode: "",
   },
   // Regression Diagnostics
   {
@@ -1278,22 +1173,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     description: "Tests for autocorrelation in residuals from regression analysis.",
     assumptions: ["Linear regression model", "First-order autocorrelation"],
     whenToUse: ["Time series regression", "Detecting serial correlation", "Model diagnostics"],
-    methodFamily: "Diagnostic",
     category: "Assumption Testing",
     outcome: "continuous",
     predictorStructure: "none",
     design: "time-series",
-    level: "intermediate",
     alternativeLinks: ["ljung-box", "breusch-pagan"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { model: 2, utilities: 3 },
-    },
-    kind: "assumption",
-  },
   },
   {
     id: "breusch-pagan",
@@ -1302,148 +1188,47 @@ t_paired <- t.test(a, b, paired = TRUE)
     description: "Tests for heteroscedasticity in regression residuals.",
     assumptions: ["Linear regression model", "Residuals tested against predictors"],
     whenToUse: ["Checking constant variance", "Regression diagnostics", "Before inference"],
-    methodFamily: "Diagnostic",
     category: "Assumption Testing",
     outcome: "continuous",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["durbin-watson"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { model: 2, utilities: 3 },
-    },
-    kind: "assumption",
-  },
   },
   {
     id: "vif",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Variance_inflation_factor",
     name: "Variance Inflation Factor (VIF)",
-    description: "Quantifies multicollinearity in regression by measuring how much variance is inflated.",
+    description:
+      "Quantifies multicollinearity in regression by measuring how much variance is inflated.",
     assumptions: ["Multiple regression context", "Linear relationships"],
     whenToUse: ["Detecting multicollinearity", "Variable selection", "Regression diagnostics"],
-    methodFamily: "Diagnostic",
     category: "Assumption Testing",
     outcome: "continuous",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "basic",
     alternativeLinks: [],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { model: 2, utilities: 3 },
-    },
-    kind: "assumption",
   },
-  },
-  
+
   // === POST-HOC TESTS ===
   {
     id: "tukey-hsd",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Tukey%27s_range_test",
     name: "Tukey's HSD",
-    description: "Post-hoc test for pairwise comparisons after ANOVA, controlling family-wise error rate.",
+    description:
+      "Post-hoc test for pairwise comparisons after ANOVA, controlling family-wise error rate.",
     assumptions: ["Equal sample sizes (approximate)", "Equal variances", "Normal distribution"],
     whenToUse: ["All pairwise comparisons after ANOVA", "Balanced designs", "Conservative control"],
-    methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["bonferroni", "games-howell", "scheffe-test"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 2, utilities: 3 },
-      groups: { "3plus": 2 },
-    },
-    kind: "posthoc",
-  },
-  },
-  {
-    id: "bonferroni",
-    wikipediaUrl: "https://en.wikipedia.org/wiki/Bonferroni_correction",
-    name: "Bonferroni Correction",
-    description: "Simple adjustment for multiple comparisons by dividing alpha by number of tests.",
-    assumptions: ["Independent or dependent tests", "Any test statistic"],
-    whenToUse: ["Few comparisons", "Conservative correction", "General multiple testing"],
-    methodFamily: "Multiple Comparison",
-    category: "Post-hoc Tests",
-    outcome: "continuous",
-    predictorStructure: "single categorical",
-    design: "independent",
-    level: "basic",
-    alternativeLinks: ["holm-bonferroni", "tukey-hsd", "benjamini-hochberg"],
-    pythonCode: "",
-    rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 2, utilities: 3 },
-      groups: { "3plus": 2 },
-    },
-    kind: "posthoc",
-  },
-  },
-  {
-    id: "holm-bonferroni",
-    wikipediaUrl: "https://en.wikipedia.org/wiki/Holm%E2%80%93Bonferroni_method",
-    name: "Holm-Bonferroni Method",
-    description: "Step-down procedure that is uniformly more powerful than Bonferroni while controlling FWER.",
-    assumptions: ["Any test statistic", "Ordered p-values"],
-    whenToUse: ["Multiple comparisons", "More power than Bonferroni", "Sequential testing"],
-    methodFamily: "Multiple Comparison",
-    category: "Post-hoc Tests",
-    outcome: "continuous",
-    predictorStructure: "single categorical",
-    design: "independent",
-    level: "basic",
-    alternativeLinks: ["bonferroni", "benjamini-hochberg"],
-    pythonCode: "",
-    rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 2, utilities: 3 },
-      groups: { "3plus": 2 },
-    },
-    kind: "posthoc",
-  },
-  },
-  {
-    id: "benjamini-hochberg",
-    wikipediaUrl: "https://en.wikipedia.org/wiki/False_discovery_rate",
-    name: "Benjamini-Hochberg (FDR)",
-    description: "Controls false discovery rate rather than family-wise error rate, more powerful for many tests.",
-    assumptions: ["Independent or positively dependent tests", "Many hypotheses"],
-    whenToUse: ["High-throughput testing", "Genomics", "Exploratory analysis"],
-    methodFamily: "Multiple Comparison",
-    category: "Post-hoc Tests",
-    outcome: "continuous",
-    predictorStructure: "single categorical",
-    design: "independent",
-    level: "intermediate",
-    alternativeLinks: ["bonferroni", "holm-bonferroni"],
-    pythonCode: "",
-    rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 1, utilities: 3 },
-      groups: { "3plus": 2 },
-    },
-    kind: "posthoc",
-  },
   },
   {
     id: "dunnett-test",
@@ -1452,23 +1237,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     description: "Compares multiple treatment groups to a single control group.",
     assumptions: ["Normal distribution", "Equal variances", "One control group"],
     whenToUse: ["Treatment vs control comparisons", "Not comparing treatments", "Drug trials"],
-    methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["tukey-hsd"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 2, utilities: 3 },
-      groups: { "3plus": 2 },
-    },
-    kind: "posthoc",
-  },
   },
   {
     id: "games-howell",
@@ -1477,23 +1252,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     description: "Post-hoc test for unequal variances and/or unequal sample sizes.",
     assumptions: ["Does not assume equal variances", "Normal distribution"],
     whenToUse: ["Heterogeneous variances", "Unequal sample sizes", "After Welch's ANOVA"],
-    methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["tukey-hsd", "scheffe-test"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 2, utilities: 3 },
-      groups: { "3plus": 2 },
-    },
-    kind: "posthoc",
-  },
   },
   {
     id: "scheffe-test",
@@ -1502,23 +1267,13 @@ t_paired <- t.test(a, b, paired = TRUE)
     description: "Most conservative post-hoc test, allows any linear contrast of means.",
     assumptions: ["Normal distribution", "Equal variances"],
     whenToUse: ["Complex contrasts", "Post-hoc hypothesis generation", "Maximum protection"],
-    methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["tukey-hsd", "games-howell"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 1, utilities: 3 },
-      groups: { "3plus": 2 },
-    },
-    kind: "posthoc",
-  },
   },
   {
     id: "dunn-test",
@@ -1527,25 +1282,64 @@ t_paired <- t.test(a, b, paired = TRUE)
     description: "Non-parametric post-hoc test for pairwise comparisons after Kruskal-Wallis.",
     assumptions: ["Ordinal or continuous data", "Independent samples"],
     whenToUse: ["After Kruskal-Wallis", "Non-parametric multiple comparisons"],
-    methodFamily: "Multiple Comparison",
     category: "Post-hoc Tests",
     outcome: "ordinal",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["kruskal-wallis"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 2, utilities: 3 },
-      groups: { "3plus": 2 },
-    },
-    kind: "posthoc",
   },
+
+  // === PVALUE ADJUSTMENTS ===
+  {
+    id: "bonferroni",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Bonferroni_correction",
+    name: "Bonferroni Correction",
+    description: "Simple adjustment for multiple comparisons by dividing alpha by number of tests.",
+    assumptions: ["Independent or dependent tests", "Any test statistic"],
+    whenToUse: ["Few comparisons", "Conservative correction", "General multiple testing"],
+    category: "P-value Adjustments",
+    outcome: "continuous",
+    predictorStructure: "single categorical",
+    design: "independent",
+    alternativeLinks: ["holm-bonferroni", "tukey-hsd", "benjamini-hochberg"],
+    pythonCode: "",
+    rCode: "",
   },
-  
+  {
+    id: "holm-bonferroni",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Holm%E2%80%93Bonferroni_method",
+    name: "Holm-Bonferroni Method",
+    description:
+      "Step-down procedure that is uniformly more powerful than Bonferroni while controlling FWER.",
+    assumptions: ["Any test statistic", "Ordered p-values"],
+    whenToUse: ["Multiple comparisons", "More power than Bonferroni", "Sequential testing"],
+    category: "P-value Adjustments",
+    outcome: "continuous",
+    predictorStructure: "single categorical",
+    design: "independent",
+    alternativeLinks: ["bonferroni", "benjamini-hochberg"],
+    pythonCode: "",
+    rCode: "",
+  },
+  {
+    id: "benjamini-hochberg",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/False_discovery_rate",
+    name: "Benjamini-Hochberg (FDR)",
+    description:
+      "Controls false discovery rate rather than family-wise error rate, more powerful for many tests.",
+    assumptions: ["Independent or positively dependent tests", "Many hypotheses"],
+    whenToUse: ["High-throughput testing", "Genomics", "Exploratory analysis"],
+    category: "P-value Adjustments",
+    outcome: "continuous",
+    predictorStructure: "single categorical",
+    design: "independent",
+    alternativeLinks: ["bonferroni", "holm-bonferroni"],
+    pythonCode: "",
+    rCode: "",
+  },
+
   // === ADDITIONAL GROUP COMPARISON ===
   {
     id: "welch-t-test",
@@ -1553,21 +1347,19 @@ t_paired <- t.test(a, b, paired = TRUE)
     name: "Welch's t-Test",
     description: "Modification of t-test that does not assume equal variances between groups.",
     assumptions: [
-      "Independent obervations within and between groups",
+      "Independent observations within and between groups",
       "Numeric outcome",
-      "Difference in means ~ normal (or n large; no extreme outliers)"
+      "Difference in means ~ normal (or n large; no extreme outliers)",
     ],
     whenToUse: [
       "Compare means of two independent groups",
       "Variances and/or sample sizes differ",
-      "Data roughly symmetric or n moderately large"
+      "Data roughly symmetric or n moderately large",
     ],
-    methodFamily: "Parametric",
     category: "Group Comparison",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["t-test-independent", "mann-whitney"],
     pythonCode: `
 # a and b are 1D arrays of observations
@@ -1577,11 +1369,6 @@ t_welch, p_val = scipy.stats.ttest_ind(a, b, equal_var=False)
 # a and b are numeric vectors of observations
 t_welch <- t.test(a, b, var.equal = FALSE)
     `.trim(),
-    rules: {
-      requires: { goal: "compare_groups", outcome: "continuous", groups: "two", design: "independent" },
-      boosts: {
-      },
-    },
   },
   {
     id: "welch-anova",
@@ -1590,91 +1377,67 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Robust alternative to one-way ANOVA when variances are unequal across groups.",
     assumptions: ["Normal distribution", "Independent samples", "Unequal variances allowed"],
     whenToUse: ["Heterogeneous variances", "Unbalanced designs", "Three or more groups"],
-    methodFamily: "Parametric",
     category: "Group Comparison",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["one-way-anova", "kruskal-wallis"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "compare_groups", outcome: "continuous", groups: "three_plus", design: "independent" },
-    boosts: {
-    },
-  },
   },
   {
     id: "ancova",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Analysis_of_covariance",
     name: "ANCOVA",
-    description: "Analysis of covariance combining ANOVA with regression to control for covariates.",
-    assumptions: ["Homogeneity of regression slopes", "Linear relationship with covariate", "Normal residuals"],
+    description:
+      "Analysis of covariance combining ANOVA with regression to control for covariates.",
+    assumptions: [
+      "Homogeneity of regression slopes",
+      "Linear relationship with covariate",
+      "Normal residuals",
+    ],
     whenToUse: ["Adjusting for confounders", "Pre-test scores as covariate", "Increasing power"],
-    methodFamily: "Parametric",
     category: "Group Comparison",
     outcome: "continuous",
     predictorStructure: "mixed",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["multiple-regression", "linear-mixed-model"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "compare_groups", outcome: "continuous", design: "independent" },
-    boosts: {
-      groups: { "2": 2, "3plus": 2 },
-    },
-  },
   },
   {
     id: "manova",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Multivariate_analysis_of_variance",
     name: "MANOVA",
-    description: "Multivariate ANOVA testing group differences on multiple dependent variables simultaneously.",
+    description:
+      "Multivariate ANOVA testing group differences on multiple dependent variables simultaneously.",
     assumptions: ["Multivariate normality", "Homogeneity of covariance matrices", "Independence"],
     whenToUse: ["Multiple related outcomes", "Reducing Type I error", "Examining patterns"],
-    methodFamily: "Multivariate",
     category: "Group Comparison",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "advanced",
     alternativeLinks: ["two-way-anova", "discriminant-analysis"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "compare_groups", outcome: "continuous", design: "independent" },
-    boosts: {
-      groups: { "2": 2, "3plus": 2 },
-    },
   },
-  },
-  
+
   // === ADDITIONAL CORRELATION ===
   {
     id: "kendall-tau",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Kendall_rank_correlation_coefficient",
     name: "Kendall's Tau",
-    description: "Non-parametric measure of rank correlation, more robust than Spearman for small samples.",
+    description:
+      "Non-parametric measure of rank correlation, more robust than Spearman for small samples.",
     assumptions: ["Ordinal or continuous data", "Independent observations"],
     whenToUse: ["Small samples", "Many tied ranks", "Robust correlation estimate"],
-    methodFamily: "Nonparametric",
     category: "Correlation",
     outcome: "ordinal",
     predictorStructure: "single continuous",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["spearman-correlation", "pearson-correlation"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "association" },
-    boosts: {
-      outcome: { ordinal: 3, continuous: 1 },
-    },
-  },
   },
   {
     id: "point-biserial",
@@ -1683,47 +1446,15 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Measures correlation between a continuous variable and a dichotomous variable.",
     assumptions: ["One continuous, one binary variable", "Normal distribution in groups"],
     whenToUse: ["Binary-continuous relationships", "Item analysis", "Effect size for t-test"],
-    methodFamily: "Parametric",
     category: "Correlation",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["pearson-correlation", "t-test-independent"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "association" },
-    boosts: {
-      outcome: { continuous: 3 },
-    },
   },
-  },
-  {
-    id: "intraclass-correlation",
-    wikipediaUrl: "https://en.wikipedia.org/wiki/Intraclass_correlation",
-    name: "Intraclass Correlation (ICC)",
-    description: "Measures reliability or agreement for observations that are organized into groups.",
-    assumptions: ["Grouped/clustered data", "Ratio or interval scale"],
-    whenToUse: ["Inter-rater reliability", "Test-retest reliability", "Cluster analysis"],
-    methodFamily: "Reliability",
-    category: "Correlation",
-    outcome: "continuous",
-    predictorStructure: "none",
-    design: "repeated",
-    level: "intermediate",
-    alternativeLinks: ["cohens-kappa", "linear-mixed-model"],
-    pythonCode: "",
-    rCode: "",
-    rules: {
-    requires: { goal: "association" },
-    boosts: {
-      outcome: { continuous: 3 },
-      design: { paired: 2, repeated: 2 },
-    },
-  },
-  },
-  
+
   // === ADDITIONAL CATEGORICAL ===
   {
     id: "cochran-q",
@@ -1732,94 +1463,15 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Extension of McNemar test for comparing three or more matched proportions.",
     assumptions: ["Binary outcome", "Matched samples", "Three or more conditions"],
     whenToUse: ["Repeated measures binary data", "Multiple raters", "Before-during-after binary"],
-    methodFamily: "Nonparametric",
     category: "Categorical",
     outcome: "binary",
     predictorStructure: "single categorical",
     design: "repeated",
-    level: "intermediate",
     alternativeLinks: ["mcnemar-test", "friedman-test"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "compare_groups", design: "repeated" },
-    boosts: {
-    },
   },
-  },
-  {
-    id: "cramers-v",
-    wikipediaUrl: "https://en.wikipedia.org/wiki/Cram%C3%A9r%27s_V",
-    name: "Cramér's V",
-    description: "Measure of association between two categorical variables, normalized chi-square.",
-    assumptions: ["Nominal variables", "Contingency table"],
-    whenToUse: ["Effect size for chi-square", "Comparing association strength", "Nominal data"],
-    methodFamily: "Effect Size",
-    category: "Categorical",
-    outcome: "categorical",
-    predictorStructure: "single categorical",
-    design: "independent",
-    level: "basic",
-    alternativeLinks: ["chi-square", "cohens-kappa"],
-    pythonCode: "",
-    rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { categorical_assoc: 3, utilities: 3, estimate: 3 },
-    },
-    kind: "effectsize",
-  },
-  },
-  {
-    id: "cohens-kappa",
-    wikipediaUrl: "https://en.wikipedia.org/wiki/Cohen%27s_kappa",
-    name: "Cohen's Kappa",
-    description: "Measures agreement between two raters for categorical items, adjusting for chance.",
-    assumptions: ["Categorical data", "Two raters", "Same categories"],
-    whenToUse: ["Inter-rater reliability", "Diagnostic agreement", "Coding reliability"],
-    methodFamily: "Reliability",
-    category: "Categorical",
-    outcome: "categorical",
-    predictorStructure: "none",
-    design: "independent",
-    level: "basic",
-    alternativeLinks: ["fleiss-kappa", "intraclass-correlation"],
-    pythonCode: "",
-    rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { categorical_assoc: 2, associate: 2, utilities: 3 },
-    },
-    kind: "effectsize",
-  },
-  },
-  {
-    id: "fleiss-kappa",
-    wikipediaUrl: "https://en.wikipedia.org/wiki/Fleiss%27_kappa",
-    name: "Fleiss' Kappa",
-    description: "Extends Cohen's kappa to measure agreement among three or more raters.",
-    assumptions: ["Categorical data", "Multiple raters", "Fixed categories"],
-    whenToUse: ["Multiple rater agreement", "Content analysis", "Medical diagnosis"],
-    methodFamily: "Reliability",
-    category: "Categorical",
-    outcome: "categorical",
-    predictorStructure: "none",
-    design: "independent",
-    level: "intermediate",
-    alternativeLinks: ["cohens-kappa"],
-    pythonCode: "",
-    rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { categorical_assoc: 2, associate: 2, utilities: 3 },
-    },
-    kind: "effectsize",
-  },
-  },
-  
+
   // === ADDITIONAL REGRESSION ===
   {
     id: "negative-binomial",
@@ -1828,43 +1480,28 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Models count data with overdispersion (variance greater than mean).",
     assumptions: ["Count outcome", "Overdispersion present", "Log-linear relationship"],
     whenToUse: ["Overdispersed counts", "Zero-inflated alternatives", "Event count modeling"],
-    methodFamily: "Regression-based",
     category: "Regression",
     outcome: "count",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["poisson-regression", "zero-inflated-poisson"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", outcome: "count" },
-    boosts: {
-      modeling_preference: { inference: 3, prediction: 1 },
-    },
-  },
   },
   {
     id: "zero-inflated-poisson",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Zero-inflated_model",
     name: "Zero-Inflated Poisson",
     description: "Models count data with excess zeros using a two-part model.",
     assumptions: ["Count outcome", "Excess zeros", "Two processes generating data"],
     whenToUse: ["Many zeros in count data", "Structural and sampling zeros", "Two-stage process"],
-    methodFamily: "Regression-based",
     category: "Regression",
     outcome: "count",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "advanced",
     alternativeLinks: ["poisson-regression", "negative-binomial"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", outcome: "count" },
-    boosts: {
-      modeling_preference: { inference: 3, prediction: 1 },
-    },
-  },
   },
   {
     id: "quantile-regression",
@@ -1873,21 +1510,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Models conditional quantiles (e.g., median) rather than the mean.",
     assumptions: ["No distributional assumptions", "Continuous outcome"],
     whenToUse: ["Non-normal outcomes", "Heterogeneous effects", "Median modeling"],
-    methodFamily: "Regression-based",
     category: "Regression",
     outcome: "continuous",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "advanced",
     alternativeLinks: ["linear-regression", "robust-regression"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", outcome: "continuous" },
-    boosts: {
-      modeling_preference: { inference: 2, prediction: 1 },
-    },
-  },
   },
   {
     id: "robust-regression",
@@ -1896,21 +1525,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Regression methods resistant to outliers and violations of assumptions.",
     assumptions: ["Linear relationship", "Potential outliers or leverage points"],
     whenToUse: ["Outliers present", "Heavy-tailed errors", "Robust inference"],
-    methodFamily: "Regression-based",
     category: "Regression",
     outcome: "continuous",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["linear-regression", "quantile-regression"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", outcome: "continuous" },
-    boosts: {
-      modeling_preference: { inference: 2, prediction: 1 },
-    },
-  },
   },
   {
     id: "probit-regression",
@@ -1919,46 +1540,31 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Models binary outcomes using the cumulative normal distribution function.",
     assumptions: ["Binary outcome", "Latent variable interpretation", "Independence"],
     whenToUse: ["Binary classification", "Dose-response", "Latent variable models"],
-    methodFamily: "Regression-based",
     category: "Regression",
     outcome: "binary",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["logistic-regression"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", outcome: "binary" },
-    boosts: {
-      modeling_preference: { inference: 3, prediction: 1 },
-    },
   },
-  },
-  
+
   // === ADDITIONAL ML METHODS ===
   {
     id: "svm",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Support-vector_machine",
     name: "Support Vector Machine (SVM)",
-    description: "Finds optimal hyperplane to separate classes, can use kernels for non-linear boundaries.",
+    description:
+      "Finds optimal hyperplane to separate classes, can use kernels for non-linear boundaries.",
     assumptions: ["Scaled features recommended", "Sufficient training data"],
     whenToUse: ["Binary classification", "High-dimensional data", "Clear margin of separation"],
-    methodFamily: "Machine Learning",
     category: "Prediction",
     outcome: "binary",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["logistic-regression", "random-forest"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
-    boosts: {
-      outcome: { continuous: 2, binary: 3 },
-    },
-  },
   },
   {
     id: "xgboost",
@@ -1967,21 +1573,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Optimized gradient boosting library with regularization and parallel processing.",
     assumptions: ["Sufficient training data", "Hyperparameter tuning required"],
     whenToUse: ["Structured/tabular data", "Kaggle competitions", "High accuracy needed"],
-    methodFamily: "Machine Learning",
     category: "Prediction",
     outcome: "continuous",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["gradient-boosting", "lightgbm", "catboost"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
-    boosts: {
-      outcome: { continuous: 2, binary: 2 },
-    },
-  },
   },
   {
     id: "lightgbm",
@@ -1990,21 +1588,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Gradient boosting framework using leaf-wise tree growth for faster training.",
     assumptions: ["Large datasets", "Categorical features supported"],
     whenToUse: ["Large datasets", "Fast training needed", "Memory efficiency"],
-    methodFamily: "Machine Learning",
     category: "Prediction",
     outcome: "continuous",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["xgboost", "catboost"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
-    boosts: {
-      outcome: { continuous: 2, binary: 2 },
-    },
-  },
   },
   {
     id: "catboost",
@@ -2013,44 +1603,29 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Gradient boosting with native categorical feature support and ordered boosting.",
     assumptions: ["Categorical features present", "Sufficient training data"],
     whenToUse: ["Many categorical features", "Minimal preprocessing", "Prevent overfitting"],
-    methodFamily: "Machine Learning",
     category: "Prediction",
     outcome: "continuous",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["xgboost", "lightgbm"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
-    boosts: {
-      outcome: { continuous: 2, binary: 2, nominal: 2 },
-    },
-  },
   },
   {
     id: "knn",
     wikipediaUrl: "https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm",
     name: "k-Nearest Neighbors (k-NN)",
-    description: "Classifies or predicts based on the k closest training examples in feature space.",
+    description:
+      "Classifies or predicts based on the k closest training examples in feature space.",
     assumptions: ["Meaningful distance metric", "Scaled features", "No noise dominance"],
     whenToUse: ["Simple baseline", "Non-linear patterns", "Instance-based learning"],
-    methodFamily: "Machine Learning",
     category: "Prediction",
     outcome: "continuous",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["random-forest", "svm"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
-    boosts: {
-      outcome: { continuous: 1, binary: 2, nominal: 2 },
-    },
-  },
   },
   {
     id: "naive-bayes",
@@ -2059,21 +1634,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Probabilistic classifier based on Bayes' theorem with independence assumption.",
     assumptions: ["Feature independence (often violated)", "Sufficient class representation"],
     whenToUse: ["Text classification", "Fast training needed", "Baseline model"],
-    methodFamily: "Machine Learning",
     category: "Prediction",
     outcome: "binary",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["logistic-regression", "random-forest"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
-    boosts: {
-      outcome: { binary: 3, nominal: 3 },
-    },
-  },
   },
   {
     id: "decision-tree",
@@ -2082,21 +1649,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Tree-structured model making sequential splits based on feature values.",
     assumptions: ["No strict distributional assumptions", "Sufficient training data"],
     whenToUse: ["Interpretable model needed", "Non-linear relationships", "Feature importance"],
-    methodFamily: "Machine Learning",
     category: "Prediction",
     outcome: "continuous",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["random-forest", "gradient-boosting"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
-    boosts: {
-      outcome: { continuous: 1, binary: 2, nominal: 2 },
-    },
-  },
   },
   {
     id: "elastic-net",
@@ -2104,23 +1663,18 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     name: "Elastic Net",
     description: "Regularized regression combining L1 (Lasso) and L2 (Ridge) penalties.",
     assumptions: ["Linear relationships", "High-dimensional data possible"],
-    whenToUse: ["Many correlated predictors", "Variable selection + shrinkage", "Combining Lasso and Ridge"],
-    methodFamily: "Regression-based",
+    whenToUse: [
+      "Many correlated predictors",
+      "Variable selection + shrinkage",
+      "Combining Lasso and Ridge",
+    ],
     category: "Prediction",
     outcome: "continuous",
     predictorStructure: "multiple continuous",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["lasso-ridge", "multiple-regression"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors" },
-    boosts: {
-      outcome: { continuous: 3 },
-      modeling_preference: { inference: 1, prediction: 2 },
-    },
-  },
   },
   {
     id: "neural-network-mlp",
@@ -2129,133 +1683,95 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Multi-layer perceptron with hidden layers for learning complex patterns.",
     assumptions: ["Sufficient training data", "Scaled features", "Hyperparameter tuning"],
     whenToUse: ["Complex non-linear patterns", "Large datasets", "Deep learning baseline"],
-    methodFamily: "Machine Learning",
     category: "Prediction",
     outcome: "continuous",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "advanced",
     alternativeLinks: ["random-forest", "gradient-boosting"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "model_with_predictors", modeling_preference: "predictive_ml" },
-    boosts: {
-      outcome: { continuous: 2, binary: 2 },
-    },
-  },
   },
   {
     id: "dbscan",
     wikipediaUrl: "https://en.wikipedia.org/wiki/DBSCAN",
     name: "DBSCAN",
-    description: "Density-based clustering that finds arbitrarily shaped clusters and identifies outliers.",
+    description:
+      "Density-based clustering that finds arbitrarily shaped clusters and identifies outliers.",
     assumptions: ["Meaningful distance metric", "Similar density clusters"],
     whenToUse: ["Unknown number of clusters", "Non-spherical clusters", "Outlier detection"],
-    methodFamily: "Machine Learning",
     category: "Clustering",
     outcome: "continuous",
     predictorStructure: "none",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["kmeans", "gaussian-mixture"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "unsupervised", task: "clustering" },
-    boosts: {
-    },
-  },
   },
   {
     id: "gaussian-mixture",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Mixture_model",
     name: "Gaussian Mixture Model",
-    description: "Probabilistic model assuming data comes from a mixture of Gaussian distributions.",
+    description:
+      "Probabilistic model assuming data comes from a mixture of Gaussian distributions.",
     assumptions: ["Gaussian clusters", "Known or estimated number of components"],
     whenToUse: ["Soft clustering", "Probabilistic assignment", "Elliptical clusters"],
-    methodFamily: "Machine Learning",
     category: "Clustering",
     outcome: "continuous",
     predictorStructure: "none",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["kmeans", "dbscan"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "unsupervised", task: "clustering" },
-    boosts: {
-    },
-  },
   },
   {
     id: "tsne",
     wikipediaUrl: "https://en.wikipedia.org/wiki/T-distributed_stochastic_neighbor_embedding",
     name: "t-SNE",
-    description: "Non-linear dimensionality reduction technique for visualization of high-dimensional data.",
+    description:
+      "Non-linear dimensionality reduction technique for visualization of high-dimensional data.",
     assumptions: ["Local structure preservation", "Perplexity parameter choice"],
     whenToUse: ["Visualization", "Cluster exploration", "High-dimensional data"],
-    methodFamily: "Machine Learning",
     category: "Dimension Reduction",
     outcome: "continuous",
     predictorStructure: "none",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["umap", "pca"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "unsupervised", task: "dim_reduction" },
-    boosts: {
-    },
-  },
   },
   {
     id: "umap",
     wikipediaUrl: "https://en.wikipedia.org/wiki/UMAP",
     name: "UMAP",
-    description: "Uniform Manifold Approximation for fast non-linear dimension reduction preserving global structure.",
+    description:
+      "Uniform Manifold Approximation for fast non-linear dimension reduction preserving global structure.",
     assumptions: ["Manifold assumption", "Sufficient neighbors"],
     whenToUse: ["Fast visualization", "Preserving global structure", "Large datasets"],
-    methodFamily: "Machine Learning",
     category: "Dimension Reduction",
     outcome: "continuous",
     predictorStructure: "none",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["tsne", "pca"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "unsupervised", task: "dim_reduction" },
-    boosts: {
-    },
   },
-  },
-  
+
   // === ADDITIONAL TIME SERIES ===
   {
     id: "prophet",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Prophet_(software)",
     name: "Prophet",
-    description: "Automated forecasting procedure by Facebook for time series with seasonality and holidays.",
+    description:
+      "Automated forecasting procedure by Facebook for time series with seasonality and holidays.",
     assumptions: ["Regular time intervals", "Additive/multiplicative seasonality"],
     whenToUse: ["Business forecasting", "Multiple seasonality", "Missing data/outliers"],
-    methodFamily: "Time-series",
     category: "Time Series",
     outcome: "continuous",
     predictorStructure: "none",
     design: "time-series",
-    level: "intermediate",
     alternativeLinks: ["arima", "exponential-smoothing"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "time_series", task: "forecasting" },
-    boosts: {
-    },
-  },
   },
   {
     id: "adf-test",
@@ -2264,20 +1780,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Tests for unit root to determine if a time series is stationary.",
     assumptions: ["Time series data", "AR process"],
     whenToUse: ["Stationarity testing", "Before ARIMA modeling", "Cointegration analysis"],
-    methodFamily: "Diagnostic",
     category: "Time Series",
     outcome: "continuous",
     predictorStructure: "none",
     design: "time-series",
-    level: "intermediate",
     alternativeLinks: ["ljung-box"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "time_series", task: "stationarity" },
-    boosts: {
-    },
-  },
   },
   {
     id: "granger-causality",
@@ -2286,20 +1795,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Tests whether one time series helps predict another (temporal precedence).",
     assumptions: ["Stationary series", "Linear relationships", "No confounders"],
     whenToUse: ["Predictive causality", "Lead-lag relationships", "VAR models"],
-    methodFamily: "Time-series",
     category: "Time Series",
     outcome: "continuous",
     predictorStructure: "multiple continuous",
     design: "time-series",
-    level: "advanced",
     alternativeLinks: ["var"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "time_series", task: "causality" },
-    boosts: {
-    },
-  },
   },
   {
     id: "ljung-box",
@@ -2308,44 +1810,31 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Tests whether any autocorrelations in a series are non-zero.",
     assumptions: ["Time series residuals", "Specified lag order"],
     whenToUse: ["Model diagnostics", "White noise testing", "ARIMA residual check"],
-    methodFamily: "Diagnostic",
     category: "Time Series",
     outcome: "continuous",
     predictorStructure: "none",
     design: "time-series",
-    level: "intermediate",
     alternativeLinks: ["adf-test", "durbin-watson"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "time_series", task: "model_adequacy" },
-    boosts: {
-    },
-  },
   },
   {
     id: "var",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Vector_autoregression",
     name: "Vector Autoregression (VAR)",
-    description: "Models multiple time series where each variable depends on its own and others' past values.",
+    description:
+      "Models multiple time series where each variable depends on its own and others' past values.",
     assumptions: ["Stationary series", "Linear relationships", "Sufficient observations"],
     whenToUse: ["Multiple related time series", "Impulse response", "Forecasting systems"],
-    methodFamily: "Time-series",
     category: "Time Series",
     outcome: "continuous",
     predictorStructure: "multiple continuous",
     design: "time-series",
-    level: "advanced",
     alternativeLinks: ["arima", "granger-causality"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "time_series", task: "multivariate_dynamics" },
-    boosts: {
-    },
   },
-  },
-  
+
   // === BAYESIAN METHODS ===
   {
     id: "bayesian-t-test",
@@ -2353,48 +1842,34 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     name: "Bayesian t-Test",
     description: "Bayesian alternative to t-test providing posterior probability of hypotheses.",
     assumptions: ["Prior specification", "Normal distribution"],
-    whenToUse: ["Quantifying evidence for null", "Prior information available", "Uncertainty quantification"],
-    methodFamily: "Bayesian",
+    whenToUse: [
+      "Quantifying evidence for null",
+      "Prior information available",
+      "Uncertainty quantification",
+    ],
     category: "Bayesian Methods",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["t-test-independent", "bayesian-anova"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 3 },
-      outcome: { continuous: 2 },
-      groups: { "2": 2 },
-    },
-  },
   },
   {
     id: "bayesian-regression",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Bayesian_linear_regression",
     name: "Bayesian Regression",
-    description: "Regression with prior distributions on parameters, yielding posterior distributions.",
+    description:
+      "Regression with prior distributions on parameters, yielding posterior distributions.",
     assumptions: ["Prior specification", "Likelihood model"],
     whenToUse: ["Uncertainty quantification", "Prior knowledge incorporation", "Small samples"],
-    methodFamily: "Bayesian",
     category: "Bayesian Methods",
     outcome: "continuous",
     predictorStructure: "multiple mixed",
     design: "independent",
-    level: "advanced",
     alternativeLinks: ["linear-regression", "multiple-regression"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { model: 3, associate: 1 },
-      outcome: { continuous: 2, binary: 1 },
-    },
-  },
   },
   {
     id: "bayesian-anova",
@@ -2403,48 +1878,38 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Bayesian approach to comparing group means with Bayes factors.",
     assumptions: ["Prior specification", "Normal distribution"],
     whenToUse: ["Evidence for null hypothesis", "Prior information", "Model comparison"],
-    methodFamily: "Bayesian",
     category: "Bayesian Methods",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "intermediate",
     alternativeLinks: ["one-way-anova", "bayesian-t-test"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 3 },
-      outcome: { continuous: 2 },
-      groups: { "3plus": 2 },
-    },
   },
-  },
-  
+
   // === ADDITIONAL SURVIVAL ANALYSIS ===
   {
     id: "accelerated-failure-time",
     wikipediaUrl: "https://en.wikipedia.org/wiki/Accelerated_failure_time_model",
     name: "Accelerated Failure Time Model",
-    description: "Parametric survival model where covariates accelerate or decelerate time to event.",
-    assumptions: ["Specified distribution (Weibull, log-normal)", "Multiplicative effect on survival time"],
-    whenToUse: ["Parametric survival", "Direct time interpretation", "When proportional hazards fails"],
-    methodFamily: "Survival",
+    description:
+      "Parametric survival model where covariates accelerate or decelerate time to event.",
+    assumptions: [
+      "Specified distribution (Weibull, log-normal)",
+      "Multiplicative effect on survival time",
+    ],
+    whenToUse: [
+      "Parametric survival",
+      "Direct time interpretation",
+      "When proportional hazards fails",
+    ],
     category: "Survival Analysis",
     outcome: "time_to_event",
     predictorStructure: "multiple mixed",
     design: "longitudinal",
-    level: "advanced",
     alternativeLinks: ["cox-regression"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "survival", task: "model_survival" },
-    boosts: {
-      goal: { survival: 3, compare: 1 },
-    },
-  },
   },
   {
     id: "competing-risks",
@@ -2453,21 +1918,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Analyzes time-to-event when multiple event types can occur, only one observed.",
     assumptions: ["Mutually exclusive events", "Independent censoring"],
     whenToUse: ["Multiple failure types", "Cause-specific analysis", "Medical outcomes"],
-    methodFamily: "Survival",
     category: "Survival Analysis",
     outcome: "time_to_event",
     predictorStructure: "multiple mixed",
     design: "longitudinal",
-    level: "advanced",
     alternativeLinks: ["cox-regression", "kaplan-meier"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "survival", task: "model_survival" },
-    boosts: {
-      goal: { survival: 3, compare: 1 },
-    },
-  },
   },
   {
     id: "random-survival-forest",
@@ -2475,24 +1932,20 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     name: "Random Survival Forest",
     description: "Extension of random forest to survival data with censoring.",
     assumptions: ["Sufficient training data", "Right-censored data"],
-    whenToUse: ["Non-linear survival patterns", "Variable importance", "Prediction without proportional hazards"],
-    methodFamily: "Machine Learning",
+    whenToUse: [
+      "Non-linear survival patterns",
+      "Variable importance",
+      "Prediction without proportional hazards",
+    ],
     category: "Survival Analysis",
     outcome: "time_to_event",
     predictorStructure: "multiple mixed",
     design: "longitudinal",
-    level: "advanced",
     alternativeLinks: ["cox-regression", "random-forest"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: { goal: "survival", task: "model_survival" },
-    boosts: {
-      goal: { survival: 3 },
-    },
   },
-  },
-  
+
   // === EFFECT SIZE MEASURES ===
   {
     id: "cohens-d",
@@ -2501,24 +1954,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Standardized measure of effect size for difference between two means.",
     assumptions: ["Continuous outcome", "Two groups"],
     whenToUse: ["Reporting effect size", "Power analysis", "Meta-analysis"],
-    methodFamily: "Effect Size",
     category: "Effect Size",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["hedges-g", "eta-squared"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 2, utilities: 3, estimate: 3 },
-      outcome: { continuous: 2 },
-      groups: { "2": 2 },
-    },
-    kind: "effectsize",
-  },
   },
   {
     id: "hedges-g",
@@ -2527,24 +1969,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Bias-corrected version of Cohen's d for small sample sizes.",
     assumptions: ["Continuous outcome", "Two groups", "Small samples"],
     whenToUse: ["Small sample effect size", "Meta-analysis", "Unbiased estimate"],
-    methodFamily: "Effect Size",
     category: "Effect Size",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["cohens-d"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 2, utilities: 3, estimate: 3 },
-      outcome: { continuous: 2 },
-      groups: { "2": 2 },
-    },
-    kind: "effectsize",
-  },
   },
   {
     id: "eta-squared",
@@ -2553,24 +1984,13 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Proportion of variance explained by a factor in ANOVA designs.",
     assumptions: ["ANOVA context", "Continuous outcome"],
     whenToUse: ["ANOVA effect size", "Variance explained", "Reporting results"],
-    methodFamily: "Effect Size",
     category: "Effect Size",
     outcome: "continuous",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["cohens-d", "odds-ratio"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { compare: 2, utilities: 3, estimate: 3 },
-      outcome: { continuous: 2 },
-      groups: { "3plus": 2 },
-    },
-    kind: "effectsize",
-  },
   },
   {
     id: "odds-ratio",
@@ -2579,227 +1999,402 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     description: "Ratio of odds of an event occurring in one group vs another.",
     assumptions: ["Binary outcome", "Two groups or conditions"],
     whenToUse: ["Case-control studies", "Logistic regression", "Risk communication"],
-    methodFamily: "Effect Size",
     category: "Effect Size",
     outcome: "binary",
     predictorStructure: "single categorical",
     design: "independent",
-    level: "basic",
     alternativeLinks: ["eta-squared"],
     pythonCode: "",
     rCode: "",
-    rules: {
-    requires: {},
-    boosts: {
-      goal: { categorical_assoc: 2, model: 1, utilities: 3, estimate: 3 },
-      outcome: { binary: 3 },
-    },
-    kind: "effectsize",
   },
+  {
+    id: "cramers-v",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Cram%C3%A9r%27s_V",
+    name: "Cramér's V",
+    description: "Measure of association between two categorical variables, normalized chi-square.",
+    assumptions: ["Nominal variables", "Contingency table"],
+    whenToUse: ["Effect size for chi-square", "Comparing association strength", "Nominal data"],
+    category: "Effect Size",
+    outcome: "categorical",
+    predictorStructure: "single categorical",
+    design: "independent",
+    alternativeLinks: ["chi-square", "cohens-kappa"],
+    pythonCode: "",
+    rCode: "",
+  },
+  {
+    id: "omega-squared",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Effect_size#Omega-squared,_%CF%89%C2%B2",
+    name: "Omega Squared (ω²)",
+    description:
+      "ANOVA effect size estimating the proportion of variance in the outcome attributable to a factor, with less upward bias than eta squared.",
+    assumptions: [
+      "Computed from an ANOVA model (one-way or factorial).",
+      "Interpretation depends on the ANOVA design and correct model specification.",
+    ],
+    whenToUse: [
+      "Report effect size for one-way or factorial ANOVA",
+      "Prefer a less biased alternative to eta squared (η²)",
+    ],
+    category: "Effect Size",
+    outcome: "continuous",
+    predictorStructure: "categorical",
+    design: "between",
+    alternativeLinks: ["eta-squared"],
+    pythonCode: "",
+    rCode: "",
+  },
+  {
+    id: "epsilon-squared",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Effect_size#Epsilon-squared,_%CE%B5%C2%B2",
+    name: "Epsilon Squared (ε²)",
+    description:
+      "Rank-based effect size commonly used with nonparametric group comparisons (e.g., Kruskal-Wallis, Friedman) to quantify the strength of a group effect.",
+    assumptions: [
+      "Computed from a rank-based test statistic (e.g., H for Kruskal-Wallis, Q for Friedman).",
+      "Different epsilon-squared variants exist; choose one and keep it consistent.",
+    ],
+    whenToUse: [
+      "Report effect size for Kruskal-Wallis",
+      "Report effect size for Friedman test",
+      "Need a nonparametric analogue to variance-explained measures",
+    ],
+    category: "Effect Size",
+    outcome: "ordinal",
+    predictorStructure: "categorical",
+    design: "between",
+    alternativeLinks: ["rank-biserial", "eta-squared"],
+    pythonCode: "",
+    rCode: "",
+  },
+  {
+    id: "rank-biserial",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Rank_biserial_correlation",
+    name: "Rank-Biserial Correlation",
+    description:
+      "Effect size for two-group rank tests (Mann-Whitney/Wilcoxon rank-sum) and paired Wilcoxon signed-rank tests, summarizing direction and strength using ranks.",
+    assumptions: [
+      "Outcome is at least ordinal; ranks are meaningful.",
+      "Appropriate for two-group comparisons (independent or paired, depending on the underlying test).",
+    ],
+    whenToUse: [
+      "Report effect size for Mann-Whitney U (Wilcoxon rank-sum)",
+      "Report effect size for Wilcoxon signed-rank (paired)",
+      "Need an interpretable rank-based effect size in [-1, 1]",
+    ],
+    category: "Effect Size",
+    outcome: "ordinal",
+    predictorStructure: "binary",
+    design: "between",
+    alternativeLinks: ["cohens-d", "hedges-g"],
+    pythonCode: "",
+    rCode: "",
+  },
+  {
+    id: "phi-coefficient",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Phi_coefficient",
+    name: "Phi Coefficient (φ)",
+    description:
+      "Effect size measuring association between two binary variables in a 2x2 contingency table; equivalent to Pearson correlation for binary data.",
+    assumptions: [
+      "Both variables are binary and summarized in a 2x2 table.",
+      "Interpretation depends on consistent coding if reporting a signed value.",
+    ],
+    whenToUse: [
+      "Quantify association strength for a 2x2 contingency table",
+      "Complement chi-square (2x2) or Fisher's exact test with an effect size",
+    ],
+    category: "Effect Size",
+    outcome: "binary",
+    predictorStructure: "binary",
+    design: "between",
+    alternativeLinks: ["cramers-v", "odds-ratio", "risk-ratio", "risk-difference"],
+    pythonCode: "",
+    rCode: "",
+  },
+  {
+    id: "risk-ratio",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Relative_risk",
+    name: "Risk Ratio (Relative Risk, RR)",
+    description:
+      "Effect size for binary outcomes comparing event risk (probability) between two groups as a ratio of risks.",
+    assumptions: [
+      "Binary outcome with two groups and well-defined risks p1 and p2.",
+      "Group definitions (exposed vs control) should be explicit for interpretation.",
+    ],
+    whenToUse: [
+      "Compare event risk between two groups",
+      "Report an interpretable relative effect size for two proportions",
+      "Complement a two-proportion test with an effect size",
+    ],
+    category: "Effect Size",
+    outcome: "binary",
+    predictorStructure: "binary",
+    design: "between",
+    alternativeLinks: ["odds-ratio", "risk-difference", "phi-coefficient"],
+    pythonCode: "",
+    rCode: "",
+  },
+  {
+    id: "risk-difference",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Risk_difference",
+    name: "Risk Difference (RD)",
+    description:
+      "Effect size for binary outcomes comparing event risk (probability) between two groups as an absolute difference in risks.",
+    assumptions: [
+      "Binary outcome with two groups and well-defined risks p1 and p2.",
+      "Group definitions (treatment vs control) should be explicit for interpretation.",
+    ],
+    whenToUse: [
+      "Compare absolute event risk between two groups",
+      "Report absolute effect (practical impact) for two proportions",
+      "Complement a two-proportion test with an absolute effect size",
+    ],
+    category: "Effect Size",
+    outcome: "binary",
+    predictorStructure: "binary",
+    design: "between",
+    alternativeLinks: ["risk-ratio", "odds-ratio", "phi-coefficient"],
+    pythonCode: "",
+    rCode: "",
+  },
+
+  // === AGREEMENT ===
+  {
+    id: "cohens-kappa",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Cohen%27s_kappa",
+    name: "Cohen's Kappa",
+    description:
+      "Measures agreement between two raters for categorical items, adjusting for chance.",
+    assumptions: ["Categorical data", "Two raters", "Same categories"],
+    whenToUse: ["Inter-rater reliability", "Diagnostic agreement", "Coding reliability"],
+    category: "Agreement",
+    outcome: "categorical",
+    predictorStructure: "none",
+    design: "independent",
+    alternativeLinks: ["fleiss-kappa", "intraclass-correlation"],
+    pythonCode: "",
+    rCode: "",
+  },
+  {
+    id: "fleiss-kappa",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Fleiss%27_kappa",
+    name: "Fleiss' Kappa",
+    description: "Extends Cohen's kappa to measure agreement among three or more raters.",
+    assumptions: ["Categorical data", "Multiple raters", "Fixed categories"],
+    whenToUse: ["Multiple rater agreement", "Content analysis", "Medical diagnosis"],
+    category: "Agreement",
+    outcome: "categorical",
+    predictorStructure: "none",
+    design: "independent",
+    alternativeLinks: ["cohens-kappa"],
+    pythonCode: "",
+    rCode: "",
+  },
+  {
+    id: "intraclass-correlation",
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Intraclass_correlation",
+    name: "Intraclass Correlation (ICC)",
+    description:
+      "Measures reliability or agreement for observations that are organized into groups.",
+    assumptions: ["Grouped/clustered data", "Ratio or interval scale"],
+    whenToUse: ["Inter-rater reliability", "Test-retest reliability", "Cluster analysis"],
+    category: "Agreement",
+    outcome: "continuous",
+    predictorStructure: "none",
+    design: "repeated",
+    alternativeLinks: ["cohens-kappa", "linear-mixed-model"],
+    pythonCode: "",
+    rCode: "",
   },
 ];
 
-// ── Routing Engine ─────────────────────────────────────────────────────
-
-/** Check if every key in `requires` matches the context */
-function matchesRequires(ctx: WizardContext, req: Partial<WizardContext> | undefined): boolean {
-  if (!req) return true;
-  for (const [key, value] of Object.entries(req)) {
-    const ctxVal = ctx[key as keyof WizardContext];
-    if (ctxVal === undefined) continue; // unset context key → don't reject
-    if (ctxVal !== value) return false;
-  }
-  return true;
-}
-
-/** Sum soft-score boosts for matching context values */
-function scoreByBoosts(ctx: WizardContext, boosts: StatTestRule["boosts"] | undefined): number {
-  if (!boosts) return 0;
-  let score = 0;
-  for (const [key, mapping] of Object.entries(boosts)) {
-    const ctxVal = ctx[key as keyof WizardContext];
-    if (ctxVal !== undefined && mapping[ctxVal as string] !== undefined) {
-      score += mapping[ctxVal as string];
-    }
-  }
-  return score;
-}
-
-const PRIMARY_KINDS: TestKind[] = ["primary"];
-const COMPANION_KINDS: TestKind[] = ["assumption", "posthoc", "diagnostic", "effectsize", "resampling", "planning"];
-
-/** Main recommendation engine */
-export function recommend(ctx: WizardContext, allTests: StatTest[]): Recommendation {
-  // Separate tests by kind
-  const primaryTests: StatTest[] = [];
-  const companionPool: StatTest[] = [];
-
-  for (const test of allTests) {
-    const kind = test.rules.kind ?? "primary";
-    if (PRIMARY_KINDS.includes(kind)) {
-      primaryTests.push(test);
-    } else {
-      companionPool.push(test);
-    }
-  }
-
-  // Filter primary tests by hard constraints
-  const passing = primaryTests.filter(t => matchesRequires(ctx, t.rules.requires));
-
-  // Score and sort
-  const scored = passing.map(t => ({
-    test: t,
-    score: scoreByBoosts(ctx, t.rules.boosts),
-  }));
-  scored.sort((a, b) => b.score - a.score);
-
-  // Top 2 are primary, next batch are alternatives (up to 4 more)
-  const primary = scored.slice(0, 2).map(s => s.test);
-  const alternatives = scored.slice(2, 6).map(s => s.test);
-
-  // Attach companions that pass hard constraints
-  const companions = companionPool.filter(t => matchesRequires(ctx, t.rules.requires));
-
-  return { primary, alternatives, companions };
-}
-
-/** Backward-compatible wrapper: returns a flat list of recommended primary tests */
-/** Backward-compatible wrapper: returns a flat list of recommended primary tests */
-export function getRecommendedTests(selections: Record<string, string>): StatTest[] {
-  // Map old selection keys to WizardContext
-  const ctx: WizardContext = {};
-
-  // Map old goal values to new Goal type
-  const goalMap: Record<string, Goal> = {
-    compare: "compare_groups",
-    relationship: "association",
-    predict: "model_with_predictors",
-    independence: "categorical_association",
-    time: "time_series",
-    unsupervised: "unsupervised",
-    estimate: "estimate",
-    power: "power_planning",
-  };
-  if (selections["research-goal"]) {
-    ctx.goal = goalMap[selections["research-goal"]] ?? "compare_groups";
-  }
-  // Also map any new-style keys
-  if (selections["goal"]) {
-    ctx.goal = (goalMap[selections["goal"]] || selections["goal"]) as Goal;
-  }
-
-  // Map outcome
-  const outcomeMap: Record<string, Outcome> = {
-    continuous: "continuous",
-    counts: "count",
-    ordinal: "ordinal",
-    categorical: "categorical",
-    nominal: "categorical",
-    binary: "binary",
-    "time-to-event": "time_to_event",
-    multivariate: "continuous",
-  };
-  if (selections["outcome-type"]) {
-    ctx.outcome = outcomeMap[selections["outcome-type"]] ?? (selections["outcome-type"] as Outcome);
-  }
-  if (selections["outcome"]) {
-    ctx.outcome = (outcomeMap[selections["outcome"]] || selections["outcome"]) as Outcome;
-  }
-
-  // Map sample structure
-  const designMap: Record<string, Design> = {
-    independent: "independent",
-    paired: "paired",
-    clustered: "clustered",
-    longitudinal: "longitudinal",
-    "time-series": "time-series",
-    repeated: "repeated",
-    "cross-sectional": "independent",
-  };
-  if (selections["sample-structure"]) {
-    ctx.design = designMap[selections["sample-structure"]] ?? (selections["sample-structure"] as Design);
-  }
-  if (selections["design"]) {
-    ctx.design = (designMap[selections["design"]] || selections["design"]) as Design;
-  }
-
-  // Map groups
-  const groupsMap: Record<string, "two" | "three_plus" | "none"> = {
-    "1": "none",
-    "2": "two",
-    "3plus": "three_plus"
-  };
-  if (selections["groups"]) {
-    ctx.groups = groupsMap[selections["groups"]] || (selections["groups"] as any);
-  } else if (selections["nGroups"]) {
-    ctx.groups = groupsMap[selections["nGroups"]] || (selections["nGroups"] as any);
-  }
-
-  // Map legacy tasks
-  const taskMap: Record<string, Task> = {
-    "forecast": "forecasting",
-    "diagnostics": "model_adequacy",
-    "multivariate": "multivariate_dynamics",
-    "regression": "model_survival",
-    "competing": "model_survival",
-    "ml": "model_survival",
-    "compare": "compare_survival",
-    "curve": "describe_survival",
-    "clustering": "clustering",
-    "dimred": "dim_reduction",
-    "embedding": "dim_reduction",
-  };
-  if (selections["tsTask"]) ctx.task = taskMap[selections["tsTask"]] || (selections["tsTask"] as any);
-  if (selections["survivalTask"]) ctx.task = taskMap[selections["survivalTask"]] || (selections["survivalTask"] as any);
-  if (selections["unsupTask"]) ctx.task = taskMap[selections["unsupTask"]] || (selections["unsupTask"] as any);
-  if (selections["task"]) ctx.task = selections["task"] as Task;
-
-  // Modeling Preference
-  if (selections["modeling_preference"]) {
-    ctx.modeling_preference = selections["modeling_preference"] as any;
-  } else if (selections["modelingFocus"]) {
-    if (selections["modelingFocus"] === "inference") ctx.modeling_preference = "interpretable";
-    if (selections["modelingFocus"] === "prediction") ctx.modeling_preference = "predictive_ml";
-  }
-
-  // Mixed Effects -> Design logic
-  if (selections["mixedEffects"] === "yes") {
-    if (!ctx.design || ctx.design === "independent") ctx.design = "clustered";
-  }
-
-  // Table Type -> Groups/Design logic (if strictly needed, though redundant with outcome/groups often)
-  if (selections["tableType"]) {
-      if (selections["tableType"] === "2x2") {
-          ctx.groups = "two";
-          ctx.design = "independent";
-      } else if (selections["tableType"] === "rxc") {
-          ctx.groups = "three_plus";
-          ctx.design = "independent";
-      } else if (selections["tableType"]?.startsWith("paired")) {
-          ctx.design = selections["tableType"].includes("3plus") ? "repeated" : "paired";
-      }
-  }
-
-  const result = recommend(ctx, statisticalTests);
-  return [...result.primary, ...result.alternatives];
-}
-
-
 export const categoryGroups = [
-  { id: "comparison", label: "Group Comparison", tests: ["t-test-independent", "paired-t-test", "one-way-anova", "two-way-anova", "repeated-measures-anova", "mann-whitney", "wilcoxon-signed-rank", "kruskal-wallis", "friedman-test", "welch-t-test", "welch-anova", "ancova", "manova"] },
-  { id: "correlation", label: "Correlation", tests: ["pearson-correlation", "spearman-correlation", "partial-correlation", "kendall-tau", "point-biserial", "intraclass-correlation"] },
-  { id: "regression", label: "Regression", tests: ["linear-regression", "multiple-regression", "logistic-regression", "poisson-regression", "ordinal-regression", "negative-binomial", "zero-inflated-poisson", "quantile-regression", "robust-regression", "probit-regression"] },
-  { id: "categorical", label: "Categorical", tests: ["chi-square", "fisher-exact", "mcnemar-test", "cochran-q", "cramers-v", "cohens-kappa", "fleiss-kappa"] },
-  { id: "mixed", label: "Mixed Models", tests: ["linear-mixed-model", "glmm"] },
-  { id: "time-series", label: "Time Series", tests: ["arima", "exponential-smoothing", "prophet", "adf-test", "granger-causality", "ljung-box", "var"] },
-  { id: "survival", label: "Survival Analysis", tests: ["kaplan-meier", "log-rank-test", "cox-regression", "accelerated-failure-time", "competing-risks", "random-survival-forest"] },
-  { id: "clustering", label: "Clustering", tests: ["kmeans", "hierarchical-clustering", "dbscan", "gaussian-mixture"] },
-  { id: "dimension", label: "Dimension Reduction", tests: ["pca", "factor-analysis", "tsne", "umap"] },
-  { id: "ml", label: "Machine Learning", tests: ["random-forest", "gradient-boosting", "lasso-ridge", "svm", "xgboost", "lightgbm", "catboost", "knn", "naive-bayes", "decision-tree", "elastic-net", "neural-network-mlp"] },
-  { id: "resampling", label: "Resampling", tests: ["bootstrap", "permutation-test"] },
-  { id: "assumption", label: "Assumption Testing", tests: ["levene-test", "bartlett-test", "brown-forsythe", "fligner-killeen", "hartley-fmax", "shapiro-wilk", "kolmogorov-smirnov", "anderson-darling", "dagostino-pearson", "durbin-watson", "breusch-pagan", "vif"] },
-  { id: "posthoc", label: "Post-hoc Tests", tests: ["tukey-hsd", "bonferroni", "holm-bonferroni", "benjamini-hochberg", "dunnett-test", "games-howell", "scheffe-test", "dunn-test"] },
-  { id: "bayesian", label: "Bayesian Methods", tests: ["bayesian-t-test", "bayesian-regression", "bayesian-anova"] },
-  { id: "effectsize", label: "Effect Size", tests: ["cohens-d", "hedges-g", "eta-squared", "odds-ratio"] },
-  { id: "planning", label: "Study Planning", tests: ["power-analysis"] },
+  {
+    id: "one-sample",
+    label: "One Sample",
+    tests: ["one-sample-t-test", "one-proportion-z-test", "binomial-test"],
+  },
+  {
+    id: "comparison",
+    label: "Group Comparison",
+    tests: [
+      "t-test-independent",
+      "paired-t-test",
+      "one-way-anova",
+      "two-way-anova",
+      "repeated-measures-anova",
+      "mann-whitney",
+      "wilcoxon-signed-rank",
+      "kruskal-wallis",
+      "friedman-test",
+      "welch-t-test",
+      "welch-anova",
+      "ancova",
+      "manova",
+    ],
+  },
+  {
+    id: "correlation",
+    label: "Correlation",
+    tests: [
+      "pearson-correlation",
+      "spearman-correlation",
+      "partial-correlation",
+      "kendall-tau",
+      "point-biserial",
+    ],
+  },
+  {
+    id: "regression",
+    label: "Regression",
+    tests: [
+      "linear-regression",
+      "multiple-regression",
+      "logistic-regression",
+      "poisson-regression",
+      "ordinal-regression",
+      "negative-binomial",
+      "zero-inflated-poisson",
+      "quantile-regression",
+      "robust-regression",
+      "probit-regression",
+    ],
+  },
+  {
+    id: "categorical",
+    label: "Categorical",
+    tests: [
+      "chi-square",
+      "chi-square-2x2",
+      "fisher-exact",
+      "mcnemar-test",
+      "cochran-q",
+      "two-proportion-z-test",
+      "fisher-freeman-halton",
+    ],
+  },
+  {
+    id: "mixed",
+    label: "Mixed Models",
+    tests: ["linear-mixed-model", "glmm", "gee"],
+  },
+  {
+    id: "time-series",
+    label: "Time Series",
+    tests: [
+      "arima",
+      "exponential-smoothing",
+      "prophet",
+      "adf-test",
+      "granger-causality",
+      "ljung-box",
+      "var",
+    ],
+  },
+  {
+    id: "survival",
+    label: "Survival Analysis",
+    tests: [
+      "kaplan-meier",
+      "log-rank-test",
+      "cox-regression",
+      "accelerated-failure-time",
+      "competing-risks",
+      "random-survival-forest",
+    ],
+  },
+  {
+    id: "clustering",
+    label: "Clustering",
+    tests: ["kmeans", "hierarchical-clustering", "dbscan", "gaussian-mixture"],
+  },
+  {
+    id: "dimension",
+    label: "Dimension Reduction",
+    tests: ["pca", "factor-analysis", "tsne", "umap"],
+  },
+  {
+    id: "ml",
+    label: "Machine Learning",
+    tests: [
+      "random-forest",
+      "gradient-boosting",
+      "lasso-ridge",
+      "svm",
+      "xgboost",
+      "lightgbm",
+      "catboost",
+      "knn",
+      "naive-bayes",
+      "decision-tree",
+      "elastic-net",
+      "neural-network-mlp",
+    ],
+  },
+  {
+    id: "resampling",
+    label: "Resampling",
+    tests: ["bootstrap", "permutation-test", "cross-validation", "jackknife"],
+  },
+  {
+    id: "assumption",
+    label: "Diagnostics & Assumptions",
+    tests: [
+      "levene-test",
+      "bartlett-test",
+      "brown-forsythe",
+      "fligner-killeen",
+      "hartley-fmax",
+      "shapiro-wilk",
+      "kolmogorov-smirnov",
+      "anderson-darling",
+      "dagostino-pearson",
+      "durbin-watson",
+      "breusch-pagan",
+      "vif",
+    ],
+  },
+  {
+    id: "posthoc",
+    label: "Post-hoc Tests",
+    tests: ["tukey-hsd", "dunnett-test", "games-howell", "scheffe-test", "dunn-test"],
+  },
+  {
+    id: "padjust",
+    label: "P-value Adjustments",
+    tests: ["bonferroni", "holm-bonferroni", "benjamini-hochberg"],
+  },
+  {
+    id: "bayesian",
+    label: "Bayesian Methods",
+    tests: ["bayesian-t-test", "bayesian-regression", "bayesian-anova"],
+  },
+  {
+    id: "effectsize",
+    label: "Effect Size",
+    tests: [
+      "cohens-d",
+      "hedges-g",
+      "eta-squared",
+      "odds-ratio",
+      "cramers-v",
+      "omega-squared",
+      "epsilon-squared",
+      "rank-biserial",
+      "phi-coefficient",
+      "risk-ratio",
+      "risk-difference",
+    ],
+  },
+  {
+    id: "agreement",
+    label: "Agreement",
+    tests: ["cohens-kappa", "fleiss-kappa", "intraclass-correlation"],
+  },
+  {
+    id: "planning",
+    label: "Study Planning",
+    tests: ["power-analysis"],
+  },
 ];
