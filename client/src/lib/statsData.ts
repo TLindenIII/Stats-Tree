@@ -39,9 +39,9 @@ export const statisticalTests: StatTest[] = [
       "Population (or sample) approximately normal, or n large with no extreme outliers",
     ],
     whenToUse: [
-      "Compare a sample mean to a known/hypothesized value ($\mu_0$)",
+      "Compare a sample mean to a known/hypothesized value ($\\mu_0$)",
       "You have one group and a continuous outcome",
-      "You want a t-based CI and p-value for the mean difference from $\mu_0$",
+      "You want a t-based CI and p-value for the mean difference from $\\mu_0$",
     ],
     category: "One Sample",
     outcome: "continuous",

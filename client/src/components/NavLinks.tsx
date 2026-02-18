@@ -1,7 +1,6 @@
 import { Link } from "@/lib/OfflineLink";
 import { useRef, useEffect, useState, useMemo } from "react";
 import { useNavContext } from "@/contexts/NavContext";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface NavLinksProps {
   currentPage: "wizard" | "flowchart" | "browse" | "glossary" | "home";
@@ -18,11 +17,9 @@ export function NavLinks({ currentPage }: NavLinksProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<string, HTMLElement>>(new Map());
   const { previousPosition, setPreviousPosition } = useNavContext();
-  const isMobile = useIsMobile();
-  
-  const visibleNavItems = useMemo(() => {
-    return navItems.filter(item => !isMobile || item.id !== "flowchart");
-  }, [isMobile]);
+
+  // Removed useIsMobile hook to prevent hydration mismatch/flicker.
+  // Using CSS classes (hidden md:inline-block) for Flowchart visibility instead.
 
   const [startPos, setStartPos] = useState<{ left: number; width: number } | null>(null);
   const [endPos, setEndPos] = useState<{ left: number; width: number } | null>(null);
@@ -32,11 +29,14 @@ export function NavLinks({ currentPage }: NavLinksProps) {
     const measureActive = () => {
       const activeEl = itemRefs.current.get(currentPage);
       const container = containerRef.current;
-      
+
       if (activeEl && container) {
         const containerRect = container.getBoundingClientRect();
         const activeRect = activeEl.getBoundingClientRect();
-        
+
+        // If the element is hidden (width ~0), don't show underline
+        if (activeRect.width < 1) return null;
+
         return {
           left: activeRect.left - containerRect.left,
           width: activeRect.width,
@@ -45,17 +45,22 @@ export function NavLinks({ currentPage }: NavLinksProps) {
       return null;
     };
 
-    // Small delay to ensure refs are populated
+    // Small delay to ensure refs are populated and layout is stable
     const timer = setTimeout(() => {
       const newPos = measureActive();
-      if (!newPos) return;
+      // If newPos is null (e.g. hidden element), we clear the underline
+      if (!newPos) {
+        setStartPos(null);
+        setEndPos(null);
+        return;
+      }
 
       if (previousPosition) {
         // We have a previous position - animate from there
         setStartPos(previousPosition);
         setEndPos(newPos);
         setAnimating(false);
-        
+
         // Force a reflow, then start animation
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
@@ -68,7 +73,7 @@ export function NavLinks({ currentPage }: NavLinksProps) {
         setStartPos(newPos);
         setEndPos(newPos);
       }
-      
+
       // Save for next navigation
       setPreviousPosition(newPos);
     }, 10);
@@ -81,22 +86,29 @@ export function NavLinks({ currentPage }: NavLinksProps) {
     const handleResize = () => {
       const activeEl = itemRefs.current.get(currentPage);
       const container = containerRef.current;
-      
+
       if (activeEl && container) {
         const containerRect = container.getBoundingClientRect();
         const activeRect = activeEl.getBoundingClientRect();
-        
+
+        if (activeRect.width < 1) {
+          setStartPos(null);
+          setEndPos(null);
+          setPreviousPosition({ left: 0, width: 0 });
+          return;
+        }
+
         const pos = {
           left: activeRect.left - containerRect.left,
           width: activeRect.width,
         };
-        
+
         setStartPos(pos);
         setEndPos(pos);
         setPreviousPosition(pos);
       }
     };
-    
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [currentPage, setPreviousPosition]);
@@ -105,22 +117,24 @@ export function NavLinks({ currentPage }: NavLinksProps) {
 
   return (
     <div ref={containerRef} className="flex items-center relative">
-      {visibleNavItems.map((item) => {
+      {navItems.map((item) => {
         const isActive = item.id === currentPage;
+        // Hide Flowchart on mobile using CSS to avoid hydration flicker
+        const visibilityClass = item.id === "flowchart" ? "hidden md:inline-block" : "inline-block";
+
         return (
           <span
             key={item.id}
             ref={(el: HTMLSpanElement | null) => {
               if (el) itemRefs.current.set(item.id, el);
             }}
+            className={visibilityClass}
           >
             <Link
               href={item.href}
               data-testid={`nav-${item.id}`}
               className={`relative px-3 py-1.5 text-sm font-medium transition-colors duration-200 inline-block ${
-                isActive 
-                  ? "text-foreground" 
-                  : "text-muted-foreground hover:text-foreground"
+                isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {item.label}
@@ -130,11 +144,11 @@ export function NavLinks({ currentPage }: NavLinksProps) {
       })}
       {displayPos && (
         <span
-          className="absolute bottom-0 h-0.5 bg-primary rounded-full"
+          className="absolute bottom-0 h-0.5 bg-primary rounded-full z-10"
           style={{
             left: displayPos.left,
             width: displayPos.width,
-            transition: animating ? 'left 300ms ease-out, width 300ms ease-out' : 'none',
+            transition: animating ? "left 300ms ease-out, width 300ms ease-out" : "none",
           }}
         />
       )}

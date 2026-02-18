@@ -75,23 +75,21 @@ export function CompareSheet({
                   </Badge>
                 )}
                 <CardHeader className="pb-3 pt-6">
-                  <CardTitle className="font-mono text-base leading-tight min-h-[2.5rem]">
-                    {test.name}
-                  </CardTitle>
-                  <div className="flex gap-1 flex-wrap mt-2 min-h-[1.75rem]">
+                  <CardTitle className="font-mono text-base leading-tight">{test.name}</CardTitle>
+                  <div className="flex gap-1 flex-wrap mt-2">
                     <Badge variant="outline" className="text-xs">
                       {test.category}
                     </Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm">
-                  <div className="text-muted-foreground text-xs min-h-[3rem]">
+                  <div className="text-muted-foreground text-xs">
                     <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                       {test.description}
                     </ReactMarkdown>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-1 text-xs bg-muted/50 p-2 rounded-md min-h-[4.5rem]">
+                  <div className="grid grid-cols-1 gap-1 text-xs bg-muted/50 p-2 rounded-md">
                     {test.outcome && (
                       <div>
                         <span className="text-muted-foreground font-medium">Outcome: </span>
@@ -112,7 +110,7 @@ export function CompareSheet({
                     )}
                   </div>
 
-                  <div className="space-y-2 min-h-[7rem]">
+                  <div className="space-y-2">
                     <h5 className="font-medium flex items-center gap-1 text-xs">
                       <AlertCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                       Assumptions
@@ -139,7 +137,7 @@ export function CompareSheet({
                     </ul>
                   </div>
 
-                  <div className="space-y-2 min-h-[5.5rem]">
+                  <div className="space-y-2">
                     <h5 className="font-medium flex items-center gap-1 text-xs">
                       <ArrowRight className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                       When to Use

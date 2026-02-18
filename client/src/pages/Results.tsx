@@ -12,6 +12,7 @@ import { statisticalTests, StatTest } from "@/lib/statsData";
 import { wizardLogic } from "@/lib/wizardKeys";
 import { RotateCcw, DraftingCompass } from "lucide-react";
 import { NavLinks } from "@/components/NavLinks";
+import { Header } from "@/components/Header";
 
 function resolveTests(ids: string[]): StatTest[] {
   return ids
@@ -139,18 +140,7 @@ export default function Results() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2 font-semibold">
-            <DraftingCompass className="w-5 h-5 text-primary" />
-            <span>StatsTree</span>
-          </Link>
-          <div className="flex items-center gap-2">
-            <NavLinks currentPage="wizard" />
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+      <Header currentPage="wizard" />
 
       <main className="flex-1 py-8 px-4">
         <div className="max-w-5xl mx-auto space-y-8">

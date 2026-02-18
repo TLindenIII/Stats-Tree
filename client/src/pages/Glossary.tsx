@@ -5,6 +5,7 @@ import { glossaryTerms } from "@/lib/glossaryData";
 import { Input } from "@/components/ui/input";
 import { NavLinks } from "@/components/NavLinks";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Header } from "@/components/Header";
 
 export default function Glossary() {
   const [search, setSearch] = useState("");
@@ -19,18 +20,7 @@ export default function Glossary() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2 font-semibold">
-            <DraftingCompass className="w-5 h-5 text-primary" />
-            <span>StatsTree</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <NavLinks currentPage="glossary" />
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+      <Header currentPage="glossary" />
 
       <main className="max-w-3xl mx-auto py-8 px-4 space-y-6">
         <div className="text-center space-y-2">

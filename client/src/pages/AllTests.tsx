@@ -10,6 +10,7 @@ import { CompareSheet } from "@/components/CompareSheet";
 import { statisticalTests, categoryGroups, StatTest } from "@/lib/statsData";
 import { Search, DraftingCompass, X, GitCompare } from "lucide-react";
 import { NavLinks } from "@/components/NavLinks";
+import { Header } from "@/components/Header";
 
 // Smart search with weighted scoring and typo tolerance
 function levenshteinDistance(a: string, b: string): number {
@@ -266,7 +267,10 @@ export default function AllTests() {
   };
 
   const hasActiveFilters =
-    selectedCategory !== null || selectedOutcomeScale !== null || selectedDesign !== null;
+    selectedCategory !== null ||
+    selectedOutcomeScale !== null ||
+    selectedDesign !== null ||
+    searchQuery !== "";
 
   const clearAllFilters = () => {
     setSelectedCategory(null);
@@ -303,20 +307,14 @@ export default function AllTests() {
     }
   }, []);
 
+  // Calculate total count of tests matching current filters (excluding category itself)
+  const filteredCount = useMemo(() => {
+    return getFilteredTests("category").length;
+  }, [searchQuery, selectedOutcomeScale, selectedDesign]);
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2 font-semibold">
-            <DraftingCompass className="w-5 h-5 text-primary" />
-            <span>StatsTree</span>
-          </Link>
-          <div className="flex items-center gap-2">
-            <NavLinks currentPage="browse" />
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+      <Header currentPage="browse" />
 
       <main className="flex-1 py-8 px-4">
         <div className="max-w-5xl mx-auto space-y-6">
@@ -329,57 +327,74 @@ export default function AllTests() {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center gap-3 max-w-4xl mx-auto flex-wrap justify-center">
-              <div className="relative flex-1 min-w-[200px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search tests..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
-                  data-testid="input-search-tests"
-                />
+            <div className="flex flex-col md:flex-row items-center gap-3 max-w-4xl mx-auto">
+              <div className="flex w-full md:flex-1 gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Search tests..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                    data-testid="input-search-tests"
+                  />
+                </div>
+                {hasActiveFilters && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={clearAllFilters}
+                    data-testid="button-clear-filters"
+                    title="Clear all filters"
+                    className="shrink-0"
+                  >
+                    <X className="w-4 h-4" />
+                    <span className="sr-only">Clear all filters</span>
+                  </Button>
+                )}
               </div>
 
-              <Select
-                value={selectedOutcomeScale ?? "all"}
-                onValueChange={(value) => setSelectedOutcomeScale(value === "all" ? null : value)}
-              >
-                <SelectTrigger className="w-40" data-testid="select-outcome-scale">
-                  <SelectValue placeholder="Outcome" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Outcomes</SelectItem>
-                  {outcomeScales.map((scale) => (
-                    <SelectItem key={scale} value={scale}>
-                      {scale
-                        .split(/[_-]/)
-                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                        .join(" ")}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select
-                value={selectedDesign ?? "all"}
-                onValueChange={(value) => setSelectedDesign(value === "all" ? null : value)}
-              >
-                <SelectTrigger className="w-44" data-testid="select-design">
-                  <SelectValue placeholder="Design" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Designs</SelectItem>
-                  {designs.map((design) => (
-                    <SelectItem key={design} value={design}>
-                      {design
-                        .split(/[_-]/)
-                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                        .join(" ")}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2 justify-center flex-wrap w-full md:w-auto">
+                <Select
+                  value={selectedOutcomeScale ?? "all"}
+                  onValueChange={(value) => setSelectedOutcomeScale(value === "all" ? null : value)}
+                >
+                  <SelectTrigger className="w-40" data-testid="select-outcome-scale">
+                    <SelectValue placeholder="Outcome" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Outcomes</SelectItem>
+                    {outcomeScales.map((scale) => (
+                      <SelectItem key={scale} value={scale}>
+                        {scale
+                          .split(/[_-]/)
+                          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                          .join(" ")}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={selectedDesign ?? "all"}
+                  onValueChange={(value) => setSelectedDesign(value === "all" ? null : value)}
+                >
+                  <SelectTrigger className="w-44" data-testid="select-design">
+                    <SelectValue placeholder="Design" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Designs</SelectItem>
+                    {designs.map((design) => (
+                      <SelectItem key={design} value={design}>
+                        {design
+                          .split(/[_-]/)
+                          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                          .join(" ")}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="flex justify-center gap-2 flex-wrap">
@@ -397,7 +412,7 @@ export default function AllTests() {
                       : "text-muted-foreground/70"
                   }`}
                 >
-                  ({statisticalTests.length})
+                  ({filteredCount})
                 </span>
               </Button>
               {categoriesWithCounts.map((category) => (
@@ -421,24 +436,10 @@ export default function AllTests() {
                 </Button>
               ))}
             </div>
-
-            {hasActiveFilters && (
-              <div className="flex justify-center">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearAllFilters}
-                  data-testid="button-clear-filters"
-                >
-                  <X className="w-4 h-4 mr-1" />
-                  Clear all filters
-                </Button>
-              </div>
-            )}
           </div>
 
           {compareTests.length > 0 && (
-            <div className="flex items-center justify-center gap-2 flex-wrap">
+            <div className="sticky top-14 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2 border-b mb-4 flex items-center justify-center gap-2 flex-wrap transition-all animate-in fade-in slide-in-from-top-2">
               <span className="text-sm text-muted-foreground">Comparing:</span>
               {compareTests.map((test) => (
                 <Badge
@@ -465,10 +466,11 @@ export default function AllTests() {
                 variant="default"
                 size="sm"
                 onClick={() => setShowCompare(true)}
+                disabled={compareTests.length < 2}
                 data-testid="button-compare"
               >
                 <GitCompare className="w-4 h-4 mr-1" />
-                Compare ({compareTests.length})
+                {compareTests.length < 2 ? "Select at least 2" : `Compare (${compareTests.length})`}
               </Button>
             </div>
           )}

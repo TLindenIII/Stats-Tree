@@ -1,4 +1,7 @@
 import { SelectionCard } from "./SelectionCard";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 
 interface Option {
   value: string;
@@ -24,8 +27,18 @@ export function WizardQuestion({
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-semibold">{question}</h2>
-        {description && <p className="text-muted-foreground">{description}</p>}
+        <h2 className="text-2xl font-semibold markdown-inline">
+          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+            {question}
+          </ReactMarkdown>
+        </h2>
+        {description && (
+          <div className="text-muted-foreground">
+            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+              {description}
+            </ReactMarkdown>
+          </div>
+        )}
       </div>
       <div className="grid gap-3 max-w-xl mx-auto">
         {options.map((option) => (

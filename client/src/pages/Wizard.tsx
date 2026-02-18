@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { WizardQuestion } from "@/components/WizardQuestion";
 import { DecisionSummary } from "@/components/DecisionSummary";
 import { NavLinks } from "@/components/NavLinks";
+import { Header } from "@/components/Header";
 import { wizardLogic, type WizardStep, type WizardOption } from "@/lib/wizardKeys";
 import { ArrowLeft, ArrowRight, RotateCcw, DraftingCompass } from "lucide-react";
 
@@ -41,6 +42,8 @@ export default function Wizard() {
   useEffect(() => {
     const fromSelectionsStr = params.get("selections");
     const targetStepId = params.get("step");
+
+    console.log("Wizard Mount: params", { fromSelectionsStr, targetStepId });
 
     if (fromSelectionsStr) {
       try {
@@ -105,8 +108,17 @@ export default function Wizard() {
       } catch (e) {
         console.error("Failed to parse selections or restore state", e);
       }
+    } else {
+      // Potentially reset history if no selections provided?
+      // This safeguards against "stuck" state if the component re-mounts but URL doesn't have params
+      // However, useState initialization should handle empty state.
+      // But if we navigated away and back, internal state might persist if component wasn't unmounted?
+      // (wouter routing usually unmounts).
+      console.log("Wizard Mount: No selections in URL");
     }
   }, []);
+
+  console.log("Wizard Render:", { history, currentStepId, tags });
 
   // Get current step definition
   const currentStep = useMemo(() => {
@@ -335,18 +347,7 @@ export default function Wizard() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2 font-semibold">
-            <DraftingCompass className="w-5 h-5 text-primary" />
-            <span>StatsTree</span>
-          </Link>
-          <div className="flex items-center gap-2">
-            <NavLinks currentPage="wizard" />
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+      <Header currentPage="wizard" />
 
       <main className="flex-1 py-8 px-4">
         <div className="max-w-6xl mx-auto">

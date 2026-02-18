@@ -1,5 +1,6 @@
 import { Link } from "@/lib/OfflineLink";
 import { Button } from "@/components/ui/button";
+import { Header } from "@/components/Header";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   ArrowRight,
@@ -41,23 +42,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2 font-semibold">
-            <DraftingCompass className="w-5 h-5 text-primary" />
-            <span>StatsTree</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/glossary"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Glossary
-            </Link>
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+      <Header currentPage="home" />
 
       <main>
         <section className="py-20 px-4">

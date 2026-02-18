@@ -209,15 +209,15 @@ export const wizardLogic = {
     {
       id: "estimate_reference_mean",
       title: "Reference Mean",
-      question: "Do you want to test against a hypothesized/reference value ($\mu_0$)?",
+      question: "Do you want to test against a hypothesized/reference value ($\\mu_0$)?",
       description:
-        "Sometimes you are comparing your sample average to a known or claimed value ($\mu_0$), such as a historical average or a target value.",
+        "Sometimes you are comparing your sample average to a known or claimed value ($\\mu_0$), such as a historical average or a target value.",
       options: [
         {
           value: "yes",
-          label: "Yes (test mean vs $\mu_0$)",
+          label: "Yes (test mean vs $\\mu_0$)",
           description:
-            "Use this if you have a specific reference number ($\mu_0$) and you want to test whether your sample average is different from it.",
+            "Use this if you have a specific reference number ($\\mu_0$) and you want to test whether your sample average is different from it.",
           set_tags: { test_against_mu0: "yes" },
           next: "leaf",
         },
@@ -225,7 +225,7 @@ export const wizardLogic = {
           value: "no",
           label: "No (just estimate/CI)",
           description:
-            "Use this if you mainly want an estimate of the mean (often with a confidence interval) and you are not comparing to a specific $\mu_0$.",
+            "Use this if you mainly want an estimate of the mean (often with a confidence interval) and you are not comparing to a specific $\\mu_0$.",
           set_tags: { test_against_mu0: "no" },
           next: "leaf",
         },

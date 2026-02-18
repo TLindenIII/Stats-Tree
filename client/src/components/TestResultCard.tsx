@@ -13,7 +13,6 @@ import {
   AlertCircle,
   Info,
   ArrowRight,
-  Eye,
   GitCompare,
   ExternalLink,
   Code,
@@ -70,34 +69,54 @@ export const TestResultCard = React.memo(function TestResultCard({
           </ReactMarkdown>
         </div>
 
-        {(test.outcome || test.design || test.predictorStructure || test.wikipediaUrl) && (
-          <div className="flex gap-4 text-sm text-muted-foreground flex-wrap">
-            {test.outcome && (
-              <span>
-                <strong>Outcome:</strong> {test.outcome}
-              </span>
-            )}
-            {test.design && (
-              <span>
-                <strong>Design:</strong> {test.design}
-              </span>
-            )}
-            {test.predictorStructure && (
-              <span>
-                <strong>Predictors:</strong> {test.predictorStructure}
-              </span>
-            )}
-            {test.wikipediaUrl && (
-              <a
-                href={test.wikipediaUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-primary hover:underline"
-                data-testid={`link-learn-more-${test.id}`}
+        {(test.outcome ||
+          test.design ||
+          test.predictorStructure ||
+          test.wikipediaUrl ||
+          onCompare) && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-sm text-muted-foreground">
+            <div className="flex gap-4 flex-wrap items-center">
+              {test.outcome && (
+                <span>
+                  <strong>Outcome:</strong> {test.outcome}
+                </span>
+              )}
+              {test.design && (
+                <span>
+                  <strong>Design:</strong> {test.design}
+                </span>
+              )}
+              {test.predictorStructure && (
+                <span>
+                  <strong>Predictors:</strong> {test.predictorStructure}
+                </span>
+              )}
+              {test.wikipediaUrl && (
+                <a
+                  href={test.wikipediaUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-primary hover:underline"
+                  data-testid={`link-learn-more-${test.id}`}
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  Wikipedia
+                </a>
+              )}
+            </div>
+
+            {onCompare && (
+              <Button
+                variant={isComparing ? "secondary" : "outline"}
+                size="sm"
+                onClick={onCompare}
+                disabled={!canCompare && !isComparing}
+                className="w-full sm:w-auto ml-auto"
+                data-testid={`compare-${test.id}`}
               >
-                <ExternalLink className="w-3.5 h-3.5" />
-                Wikipedia
-              </a>
+                <GitCompare className="w-4 h-4 mr-2" />
+                {isComparing ? "Remove" : "Compare"}
+              </Button>
             )}
           </div>
         )}
@@ -236,34 +255,6 @@ export const TestResultCard = React.memo(function TestResultCard({
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-
-        {(onViewDetails || onCompare) && (
-          <div className="flex gap-2 pt-2">
-            {onViewDetails && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onViewDetails}
-                data-testid={`view-details-${test.id}`}
-              >
-                <Eye className="w-4 h-4 mr-2" />
-                View Details
-              </Button>
-            )}
-            {onCompare && (
-              <Button
-                variant={isComparing ? "default" : "outline"}
-                size="sm"
-                onClick={onCompare}
-                disabled={!canCompare && !isComparing}
-                data-testid={`compare-${test.id}`}
-              >
-                <GitCompare className="w-4 h-4 mr-2" />
-                {isComparing ? "Remove from Compare" : "Add to Compare"}
-              </Button>
-            )}
-          </div>
-        )}
       </CardContent>
     </Card>
   );
