@@ -1022,6 +1022,13 @@ function FlowchartInner() {
   const { fitView } = useReactFlow();
   const isMobile = useIsMobile();
 
+  // Reset selections when leaving the component
+  useEffect(() => {
+    return () => {
+      clearSelections();
+    };
+  }, [clearSelections]);
+
   const handleCompareClick = (currentTest: StatTest, altId: string) => {
     const altTest = statisticalTests.find((t) => t.id === altId);
     if (altTest) {
