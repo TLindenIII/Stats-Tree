@@ -1,0 +1,116 @@
+One-Sample t-Test
+One-Proportion z-Test
+Exact Binomial Test
+Independent Samples (Pooled) t-Test
+Paired Samples t-Test
+One-Way ANOVA
+Two-Way ANOVA
+Repeated Measures ANOVA
+Two-Proportion z-Test
+Mann-Whitney U Test
+Wilcoxon Signed-Rank Test
+Kruskal-Wallis H Test
+Friedman Test
+Pearson Correlation
+Spearman Rank Correlation
+Partial Correlation
+Linear Regression
+Multiple Linear Regression
+Logistic Regression
+Poisson Regression
+Ordinal Logistic Regression
+Chi-Square Test of Independence
+Chi-Square Test (2x2)
+Fisher-Freeman-Halton Exact Test (rxc)
+Fisher's Exact Test
+McNemar's Test
+Linear Mixed Model
+Generalized Linear Mixed Model
+Generalized Estimating Equations (GEE)
+ARIMA Model
+Exponential Smoothing
+Kaplan-Meier Estimator
+Log-Rank Test
+Cox Proportional Hazards
+K-Means Clustering
+Hierarchical Clustering
+Principal Component Analysis
+Factor Analysis
+Random Forest
+Gradient Boosting
+Lasso/Ridge Regression
+Bootstrap
+Permutation Test
+Cross-Validation
+Jackknife
+Power Analysis
+Bartlett's Test
+Brown-Forsythe Test
+Fligner-Killeen Test
+Hartley's F-max Test
+Shapiro-Wilk Test
+Kolmogorov-Smirnov Test
+Anderson-Darling Test
+D'Agostino-Pearson Test
+Levene's Test
+Durbin-Watson Test
+Breusch-Pagan Test
+Variance Inflation Factor (VIF)
+Tukey's HSD
+Dunnett's Test
+Games-Howell Test
+Scheffé's Test
+Dunn's Test
+Bonferroni Correction
+Holm-Bonferroni Method
+Benjamini-Hochberg (FDR)
+Welch's t-Test
+Welch's ANOVA
+ANCOVA
+MANOVA
+Kendall's Tau
+Point-Biserial Correlation
+Cochran's Q Test
+Negative Binomial Regression
+Zero-Inflated Poisson
+Quantile Regression
+Robust Regression
+Probit Regression
+Support Vector Machine (SVM)
+XGBoost
+LightGBM
+CatBoost
+k-Nearest Neighbors (k-NN)
+Naive Bayes
+Decision Tree
+Elastic Net
+Neural Network (MLP)
+DBSCAN
+Gaussian Mixture Model
+t-SNE
+UMAP
+Prophet
+Augmented Dickey-Fuller Test
+Granger Causality Test
+Ljung-Box Test
+Vector Autoregression (VAR)
+Bayesian t-Test
+Bayesian Regression
+Bayesian ANOVA
+Accelerated Failure Time Model
+Competing Risks Analysis
+Random Survival Forest
+Cohen's d
+Hedges' g
+Eta-squared / Partial Eta-squared
+Odds Ratio
+Cramér's V
+Omega Squared (ω²)
+Epsilon Squared (ε²)
+Rank-Biserial Correlation
+Phi Coefficient (φ)
+Risk Ratio (Relative Risk, RR)
+Risk Difference (RD)
+Cohen's Kappa
+Fleiss' Kappa
+Intraclass Correlation (ICC)
