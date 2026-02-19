@@ -25,6 +25,9 @@ export interface Recommendation {
   companions: StatTest[];
 }
 
+import { pythonSnippets } from "./snippets/pythonSnippets";
+import { rSnippets } from "./snippets/rSnippets";
+
 export const statisticalTests: StatTest[] = [
   // One Sample
   {
@@ -48,32 +51,8 @@ export const statisticalTests: StatTest[] = [
     predictorStructure: "none",
     design: "independent",
     alternativeLinks: ["wilcoxon-signed-rank", "permutation-test", "bootstrap", "bayesian-t-test"],
-    pythonCode: `
-# x is a 1D array-like of observations
-# mu0 is the hypothesized population mean
-mu0 = 0.0
-t_stat, p_val = scipy.stats.ttest_1samp(x, popmean=mu0)
-
-# Optional: (1 - alpha) confidence interval for mean difference (mean(x) - mu0)
-alpha = 0.05
-x = np.asarray(x, dtype=float)
-n = x.size
-df = n - 1
-diff_mean = x.mean() - mu0
-se = x.std(ddof=1) / np.sqrt(n)
-tcrit = scipy.stats.t.ppf(1 - alpha / 2, df)
-ci = (diff_mean - tcrit * se, diff_mean + tcrit * se)
-  `.trim(),
-    rCode: `
-# x is a numeric vector of observations
-# mu0 is the hypothesized population mean
-mu0 <- 0
-t_out <- t.test(x, mu = mu0)
-# Optional: extract t statistic, p-value, and confidence interval
-t_stat <- unname(t_out$statistic)
-p_val  <- t_out$p.value
-ci     <- t_out$conf.int
-  `.trim(),
+    pythonCode: pythonSnippets["one-sample-t-test"],
+    rCode: rSnippets["one-sample-t-test"],
   },
   {
     id: "one-proportion-z-test",
@@ -95,8 +74,8 @@ ci     <- t_out$conf.int
     predictorStructure: "none",
     design: "independent",
     alternativeLinks: ["binomial-test", "bootstrap", "permutation-test"],
-    pythonCode: ``,
-    rCode: ``,
+    pythonCode: pythonSnippets["one-proportion-z-test"],
+    rCode: rSnippets["one-proportion-z-test"],
   },
   {
     id: "binomial-test",
@@ -119,8 +98,8 @@ ci     <- t_out$conf.int
     predictorStructure: "none",
     design: "independent",
     alternativeLinks: ["one-proportion-z-test", "bootstrap", "permutation-test"],
-    pythonCode: ``,
-    rCode: ``,
+    pythonCode: pythonSnippets["binomial-test"],
+    rCode: rSnippets["binomial-test"],
   },
 
   // Group Comparison - Parametric
@@ -152,14 +131,8 @@ ci     <- t_out$conf.int
       "bootstrap",
       "bayesian-t-test",
     ],
-    pythonCode: `
-# a and b are 1D arrays of observations
-t_pooled, p_val = scipy.stats.ttest_ind(a, b, equal_var=True)
-`.trim(),
-    rCode: `
-# a and b are numeric vectors of observations
-t_pooled <- t.test(a, b, var.equal = TRUE)
-`.trim(),
+    pythonCode: pythonSnippets["t-test-independent"],
+    rCode: rSnippets["t-test-independent"],
   },
   {
     id: "paired-t-test",
@@ -183,16 +156,8 @@ t_pooled <- t.test(a, b, var.equal = TRUE)
     predictorStructure: "single categorical",
     design: "paired",
     alternativeLinks: ["wilcoxon-signed-rank", "permutation-test", "bootstrap", "bayesian-t-test"],
-    pythonCode: `
-# a and b are paired 1D arrays: each position i is the same subject/unit measured twice
-# (e.g., pre vs post, or condition A vs condition B), so length(a) == length(b).
-t_paired, p_val = scipy.stats.ttest_rel(a, b)
-`.trim(),
-    rCode: `
-# a and b are paired numeric vectors: each position i is the same subject/unit measured twice
-# (e.g., pre vs post, or condition A vs condition B), so length(a) == length(b).
-t_paired <- t.test(a, b, paired = TRUE)
-    `.trim(),
+    pythonCode: pythonSnippets["paired-t-test"],
+    rCode: rSnippets["paired-t-test"],
   },
   {
     id: "one-way-anova",
@@ -211,8 +176,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["welch-anova", "kruskal-wallis", "permutation-test", "bootstrap", "bayesian-anova"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["one-way-anova"],
+    rCode: rSnippets["one-way-anova"],
   },
   {
     id: "two-way-anova",
@@ -236,8 +201,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "multiple categorical",
     design: "factorial",
     alternativeLinks: ["linear-mixed-model", "ancova", "manova", "bayesian-anova"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["two-way-anova"],
+    rCode: rSnippets["two-way-anova"],
   },
   {
     id: "repeated-measures-anova",
@@ -256,8 +221,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "repeated",
     alternativeLinks: ["linear-mixed-model", "friedman-test", "permutation-test", "bootstrap"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["repeated-measures-anova"],
+    rCode: rSnippets["repeated-measures-anova"],
   },
   {
     id: "two-proportion-z-test",
@@ -279,8 +244,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["chi-square-2x2", "fisher-exact", "bootstrap", "permutation-test"],
-    pythonCode: ``,
-    rCode: ``,
+    pythonCode: pythonSnippets["two-proportion-z-test"],
+    rCode: rSnippets["two-proportion-z-test"],
   },
   // Group Comparison - Non-parametric
   {
@@ -299,8 +264,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["welch-t-test", "t-test-independent", "permutation-test", "bootstrap"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["mann-whitney"],
+    rCode: rSnippets["mann-whitney"],
   },
   {
     id: "wilcoxon-signed-rank",
@@ -322,8 +287,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "paired",
     alternativeLinks: ["paired-t-test", "permutation-test", "bootstrap"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["wilcoxon-signed-rank"],
+    rCode: rSnippets["wilcoxon-signed-rank"],
   },
   {
     id: "kruskal-wallis",
@@ -346,8 +311,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["one-way-anova", "welch-anova", "permutation-test", "bootstrap", "dunn-test"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["kruskal-wallis"],
+    rCode: rSnippets["kruskal-wallis"],
   },
   {
     id: "friedman-test",
@@ -366,8 +331,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "repeated",
     alternativeLinks: ["repeated-measures-anova", "linear-mixed-model", "permutation-test", "bootstrap"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["friedman-test"],
+    rCode: rSnippets["friedman-test"],
   },
 
   // Relationship/Correlation
@@ -392,8 +357,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single continuous",
     design: "independent",
     alternativeLinks: ["spearman-correlation", "kendall-tau", "partial-correlation"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["pearson-correlation"],
+    rCode: rSnippets["pearson-correlation"],
   },
   {
     id: "spearman-correlation",
@@ -411,8 +376,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single continuous",
     design: "independent",
     alternativeLinks: ["kendall-tau", "pearson-correlation", "partial-correlation"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["spearman-correlation"],
+    rCode: rSnippets["spearman-correlation"],
   },
   {
     id: "partial-correlation",
@@ -427,8 +392,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "multiple continuous",
     design: "independent",
     alternativeLinks: ["multiple-regression", "pearson-correlation", "spearman-correlation"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["partial-correlation"],
+    rCode: rSnippets["partial-correlation"],
   },
   // Regression
   {
@@ -452,8 +417,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single continuous",
     design: "independent",
     alternativeLinks: ["multiple-regression", "robust-regression", "quantile-regression", "bayesian-regression"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["linear-regression"],
+    rCode: rSnippets["linear-regression"],
   },
   {
     id: "multiple-regression",
@@ -473,8 +438,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["linear-regression", "robust-regression", "quantile-regression", "bayesian-regression", "lasso-ridge", "elastic-net"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["multiple-regression"],
+    rCode: rSnippets["multiple-regression"],
   },
   {
     id: "logistic-regression",
@@ -493,8 +458,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["probit-regression", "naive-bayes", "svm", "random-forest", "gradient-boosting"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["logistic-regression"],
+    rCode: rSnippets["logistic-regression"],
   },
   {
     id: "poisson-regression",
@@ -514,8 +479,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["negative-binomial", "zero-inflated-poisson", "glmm", "gee"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["poisson-regression"],
+    rCode: rSnippets["poisson-regression"],
   },
   {
     id: "ordinal-regression",
@@ -529,8 +494,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["logistic-regression", "random-forest", "gradient-boosting"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["ordinal-regression"],
+    rCode: rSnippets["ordinal-regression"],
   },
   // Categorical Analysis
   {
@@ -554,8 +519,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["fisher-freeman-halton", "fisher-exact"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["chi-square"],
+    rCode: rSnippets["chi-square"],
   },
   {
     id: "chi-square-2x2",
@@ -569,8 +534,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["fisher-exact", "two-proportion-z-test", "phi-coefficient", "odds-ratio"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["chi-square-2x2"],
+    rCode: rSnippets["chi-square-2x2"],
   },
   {
     id: "fisher-freeman-halton",
@@ -594,8 +559,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["chi-square", "permutation-test"],
-    pythonCode: ``,
-    rCode: ``,
+    pythonCode: pythonSnippets["fisher-freeman-halton"],
+    rCode: rSnippets["fisher-freeman-halton"],
   },
   {
     id: "fisher-exact",
@@ -610,8 +575,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["chi-square-2x2", "two-proportion-z-test", "bootstrap", "permutation-test"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["fisher-exact"],
+    rCode: rSnippets["fisher-exact"],
   },
   {
     id: "mcnemar-test",
@@ -625,8 +590,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "paired",
     alternativeLinks: ["cochran-q", "permutation-test"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["mcnemar-test"],
+    rCode: rSnippets["mcnemar-test"],
   },
   // Mixed/Multilevel Models
   {
@@ -646,8 +611,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "multiple mixed",
     design: "longitudinal",
     alternativeLinks: ["repeated-measures-anova", "glmm", "gee", "bayesian-regression"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["linear-mixed-model"],
+    rCode: rSnippets["linear-mixed-model"],
   },
   {
     id: "glmm",
@@ -668,8 +633,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "multiple mixed",
     design: "longitudinal",
     alternativeLinks: ["gee", "logistic-regression", "poisson-regression"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["glmm"],
+    rCode: rSnippets["glmm"],
   },
   {
     id: "gee",
@@ -692,8 +657,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "multiple mixed",
     design: "clustered",
     alternativeLinks: ["glmm", "linear-mixed-model", "logistic-regression", "poisson-regression"],
-    pythonCode: ``,
-    rCode: ``,
+    pythonCode: pythonSnippets["gee"],
+    rCode: rSnippets["gee"],
   },
   // Time Series
   {
@@ -712,8 +677,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "none",
     design: "time-series",
     alternativeLinks: ["exponential-smoothing", "prophet", "var"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["arima"],
+    rCode: rSnippets["arima"],
   },
   {
     id: "exponential-smoothing",
@@ -728,8 +693,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "none",
     design: "time-series",
     alternativeLinks: ["arima", "prophet"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["exponential-smoothing"],
+    rCode: rSnippets["exponential-smoothing"],
   },
   // Survival Analysis
   {
@@ -752,8 +717,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "none",
     design: "longitudinal",
     alternativeLinks: ["cox-regression", "accelerated-failure-time"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["kaplan-meier"],
+    rCode: rSnippets["kaplan-meier"],
   },
   {
     id: "log-rank-test",
@@ -771,8 +736,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "longitudinal",
     alternativeLinks: ["cox-regression", "accelerated-failure-time"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["log-rank-test"],
+    rCode: rSnippets["log-rank-test"],
   },
   {
     id: "cox-regression",
@@ -790,8 +755,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "multiple mixed",
     design: "longitudinal",
     alternativeLinks: ["accelerated-failure-time", "random-survival-forest", "competing-risks", "kaplan-meier"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["cox-regression"],
+    rCode: rSnippets["cox-regression"],
   },
   // Unsupervised Learning
   {
@@ -806,8 +771,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "none",
     design: "independent",
     alternativeLinks: ["gaussian-mixture", "hierarchical-clustering", "dbscan"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["kmeans"],
+    rCode: rSnippets["kmeans"],
   },
   {
     id: "hierarchical-clustering",
@@ -825,8 +790,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "none",
     design: "independent",
     alternativeLinks: ["kmeans", "dbscan", "gaussian-mixture"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["hierarchical-clustering"],
+    rCode: rSnippets["hierarchical-clustering"],
   },
   {
     id: "pca",
@@ -844,8 +809,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "none",
     design: "independent",
     alternativeLinks: ["factor-analysis", "umap", "tsne"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["pca"],
+    rCode: rSnippets["pca"],
   },
   {
     id: "factor-analysis",
@@ -863,8 +828,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "none",
     design: "independent",
     alternativeLinks: ["pca"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["factor-analysis"],
+    rCode: rSnippets["factor-analysis"],
   },
   // Machine Learning
   {
@@ -880,8 +845,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["gradient-boosting", "xgboost", "lightgbm", "catboost", "svm", "knn", "decision-tree", "neural-network-mlp"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["random-forest"],
+    rCode: rSnippets["random-forest"],
   },
   {
     id: "gradient-boosting",
@@ -895,8 +860,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["xgboost", "lightgbm", "catboost", "random-forest", "decision-tree"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["gradient-boosting"],
+    rCode: rSnippets["gradient-boosting"],
   },
   {
     id: "lasso-ridge",
@@ -910,8 +875,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "multiple continuous",
     design: "independent",
     alternativeLinks: ["elastic-net", "multiple-regression", "bayesian-regression"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["lasso-ridge"],
+    rCode: rSnippets["lasso-ridge"],
   },
   // RESAMPLING
   {
@@ -926,8 +891,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "none",
     design: "independent",
     alternativeLinks: ["permutation-test", "jackknife", "cross-validation"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["bootstrap"],
+    rCode: rSnippets["bootstrap"],
   },
   {
     id: "permutation-test",
@@ -941,8 +906,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["bootstrap", "mann-whitney", "wilcoxon-signed-rank"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["permutation-test"],
+    rCode: rSnippets["permutation-test"],
   },
   {
     id: "cross-validation",
@@ -964,8 +929,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "any",
     design: "resampling",
     alternativeLinks: ["bootstrap", "jackknife"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["cross-validation"],
+    rCode: rSnippets["cross-validation"],
   },
   {
     id: "jackknife",
@@ -987,8 +952,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "none",
     design: "resampling",
     alternativeLinks: ["bootstrap", "cross-validation"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["jackknife"],
+    rCode: rSnippets["jackknife"],
   },
 
   // Power Analysis
@@ -1004,8 +969,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "none",
     design: "independent",
     alternativeLinks: ["cohens-d", "odds-ratio", "risk-ratio"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["power-analysis"],
+    rCode: rSnippets["power-analysis"],
   },
   {
     id: "bartlett-test",
@@ -1020,8 +985,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["levene-test", "brown-forsythe", "fligner-killeen"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["bartlett-test"],
+    rCode: rSnippets["bartlett-test"],
   },
   {
     id: "brown-forsythe",
@@ -1035,8 +1000,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["levene-test", "fligner-killeen", "bartlett-test"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["brown-forsythe"],
+    rCode: rSnippets["brown-forsythe"],
   },
   {
     id: "fligner-killeen",
@@ -1051,8 +1016,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["levene-test", "brown-forsythe"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["fligner-killeen"],
+    rCode: rSnippets["fligner-killeen"],
   },
   {
     id: "hartley-fmax",
@@ -1067,8 +1032,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["bartlett-test", "levene-test", "brown-forsythe"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["hartley-fmax"],
+    rCode: rSnippets["hartley-fmax"],
   },
   // Normality Tests
   {
@@ -1088,8 +1053,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "none",
     design: "independent",
     alternativeLinks: ["anderson-darling", "dagostino-pearson", "kolmogorov-smirnov"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["shapiro-wilk"],
+    rCode: rSnippets["shapiro-wilk"],
   },
   {
     id: "kolmogorov-smirnov",
@@ -1108,8 +1073,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "none",
     design: "independent",
     alternativeLinks: ["anderson-darling", "shapiro-wilk"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["kolmogorov-smirnov"],
+    rCode: rSnippets["kolmogorov-smirnov"],
   },
   {
     id: "anderson-darling",
@@ -1128,8 +1093,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "none",
     design: "independent",
     alternativeLinks: ["shapiro-wilk", "kolmogorov-smirnov", "dagostino-pearson"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["anderson-darling"],
+    rCode: rSnippets["anderson-darling"],
   },
   {
     id: "dagostino-pearson",
@@ -1143,8 +1108,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "none",
     design: "independent",
     alternativeLinks: ["shapiro-wilk", "anderson-darling"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["dagostino-pearson"],
+    rCode: rSnippets["dagostino-pearson"],
   },
   // Variance Tests
   {
@@ -1168,8 +1133,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["brown-forsythe", "fligner-killeen", "bartlett-test", "hartley-fmax"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["levene-test"],
+    rCode: rSnippets["levene-test"],
   },
   // Regression Diagnostics
   {
@@ -1184,8 +1149,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "none",
     design: "time-series",
     alternativeLinks: ["ljung-box", "granger-causality"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["durbin-watson"],
+    rCode: rSnippets["durbin-watson"],
   },
   {
     id: "breusch-pagan",
@@ -1199,8 +1164,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["durbin-watson", "quantile-regression", "robust-regression"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["breusch-pagan"],
+    rCode: rSnippets["breusch-pagan"],
   },
   {
     id: "vif",
@@ -1215,8 +1180,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["lasso-ridge", "elastic-net"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["vif"],
+    rCode: rSnippets["vif"],
   },
 
   // === POST-HOC TESTS ===
@@ -1233,8 +1198,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["games-howell", "scheffe-test", "bonferroni", "holm-bonferroni"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["tukey-hsd"],
+    rCode: rSnippets["tukey-hsd"],
   },
   {
     id: "dunnett-test",
@@ -1248,8 +1213,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["tukey-hsd", "bonferroni", "holm-bonferroni"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["dunnett-test"],
+    rCode: rSnippets["dunnett-test"],
   },
   {
     id: "games-howell",
@@ -1263,8 +1228,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["tukey-hsd", "scheffe-test", "welch-anova"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["games-howell"],
+    rCode: rSnippets["games-howell"],
   },
   {
     id: "scheffe-test",
@@ -1278,8 +1243,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["tukey-hsd", "games-howell", "bonferroni", "holm-bonferroni"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["scheffe-test"],
+    rCode: rSnippets["scheffe-test"],
   },
   {
     id: "dunn-test",
@@ -1293,8 +1258,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["kruskal-wallis", "bonferroni", "holm-bonferroni", "benjamini-hochberg"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["dunn-test"],
+    rCode: rSnippets["dunn-test"],
   },
 
   // === PVALUE ADJUSTMENTS ===
@@ -1310,8 +1275,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["holm-bonferroni", "benjamini-hochberg", "tukey-hsd"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["bonferroni"],
+    rCode: rSnippets["bonferroni"],
   },
   {
     id: "holm-bonferroni",
@@ -1326,8 +1291,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["bonferroni", "benjamini-hochberg"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["holm-bonferroni"],
+    rCode: rSnippets["holm-bonferroni"],
   },
   {
     id: "benjamini-hochberg",
@@ -1342,8 +1307,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["holm-bonferroni", "bonferroni"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["benjamini-hochberg"],
+    rCode: rSnippets["benjamini-hochberg"],
   },
 
   // === ADDITIONAL GROUP COMPARISON ===
@@ -1367,14 +1332,8 @@ t_paired <- t.test(a, b, paired = TRUE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["mann-whitney", "t-test-independent", "permutation-test", "bootstrap", "bayesian-t-test"],
-    pythonCode: `
-# a and b are 1D arrays of observations
-t_welch, p_val = scipy.stats.ttest_ind(a, b, equal_var=False)
-    `.trim(),
-    rCode: `
-# a and b are numeric vectors of observations
-t_welch <- t.test(a, b, var.equal = FALSE)
-    `.trim(),
+    pythonCode: pythonSnippets["welch-t-test"],
+    rCode: rSnippets["welch-t-test"],
   },
   {
     id: "welch-anova",
@@ -1388,8 +1347,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["one-way-anova", "kruskal-wallis", "games-howell", "permutation-test", "bootstrap", "bayesian-anova"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["welch-anova"],
+    rCode: rSnippets["welch-anova"],
   },
   {
     id: "ancova",
@@ -1408,8 +1367,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "mixed",
     design: "independent",
     alternativeLinks: ["multiple-regression", "linear-mixed-model", "bayesian-regression"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["ancova"],
+    rCode: rSnippets["ancova"],
   },
   {
     id: "manova",
@@ -1424,8 +1383,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["two-way-anova"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["manova"],
+    rCode: rSnippets["manova"],
   },
 
   // === ADDITIONAL CORRELATION ===
@@ -1442,8 +1401,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "single continuous",
     design: "independent",
     alternativeLinks: ["spearman-correlation", "pearson-correlation"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["kendall-tau"],
+    rCode: rSnippets["kendall-tau"],
   },
   {
     id: "point-biserial",
@@ -1457,8 +1416,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["pearson-correlation", "spearman-correlation", "t-test-independent", "welch-t-test"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["point-biserial"],
+    rCode: rSnippets["point-biserial"],
   },
 
   // === ADDITIONAL CATEGORICAL ===
@@ -1474,8 +1433,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "single categorical",
     design: "repeated",
     alternativeLinks: ["mcnemar-test", "friedman-test", "permutation-test"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["cochran-q"],
+    rCode: rSnippets["cochran-q"],
   },
 
   // === ADDITIONAL REGRESSION ===
@@ -1491,8 +1450,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["poisson-regression", "zero-inflated-poisson", "glmm", "gee"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["negative-binomial"],
+    rCode: rSnippets["negative-binomial"],
   },
   {
     id: "zero-inflated-poisson",
@@ -1506,8 +1465,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["negative-binomial", "poisson-regression"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["zero-inflated-poisson"],
+    rCode: rSnippets["zero-inflated-poisson"],
   },
   {
     id: "quantile-regression",
@@ -1521,8 +1480,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["robust-regression", "linear-regression", "multiple-regression"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["quantile-regression"],
+    rCode: rSnippets["quantile-regression"],
   },
   {
     id: "robust-regression",
@@ -1536,8 +1495,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["quantile-regression", "linear-regression", "multiple-regression", "bayesian-regression"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["robust-regression"],
+    rCode: rSnippets["robust-regression"],
   },
   {
     id: "probit-regression",
@@ -1551,8 +1510,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["logistic-regression", "bayesian-regression"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["probit-regression"],
+    rCode: rSnippets["probit-regression"],
   },
 
   // === ADDITIONAL ML METHODS ===
@@ -1569,8 +1528,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["logistic-regression", "random-forest", "gradient-boosting", "xgboost"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["svm"],
+    rCode: rSnippets["svm"],
   },
   {
     id: "xgboost",
@@ -1584,8 +1543,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["gradient-boosting", "lightgbm", "catboost", "random-forest"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["xgboost"],
+    rCode: rSnippets["xgboost"],
   },
   {
     id: "lightgbm",
@@ -1599,8 +1558,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["xgboost", "catboost", "gradient-boosting", "random-forest"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["lightgbm"],
+    rCode: rSnippets["lightgbm"],
   },
   {
     id: "catboost",
@@ -1614,8 +1573,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["xgboost", "lightgbm", "gradient-boosting", "random-forest"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["catboost"],
+    rCode: rSnippets["catboost"],
   },
   {
     id: "knn",
@@ -1630,8 +1589,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["svm", "random-forest", "gradient-boosting", "decision-tree"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["knn"],
+    rCode: rSnippets["knn"],
   },
   {
     id: "naive-bayes",
@@ -1645,8 +1604,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["logistic-regression", "svm", "random-forest"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["naive-bayes"],
+    rCode: rSnippets["naive-bayes"],
   },
   {
     id: "decision-tree",
@@ -1660,8 +1619,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["random-forest", "gradient-boosting", "xgboost"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["decision-tree"],
+    rCode: rSnippets["decision-tree"],
   },
   {
     id: "elastic-net",
@@ -1679,8 +1638,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple continuous",
     design: "independent",
     alternativeLinks: ["lasso-ridge", "multiple-regression", "bayesian-regression"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["elastic-net"],
+    rCode: rSnippets["elastic-net"],
   },
   {
     id: "neural-network-mlp",
@@ -1694,8 +1653,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["random-forest", "gradient-boosting", "xgboost", "lightgbm", "catboost"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["neural-network-mlp"],
+    rCode: rSnippets["neural-network-mlp"],
   },
   {
     id: "dbscan",
@@ -1710,8 +1669,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "none",
     design: "independent",
     alternativeLinks: ["gaussian-mixture", "hierarchical-clustering", "kmeans"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["dbscan"],
+    rCode: rSnippets["dbscan"],
   },
   {
     id: "gaussian-mixture",
@@ -1726,8 +1685,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "none",
     design: "independent",
     alternativeLinks: ["kmeans", "dbscan", "hierarchical-clustering"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["gaussian-mixture"],
+    rCode: rSnippets["gaussian-mixture"],
   },
   {
     id: "tsne",
@@ -1742,8 +1701,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "none",
     design: "independent",
     alternativeLinks: ["umap", "pca"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["tsne"],
+    rCode: rSnippets["tsne"],
   },
   {
     id: "umap",
@@ -1758,8 +1717,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "none",
     design: "independent",
     alternativeLinks: ["tsne", "pca"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["umap"],
+    rCode: rSnippets["umap"],
   },
 
   // === ADDITIONAL TIME SERIES ===
@@ -1776,8 +1735,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "none",
     design: "time-series",
     alternativeLinks: ["arima", "exponential-smoothing", "var"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["prophet"],
+    rCode: rSnippets["prophet"],
   },
   {
     id: "adf-test",
@@ -1791,8 +1750,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "none",
     design: "time-series",
     alternativeLinks: ["ljung-box", "arima"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["adf-test"],
+    rCode: rSnippets["adf-test"],
   },
   {
     id: "granger-causality",
@@ -1806,8 +1765,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple continuous",
     design: "time-series",
     alternativeLinks: ["var", "arima"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["granger-causality"],
+    rCode: rSnippets["granger-causality"],
   },
   {
     id: "ljung-box",
@@ -1821,8 +1780,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "none",
     design: "time-series",
     alternativeLinks: ["durbin-watson", "adf-test"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["ljung-box"],
+    rCode: rSnippets["ljung-box"],
   },
   {
     id: "var",
@@ -1837,8 +1796,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple continuous",
     design: "time-series",
     alternativeLinks: ["arima", "granger-causality", "prophet"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["var"],
+    rCode: rSnippets["var"],
   },
 
   // === BAYESIAN METHODS ===
@@ -1858,8 +1817,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["t-test-independent", "welch-t-test", "paired-t-test", "one-sample-t-test", "bayesian-anova"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["bayesian-t-test"],
+    rCode: rSnippets["bayesian-t-test"],
   },
   {
     id: "bayesian-regression",
@@ -1874,8 +1833,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple mixed",
     design: "independent",
     alternativeLinks: ["linear-regression", "multiple-regression", "robust-regression", "quantile-regression"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["bayesian-regression"],
+    rCode: rSnippets["bayesian-regression"],
   },
   {
     id: "bayesian-anova",
@@ -1889,8 +1848,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["one-way-anova", "welch-anova", "bayesian-t-test"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["bayesian-anova"],
+    rCode: rSnippets["bayesian-anova"],
   },
 
   // === ADDITIONAL SURVIVAL ANALYSIS ===
@@ -1914,8 +1873,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple mixed",
     design: "longitudinal",
     alternativeLinks: ["cox-regression", "random-survival-forest"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["accelerated-failure-time"],
+    rCode: rSnippets["accelerated-failure-time"],
   },
   {
     id: "competing-risks",
@@ -1929,8 +1888,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple mixed",
     design: "longitudinal",
     alternativeLinks: ["cox-regression", "kaplan-meier", "random-survival-forest"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["competing-risks"],
+    rCode: rSnippets["competing-risks"],
   },
   {
     id: "random-survival-forest",
@@ -1948,8 +1907,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "multiple mixed",
     design: "longitudinal",
     alternativeLinks: ["cox-regression", "accelerated-failure-time", "competing-risks"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["random-survival-forest"],
+    rCode: rSnippets["random-survival-forest"],
   },
 
   // === EFFECT SIZE MEASURES ===
@@ -1965,8 +1924,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["hedges-g", "eta-squared", "rank-biserial"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["cohens-d"],
+    rCode: rSnippets["cohens-d"],
   },
   {
     id: "hedges-g",
@@ -1980,8 +1939,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["cohens-d"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["hedges-g"],
+    rCode: rSnippets["hedges-g"],
   },
   {
     id: "eta-squared",
@@ -1995,8 +1954,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["omega-squared", "epsilon-squared"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["eta-squared"],
+    rCode: rSnippets["eta-squared"],
   },
   {
     id: "odds-ratio",
@@ -2010,8 +1969,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["risk-ratio", "risk-difference", "phi-coefficient"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["odds-ratio"],
+    rCode: rSnippets["odds-ratio"],
   },
   {
     id: "cramers-v",
@@ -2025,8 +1984,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "single categorical",
     design: "independent",
     alternativeLinks: ["phi-coefficient", "chi-square", "fisher-exact"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["cramers-v"],
+    rCode: rSnippets["cramers-v"],
   },
   {
     id: "omega-squared",
@@ -2047,8 +2006,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "categorical",
     design: "between",
     alternativeLinks: ["eta-squared"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["omega-squared"],
+    rCode: rSnippets["omega-squared"],
   },
   {
     id: "epsilon-squared",
@@ -2070,8 +2029,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "categorical",
     design: "between",
     alternativeLinks: ["rank-biserial", "eta-squared", "omega-squared"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["epsilon-squared"],
+    rCode: rSnippets["epsilon-squared"],
   },
   {
     id: "rank-biserial",
@@ -2093,8 +2052,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "binary",
     design: "between",
     alternativeLinks: ["epsilon-squared", "cohens-d", "hedges-g"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["rank-biserial"],
+    rCode: rSnippets["rank-biserial"],
   },
   {
     id: "phi-coefficient",
@@ -2115,8 +2074,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "binary",
     design: "between",
     alternativeLinks: ["cramers-v", "odds-ratio", "risk-ratio", "risk-difference"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["phi-coefficient"],
+    rCode: rSnippets["phi-coefficient"],
   },
   {
     id: "risk-ratio",
@@ -2138,8 +2097,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "binary",
     design: "between",
     alternativeLinks: ["risk-difference", "odds-ratio", "phi-coefficient"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["risk-ratio"],
+    rCode: rSnippets["risk-ratio"],
   },
   {
     id: "risk-difference",
@@ -2161,8 +2120,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "binary",
     design: "between",
     alternativeLinks: ["risk-ratio", "odds-ratio", "phi-coefficient"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["risk-difference"],
+    rCode: rSnippets["risk-difference"],
   },
 
   // === AGREEMENT ===
@@ -2179,8 +2138,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "none",
     design: "independent",
     alternativeLinks: ["fleiss-kappa", "intraclass-correlation"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["cohens-kappa"],
+    rCode: rSnippets["cohens-kappa"],
   },
   {
     id: "fleiss-kappa",
@@ -2194,8 +2153,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "none",
     design: "independent",
     alternativeLinks: ["cohens-kappa", "intraclass-correlation"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["fleiss-kappa"],
+    rCode: rSnippets["fleiss-kappa"],
   },
   {
     id: "intraclass-correlation",
@@ -2210,8 +2169,8 @@ t_welch <- t.test(a, b, var.equal = FALSE)
     predictorStructure: "none",
     design: "repeated",
     alternativeLinks: ["linear-mixed-model", "cohens-kappa", "fleiss-kappa"],
-    pythonCode: "",
-    rCode: "",
+    pythonCode: pythonSnippets["intraclass-correlation"],
+    rCode: rSnippets["intraclass-correlation"],
   },
 ];
 
