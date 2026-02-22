@@ -10,6 +10,7 @@ import {
   GitCompare,
   ChevronLeft,
   ChevronRight,
+  DraftingCompass,
 } from "lucide-react";
 import type { StatTest } from "@/lib/statsData";
 import ReactMarkdown from "react-markdown";
@@ -25,7 +26,7 @@ interface CompareSheetProps {
   onNext?: () => void;
   hasPrev?: boolean;
   hasNext?: boolean;
-  context?: "wizard" | "browse";
+  context?: "wizard" | "browse" | "companion";
 }
 
 export function CompareSheet({
@@ -42,6 +43,7 @@ export function CompareSheet({
   if (tests.length === 0) return null;
 
   const showNavigation = onPrev && onNext && (hasPrev || hasNext);
+  const isSingleTest = tests.length === 1;
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
@@ -51,14 +53,33 @@ export function CompareSheet({
       >
         <DialogHeader className="px-6 pt-6 pb-4 border-b bg-muted/30">
           <DialogTitle className="flex items-center gap-2 text-xl">
-            <GitCompare className="w-5 h-5 text-primary" />
-            Compare Statistical Tests
+            {context === "companion" ? (
+              <>
+                <DraftingCompass className="w-5 h-5 text-primary" />
+                Useful Companions
+              </>
+            ) : context === "wizard" ? (
+              <>
+                <GitCompare className="w-5 h-5 text-primary" />
+                Compare Alternatives
+              </>
+            ) : isSingleTest ? (
+              <>
+                <DraftingCompass className="w-5 h-5 text-primary" />
+                Test Details
+              </>
+            ) : (
+              <>
+                <GitCompare className="w-5 h-5 text-primary" />
+                Compare Statistical Tests
+              </>
+            )}
           </DialogTitle>
         </DialogHeader>
 
         <ScrollArea className="max-h-[calc(90vh-100px)]">
           <div
-            className={`p-6 grid gap-4 grid-cols-1 ${tests.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2"}`}
+            className={`p-6 grid gap-4 grid-cols-1 ${tests.length === 3 ? "md:grid-cols-3" : tests.length === 2 ? "md:grid-cols-2" : "md:grid-cols-1 max-w-2xl mx-auto"}`}
           >
             {tests.map((test, index) => (
               <Card

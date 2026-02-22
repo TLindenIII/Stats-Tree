@@ -76,13 +76,12 @@ export default function Results() {
   const [compareTests, setCompareTests] = useState<StatTest[]>([]);
   const [showCompare, setShowCompare] = useState(false);
   const [currentBaseTest, setCurrentBaseTest] = useState<StatTest | null>(null);
-  const [alternativesList, setAlternativesList] = useState<string[]>([]);
-  const [currentAltIndex, setCurrentAltIndex] = useState(0);
+  const [cycleList, setCycleList] = useState<string[]>([]);
+  const [currentCycleIndex, setCurrentCycleIndex] = useState(0);
+  const [compareContext, setCompareContext] = useState<"wizard" | "companion" | "browse">("wizard");
   const [selectedTest, setSelectedTest] = useState<StatTest | null>(null);
 
   const handleStepClick = (stepIndex: number) => {
-    // visibleSteps contains the subset of steps that have been selected.
-    // The index passed here corresponds to the index in visibleSteps.
     const targetStep = visibleSteps[stepIndex];
     if (targetStep) {
       setLocation(
@@ -91,6 +90,47 @@ export default function Results() {
     }
   };
 
+  const handleAlternativeTileClick = (altId: string) => {
+    const altTest = statisticalTests.find((t) => t.id === altId);
+    if (altTest && primaryTests.length > 0) {
+      const baseTest = primaryTests[0]; // Compare against the top recommended test
+      const altIds = alternativeTests.map((t) => t.id);
+      const altIndex = altIds.indexOf(altId);
+
+      setCurrentBaseTest(baseTest);
+      setCycleList(altIds);
+      setCurrentCycleIndex(altIndex >= 0 ? altIndex : 0);
+      setCompareContext("wizard");
+      setCompareTests([baseTest, altTest]);
+      setShowCompare(true);
+    }
+  };
+
+  const handleCompanionTileClick = (compId: string) => {
+    const compTest = statisticalTests.find((t) => t.id === compId);
+    if (compTest) {
+      const compIds = companionTests.map((t) => t.id);
+      const compIndex = compIds.indexOf(compId);
+      const startIndex = compIndex - (compIndex % 2);
+
+      setCurrentBaseTest(null); // No base test for companions
+      setCycleList(compIds);
+      setCurrentCycleIndex(startIndex >= 0 ? startIndex : 0);
+      setCompareContext("companion");
+
+      const testsToShow = [];
+      const t1 = statisticalTests.find((t) => t.id === compIds[startIndex]);
+      if (t1) testsToShow.push(t1);
+      if (startIndex + 1 < compIds.length) {
+        const t2 = statisticalTests.find((t) => t.id === compIds[startIndex + 1]);
+        if (t2) testsToShow.push(t2);
+      }
+      setCompareTests(testsToShow);
+      setShowCompare(true);
+    }
+  };
+
+  // Keep original for the TestDetailSheet button backward compatibility
   const handleAlternativeClick = (currentTest: StatTest, altId: string) => {
     const altTest = statisticalTests.find((t) => t.id === altId);
     if (altTest) {
@@ -98,31 +138,60 @@ export default function Results() {
       const altIndex = alternatives.indexOf(altId);
 
       setCurrentBaseTest(currentTest);
-      setAlternativesList(alternatives);
-      setCurrentAltIndex(altIndex >= 0 ? altIndex : 0);
+      setCycleList(alternatives);
+      setCurrentCycleIndex(altIndex >= 0 ? altIndex : 0);
+      setCompareContext("wizard");
       setCompareTests([currentTest, altTest]);
       setShowCompare(true);
     }
   };
 
-  const handlePrevAlt = () => {
-    if (currentAltIndex > 0 && currentBaseTest) {
-      const newIndex = currentAltIndex - 1;
-      const altTest = statisticalTests.find((t) => t.id === alternativesList[newIndex]);
-      if (altTest) {
-        setCurrentAltIndex(newIndex);
-        setCompareTests([currentBaseTest, altTest]);
+  const handlePrevCycle = () => {
+    if (currentCycleIndex > 0) {
+      if (compareContext === "companion") {
+        const step = 2;
+        const newIndex = Math.max(0, currentCycleIndex - step);
+        const t1 = statisticalTests.find((t) => t.id === cycleList[newIndex]);
+        const testsToShow = t1 ? [t1] : [];
+        if (newIndex + 1 < cycleList.length) {
+          const t2 = statisticalTests.find((t) => t.id === cycleList[newIndex + 1]);
+          if (t2) testsToShow.push(t2);
+        }
+        setCurrentCycleIndex(newIndex);
+        setCompareTests(testsToShow);
+      } else {
+        const newIndex = currentCycleIndex - 1;
+        const test = statisticalTests.find((t) => t.id === cycleList[newIndex]);
+        if (test) {
+          setCurrentCycleIndex(newIndex);
+          setCompareTests(currentBaseTest ? [currentBaseTest, test] : [test]);
+        }
       }
     }
   };
 
-  const handleNextAlt = () => {
-    if (currentAltIndex < alternativesList.length - 1 && currentBaseTest) {
-      const newIndex = currentAltIndex + 1;
-      const altTest = statisticalTests.find((t) => t.id === alternativesList[newIndex]);
-      if (altTest) {
-        setCurrentAltIndex(newIndex);
-        setCompareTests([currentBaseTest, altTest]);
+  const handleNextCycle = () => {
+    if (compareContext === "companion") {
+      const step = 2;
+      if (currentCycleIndex + step < cycleList.length) {
+        const newIndex = currentCycleIndex + step;
+        const t1 = statisticalTests.find((t) => t.id === cycleList[newIndex]);
+        const testsToShow = t1 ? [t1] : [];
+        if (newIndex + 1 < cycleList.length) {
+          const t2 = statisticalTests.find((t) => t.id === cycleList[newIndex + 1]);
+          if (t2) testsToShow.push(t2);
+        }
+        setCurrentCycleIndex(newIndex);
+        setCompareTests(testsToShow);
+      }
+    } else {
+      if (currentCycleIndex < cycleList.length - 1) {
+        const newIndex = currentCycleIndex + 1;
+        const test = statisticalTests.find((t) => t.id === cycleList[newIndex]);
+        if (test) {
+          setCurrentCycleIndex(newIndex);
+          setCompareTests(currentBaseTest ? [currentBaseTest, test] : [test]);
+        }
       }
     }
   };
@@ -236,7 +305,7 @@ export default function Results() {
                         <TestTile
                           key={test.id}
                           test={test}
-                          onClick={() => setSelectedTest(test)}
+                          onClick={() => handleAlternativeTileClick(test.id)}
                           hoverColor="green"
                         />
                       ))}
@@ -270,7 +339,7 @@ export default function Results() {
                         <TestTile
                           key={test.id}
                           test={test}
-                          onClick={() => setSelectedTest(test)}
+                          onClick={() => handleCompanionTileClick(test.id)}
                           hoverColor="amber"
                         />
                       ))}
@@ -300,10 +369,15 @@ export default function Results() {
         open={showCompare}
         onClose={() => setShowCompare(false)}
         onRemoveTest={removeFromCompare}
-        onPrev={handlePrevAlt}
-        onNext={handleNextAlt}
-        hasPrev={currentAltIndex > 0}
-        hasNext={currentAltIndex < alternativesList.length - 1}
+        onPrev={handlePrevCycle}
+        onNext={handleNextCycle}
+        hasPrev={currentCycleIndex > 0}
+        hasNext={
+          compareContext === "companion"
+            ? currentCycleIndex < cycleList.length - 2
+            : currentCycleIndex < cycleList.length - 1
+        }
+        context={compareContext}
       />
 
       <TestDetailSheet
