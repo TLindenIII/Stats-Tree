@@ -177,7 +177,7 @@ export function TestDetailSheet({
                   <Code className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                   Code Examples
                 </h4>
-                <div className="space-y-3">
+                <div className="space-y-6">
                   <div>
                     <h5 className="text-xs font-medium mb-1 flex items-center gap-2">
                       <Badge variant="outline" className="text-[10px]">
@@ -189,6 +189,9 @@ export function TestDetailSheet({
                       lang="python"
                     />
                   </div>
+
+                  <hr className="border-border my-4" />
+
                   <div>
                     <h5 className="text-xs font-medium mb-1 flex items-center gap-2">
                       <Badge variant="outline" className="text-[10px]">

@@ -231,7 +231,7 @@ export const TestResultCard = React.memo(function TestResultCard({
               </span>
             </AccordionTrigger>
             <AccordionContent>
-              <div className="space-y-4">
+              <div className="space-y-6 mt-2">
                 <div>
                   <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
                     <Badge variant="outline" className="text-xs">
@@ -243,6 +243,9 @@ export const TestResultCard = React.memo(function TestResultCard({
                     lang="python"
                   />
                 </div>
+
+                <hr className="border-border my-4" />
+
                 <div>
                   <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
                     <Badge variant="outline" className="text-xs">
