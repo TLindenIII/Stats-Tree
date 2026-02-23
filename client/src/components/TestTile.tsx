@@ -5,13 +5,14 @@ import ReactMarkdown from "react-markdown";
 
 interface TestTileProps {
   test: StatTest;
-  onClick?: () => void;
-  hoverColor?: "default" | "blue" | "amber" | "green";
+  onClick: () => void;
+  hoverColor?: "blue" | "green" | "amber" | "primary";
+  className?: string;
 }
 
-export function TestTile({ test, onClick, hoverColor = "default" }: TestTileProps) {
+export function TestTile({ test, onClick, hoverColor = "primary", className = "" }: TestTileProps) {
   const hoverClasses = {
-    default: "hover:border-primary/50",
+    primary: "hover:border-primary/50",
     blue: "hover:border-blue-500 hover:ring-1 hover:ring-blue-500/20",
     amber: "hover:border-amber-500 hover:ring-1 hover:ring-amber-500/20",
     green: "hover:border-green-500 hover:ring-1 hover:ring-green-500/20",
@@ -19,9 +20,7 @@ export function TestTile({ test, onClick, hoverColor = "default" }: TestTileProp
 
   return (
     <Card
-      className={`h-full transition-all hover:shadow-md border bg-card text-card-foreground ${
-        onClick ? `cursor-pointer ${hoverClasses[hoverColor]}` : ""
-      }`}
+      className={`h-full transition-all hover:shadow-md border bg-card text-card-foreground cursor-pointer ${hoverClasses[hoverColor]} ${className}`}
       onClick={onClick}
     >
       <CardHeader className="pb-2">

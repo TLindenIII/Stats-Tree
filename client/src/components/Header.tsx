@@ -4,7 +4,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { NavLinks } from "@/components/NavLinks";
 
 interface HeaderProps {
-  currentPage: "home" | "wizard" | "flowchart" | "browse" | "glossary";
+  currentPage: "home" | "wizard" | "flowchart" | "browse" | "glossary" | "cascading";
 }
 
 export function Header({ currentPage }: HeaderProps) {
