@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { glossaryTerms } from "@/lib/glossaryData";
+import { statisticalTests } from "@/lib/statsData";
 import { Input } from "@/components/ui/input";
 import { Header } from "@/components/Header";
 import {
@@ -12,11 +13,22 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 
 export default function Glossary() {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
+
+  const getTermDetails = (termName: string) => {
+    const gTerm = glossaryTerms.find((t) => t.term.toLowerCase() === termName.toLowerCase());
+    if (gTerm) return { name: gTerm.term, desc: gTerm.definition };
+
+    const sTerm = statisticalTests.find((t) => t.name.toLowerCase() === termName.toLowerCase());
+    if (sTerm) return { name: sTerm.name, desc: sTerm.description };
+
+    return { name: termName, desc: "Definition not available." };
+  };
 
   const filteredTerms = glossaryTerms
     .filter(
@@ -70,7 +82,27 @@ export default function Glossary() {
                   {item.relatedTerms && (
                     <div className="mt-1.5 text-xs">
                       <span className="font-medium text-muted-foreground/70">See also: </span>
-                      <span className="text-primary/80">{item.relatedTerms.join(", ")}</span>
+                      {item.relatedTerms.map((relatedTerm, index) => {
+                        const details = getTermDetails(relatedTerm);
+                        return (
+                          <span key={relatedTerm}>
+                            <HoverCard>
+                              <HoverCardTrigger className="text-primary/80 hover:underline cursor-pointer">
+                                {relatedTerm}
+                              </HoverCardTrigger>
+                              <HoverCardContent className="w-80 text-left" side="top">
+                                <div className="space-y-1">
+                                  <h4 className="text-sm font-semibold">{details.name}</h4>
+                                  <p className="text-sm text-muted-foreground whitespace-normal">
+                                    {details.desc}
+                                  </p>
+                                </div>
+                              </HoverCardContent>
+                            </HoverCard>
+                            {index < item.relatedTerms!.length - 1 && ", "}
+                          </span>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
