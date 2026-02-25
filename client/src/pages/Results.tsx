@@ -245,7 +245,7 @@ export default function Results() {
                     </Link>
                   </Button>
                   <Button variant="outline" asChild>
-                    <Link href="/tests" data-testid="button-view-all-tests">
+                    <Link href="/browse" data-testid="button-view-all-tests">
                       Browse All Tests
                     </Link>
                   </Button>
@@ -355,7 +355,7 @@ export default function Results() {
                     </Link>
                   </Button>
                   <Button variant="ghost" asChild>
-                    <Link href="/tests">View All Tests →</Link>
+                    <Link href="/browse">View All Tests →</Link>
                   </Button>
                 </div>
               </>

@@ -63,13 +63,13 @@ export default function Home() {
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link href="/cascading" data-testid="button-view-cascading">
+                <Link href="/tree" data-testid="button-view-cascading">
                   <SquareStack className="mr-2 h-5 w-5" />
                   Explore Decision Tree
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link href="/tests" data-testid="button-browse-tests">
+                <Link href="/browse" data-testid="button-browse-tests">
                   <BookOpen className="mr-2 h-5 w-5" />
                   Browse All Tests
                 </Link>

@@ -196,7 +196,7 @@ export const TestResultCard = React.memo(function TestResultCard({
                       ) : (
                         <a
                           key={altId}
-                          href={`/tests?test=${altId}`}
+                          href={`/browse?test=${altId}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           data-testid={`alt-link-${altId}`}

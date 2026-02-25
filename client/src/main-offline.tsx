@@ -23,8 +23,8 @@ function Routes() {
       <Route path="/" component={Home} />
       <Route path="/wizard" component={Wizard} />
       <Route path="/results" component={Results} />
-      <Route path="/tests" component={AllTests} />
-      <Route path="/cascading" component={CascadingFlow} />
+      <Route path="/browse" component={AllTests} />
+      <Route path="/tree" component={CascadingFlow} />
       <Route path="/glossary" component={Glossary} />
       <Route component={NotFound} />
     </Switch>

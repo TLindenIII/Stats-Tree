@@ -1,5 +1,5 @@
 import { Link } from "@/lib/OfflineLink";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useState, useLayoutEffect, useEffect } from "react";
 import { useNavContext } from "@/contexts/NavContext";
 
 interface NavLinksProps {
@@ -8,8 +8,8 @@ interface NavLinksProps {
 
 const navItems = [
   { id: "wizard", label: "Wizard", href: "/wizard" },
-  { id: "cascading", label: "Cascading", href: "/cascading" },
-  { id: "browse", label: "Browse", href: "/tests" },
+  { id: "cascading", label: "Decision Tree", href: "/tree" },
+  { id: "browse", label: "Browse", href: "/browse" },
   { id: "glossary", label: "Glossary", href: "/glossary" },
 ] as const;
 
@@ -18,110 +18,87 @@ export function NavLinks({ currentPage }: NavLinksProps) {
   const itemRefs = useRef<Map<string, HTMLElement>>(new Map());
   const { getPreviousPosition, setPreviousPosition } = useNavContext();
 
-  // Removed useIsMobile hook to prevent hydration mismatch/flicker.
-  // Using CSS classes (hidden md:inline-block) for Flowchart visibility instead.
+  const [position, setPosition] = useState<{ left: number; width: number } | null>(null);
+  const [isReadyForTransition, setIsReadyForTransition] = useState(false);
 
-  const [startPos, setStartPos] = useState<{ left: number; width: number } | null>(null);
-  const [endPos, setEndPos] = useState<{ left: number; width: number } | null>(null);
-  const [animating, setAnimating] = useState(false);
+  // Measure and set position whenever the active page changes
+  useLayoutEffect(() => {
+    const activeEl = itemRefs.current.get(currentPage);
+    const container = containerRef.current;
 
-  useEffect(() => {
-    const measureActive = () => {
-      const activeEl = itemRefs.current.get(currentPage);
-      const container = containerRef.current;
+    if (!activeEl || !container) return;
 
-      if (activeEl && container) {
-        const containerRect = container.getBoundingClientRect();
-        const activeRect = activeEl.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const activeRect = activeEl.getBoundingClientRect();
 
-        // If the element is hidden (width ~0), don't show underline
-        if (activeRect.width < 1) return null;
+    if (activeRect.width < 1) return; // Hidden on mobile
 
-        return {
-          left: activeRect.left - containerRect.left,
-          width: activeRect.width,
-        };
-      }
-      return null;
+    const newPos = {
+      left: activeRect.left - containerRect.left,
+      width: activeRect.width,
     };
 
-    // Small delay to ensure refs are populated and layout is stable
-    const timer = setTimeout(() => {
-      const newPos = measureActive();
-      // If newPos is null (e.g. hidden element), we clear the underline
-      if (!newPos) {
-        setStartPos(null);
-        setEndPos(null);
-        return;
-      }
+    const prevPos = getPreviousPosition();
 
-      const prevPos = getPreviousPosition();
+    // If we have a saved previous position from context, use it as our starting layout
+    // BEFORE the browser paints the new frame
+    if (prevPos && prevPos.width > 0 && prevPos.left !== newPos.left) {
+      // 1. Instantly snap to the old position without animation
+      setIsReadyForTransition(false);
+      setPosition(prevPos);
 
-      if (prevPos) {
-        // We have a previous position - animate from there
-        setStartPos(prevPos);
-        setEndPos(newPos);
-        setAnimating(false);
+      // 2. Wait exactly one frame for the browser to register the snapped position
+      requestAnimationFrame(() => {
+        // 3. Turn on CSS transitions
+        setIsReadyForTransition(true);
+        // 4. Trigger the layout change to the new position
+        setPosition(newPos);
+      });
+    } else {
+      // If we don't have a previous position (e.g. first load), just snap to the target
+      setIsReadyForTransition(false);
+      setPosition(newPos);
+    }
 
-        // Force a reflow, then start animation
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            setAnimating(true);
-            setStartPos(newPos);
-          });
-        });
-      } else {
-        // First load - just show at current position
-        setStartPos(newPos);
-        setEndPos(newPos);
-      }
+    // Save our destination as the new baseline
+    setPreviousPosition(newPos);
+  }, [currentPage, getPreviousPosition, setPreviousPosition]);
 
-      // Save for next navigation
-      setPreviousPosition(newPos);
-    }, 10);
-
-    return () => clearTimeout(timer);
-  }, [currentPage]);
-
-  // Handle resize
+  // Handle resize events instantly without animation
   useEffect(() => {
     const handleResize = () => {
       const activeEl = itemRefs.current.get(currentPage);
       const container = containerRef.current;
 
-      if (activeEl && container) {
-        const containerRect = container.getBoundingClientRect();
-        const activeRect = activeEl.getBoundingClientRect();
+      if (!activeEl || !container) return;
 
-        if (activeRect.width < 1) {
-          setStartPos(null);
-          setEndPos(null);
-          setPreviousPosition({ left: 0, width: 0 });
-          return;
-        }
+      const containerRect = container.getBoundingClientRect();
+      const activeRect = activeEl.getBoundingClientRect();
 
-        const pos = {
-          left: activeRect.left - containerRect.left,
-          width: activeRect.width,
-        };
-
-        setStartPos(pos);
-        setEndPos(pos);
-        setPreviousPosition(pos);
+      if (activeRect.width < 1) {
+        setPosition(null);
+        setPreviousPosition({ left: 0, width: 0 });
+        return;
       }
+
+      const newPos = {
+        left: activeRect.left - containerRect.left,
+        width: activeRect.width,
+      };
+
+      setIsReadyForTransition(false);
+      setPosition(newPos);
+      setPreviousPosition(newPos);
     };
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [currentPage, setPreviousPosition]);
 
-  const displayPos = startPos;
-
   return (
     <div ref={containerRef} className="flex items-center relative">
       {navItems.map((item) => {
         const isActive = item.id === currentPage;
-        const visibilityClass = "inline-block";
 
         return (
           <span
@@ -129,7 +106,7 @@ export function NavLinks({ currentPage }: NavLinksProps) {
             ref={(el: HTMLSpanElement | null) => {
               if (el) itemRefs.current.set(item.id, el);
             }}
-            className={visibilityClass}
+            className="inline-block"
           >
             <Link
               href={item.href}
@@ -143,13 +120,16 @@ export function NavLinks({ currentPage }: NavLinksProps) {
           </span>
         );
       })}
-      {displayPos && (
+
+      {position && (
         <span
           className="absolute bottom-0 h-0.5 bg-primary rounded-full z-10"
           style={{
-            left: displayPos.left,
-            width: displayPos.width,
-            transition: animating ? "left 300ms ease-out, width 300ms ease-out" : "none",
+            left: position.left,
+            width: position.width,
+            transition: isReadyForTransition
+              ? "left 300ms cubic-bezier(0.4, 0, 0.2, 1), width 300ms cubic-bezier(0.4, 0, 0.2, 1)"
+              : "none",
           }}
         />
       )}
