@@ -8,10 +8,10 @@ import {
   Layers,
   CheckSquare,
   DraftingCompass,
-  GitBranch,
   BookOpen,
   Network,
   Wand2,
+  SquareStack,
 } from "lucide-react";
 import { statisticalTests, categoryGroups } from "@/lib/statsData";
 
@@ -23,7 +23,7 @@ export default function Home() {
       description: "Start with your research question and let us guide you to the right test",
     },
     {
-      icon: GitBranch,
+      icon: SquareStack,
       title: "Decision Tree",
       description: "Navigate through data types, sample structures, and assumptions step by step",
     },
@@ -64,8 +64,8 @@ export default function Home() {
               </Button>
               <Button size="lg" variant="outline" asChild>
                 <Link href="/cascading" data-testid="button-view-cascading">
-                  <Network className="mr-2 h-5 w-5" />
-                  View Cascading
+                  <SquareStack className="mr-2 h-5 w-5" />
+                  Explore Decision Tree
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
