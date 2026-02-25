@@ -1,14 +1,22 @@
 import { useState } from "react";
-import { Search, DraftingCompass } from "lucide-react";
-import { Link } from "@/lib/OfflineLink";
+import { Search } from "lucide-react";
 import { glossaryTerms } from "@/lib/glossaryData";
 import { Input } from "@/components/ui/input";
-import { NavLinks } from "@/components/NavLinks";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { Header } from "@/components/Header";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 export default function Glossary() {
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   const filteredTerms = glossaryTerms
     .filter(
@@ -17,6 +25,12 @@ export default function Glossary() {
         item.definition.toLowerCase().includes(search.toLowerCase())
     )
     .sort((a, b) => a.term.localeCompare(b.term));
+
+  const totalPages = Math.ceil(filteredTerms.length / ITEMS_PER_PAGE);
+  const paginatedTerms = filteredTerms.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -34,13 +48,16 @@ export default function Glossary() {
             placeholder="Search terms..."
             className="pl-9 h-9"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1); // Reset to first page on search
+            }}
           />
         </div>
 
         <div className="border rounded-md divide-y bg-card">
-          {filteredTerms.length > 0 ? (
-            filteredTerms.map((item) => (
+          {paginatedTerms.length > 0 ? (
+            paginatedTerms.map((item) => (
               <div
                 key={item.term}
                 className="p-4 hover:bg-muted/30 transition-colors flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6"
@@ -65,6 +82,58 @@ export default function Glossary() {
             </div>
           )}
         </div>
+
+        {totalPages > 1 && (
+          <Pagination className="cursor-pointer">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+
+              {Array.from({ length: totalPages }).map((_, i) => {
+                const page = i + 1;
+                // Show first, last, current, and +/- 1 from current
+                if (
+                  page === 1 ||
+                  page === totalPages ||
+                  (page >= currentPage - 1 && page <= currentPage + 1)
+                ) {
+                  return (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        onClick={() => setCurrentPage(page)}
+                        isActive={currentPage === page}
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                }
+
+                // Show ellipsis if there's a gap
+                if (page === currentPage - 2 || page === currentPage + 2) {
+                  return (
+                    <PaginationItem key={page}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  );
+                }
+
+                return null;
+              })}
+
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
       </main>
     </div>
   );

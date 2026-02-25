@@ -13,7 +13,6 @@ import Home from "@/pages/Home";
 import Wizard from "@/pages/Wizard";
 import Results from "@/pages/Results";
 import AllTests from "@/pages/AllTests";
-import Flowchart from "@/pages/Flowchart";
 import CascadingFlow from "@/pages/CascadingFlow";
 import Glossary from "@/pages/Glossary";
 import "./index.css";
@@ -25,7 +24,6 @@ function Routes() {
       <Route path="/wizard" component={Wizard} />
       <Route path="/results" component={Results} />
       <Route path="/tests" component={AllTests} />
-      <Route path="/flowchart" component={Flowchart} />
       <Route path="/cascading" component={CascadingFlow} />
       <Route path="/glossary" component={Glossary} />
       <Route component={NotFound} />

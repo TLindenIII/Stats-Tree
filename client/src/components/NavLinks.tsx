@@ -3,12 +3,11 @@ import { useRef, useEffect, useState, useMemo } from "react";
 import { useNavContext } from "@/contexts/NavContext";
 
 interface NavLinksProps {
-  currentPage: "wizard" | "flowchart" | "browse" | "glossary" | "home" | "cascading";
+  currentPage: "wizard" | "browse" | "glossary" | "home" | "cascading";
 }
 
 const navItems = [
   { id: "wizard", label: "Wizard", href: "/wizard" },
-  { id: "flowchart", label: "Flowchart", href: "/flowchart" },
   { id: "cascading", label: "Cascading", href: "/cascading" },
   { id: "browse", label: "Browse", href: "/tests" },
   { id: "glossary", label: "Glossary", href: "/glossary" },
@@ -120,8 +119,7 @@ export function NavLinks({ currentPage }: NavLinksProps) {
     <div ref={containerRef} className="flex items-center relative">
       {navItems.map((item) => {
         const isActive = item.id === currentPage;
-        // Hide Flowchart on mobile using CSS to avoid hydration flicker
-        const visibilityClass = item.id === "flowchart" ? "hidden md:inline-block" : "inline-block";
+        const visibilityClass = "inline-block";
 
         return (
           <span

@@ -63,9 +63,9 @@ export default function Home() {
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link href="/flowchart" data-testid="button-view-flowchart">
+                <Link href="/cascading" data-testid="button-view-cascading">
                   <Network className="mr-2 h-5 w-5" />
-                  View Flowchart
+                  View Cascading
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>

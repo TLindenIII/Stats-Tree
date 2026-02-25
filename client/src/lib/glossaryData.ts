@@ -43,13 +43,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     relatedTerms: ["Type II Error", "Effect Size", "Sample Size"],
   },
   {
-    term: "Power Analysis",
-    definition:
-      "Planning calculations used to choose sample size (or detectable effect) to achieve a target power at a chosen significance level.",
-    category: "Power & Planning",
-    relatedTerms: ["Power", "Significance Level (α)", "Effect Size", "Sample Size"],
-  },
-  {
     term: "Multiple Comparisons",
     definition:
       "Performing many statistical tests on the same dataset, which increases the chance of false positives unless adjustments are used.",
@@ -76,13 +69,6 @@ export const glossaryTerms: GlossaryTerm[] = [
       "The long-run proportion of confidence intervals that would contain the true parameter if the procedure were repeated many times (e.g., 95%).",
     category: "Estimation",
     relatedTerms: ["Confidence Interval"],
-  },
-  {
-    term: "Odds Ratio",
-    definition:
-      "A measure of association for a binary outcome: the ratio of the odds of an event in one group (or per unit increase in a predictor) to another.",
-    category: "Modeling",
-    relatedTerms: ["Binary Outcome", "Logistic Regression"],
   },
 
   // --- Study design + data structure ---
@@ -210,13 +196,6 @@ export const glossaryTerms: GlossaryTerm[] = [
 
   // --- Multiple-testing adjustments (methods, not tests) ---
   {
-    term: "Bonferroni Correction",
-    definition:
-      "A multiple-comparisons adjustment that uses a stricter threshold (α divided by the number of tests) to control the family-wise error rate.",
-    category: "Inference",
-    relatedTerms: ["Multiple Comparisons", "Family-wise Error Rate (FWER)"],
-  },
-  {
     term: "Holm–Bonferroni",
     definition:
       "A stepwise multiple-comparisons adjustment that controls family-wise error rate and is typically less conservative than Bonferroni.",
@@ -239,55 +218,6 @@ export const glossaryTerms: GlossaryTerm[] = [
   },
 
   // --- Regression + GLM-family (models, not tests page content) ---
-  {
-    term: "Linear Regression",
-    definition:
-      "A model that relates a continuous outcome to one or more predictors using a linear function; inference typically focuses on residual behavior and uncertainty of coefficients.",
-    category: "Modeling",
-    relatedTerms: ["Residuals", "Predictor"],
-  },
-  {
-    term: "Logistic Regression",
-    definition:
-      "A model for binary outcomes that links predictors to the log-odds of the event; effects are often summarized using odds ratios.",
-    category: "Modeling",
-    relatedTerms: ["Binary Outcome", "Odds Ratio"],
-  },
-  {
-    term: "Poisson Regression",
-    definition:
-      "A model for count outcomes that assumes the mean equals the variance; violations often appear as overdispersion.",
-    category: "Modeling",
-    relatedTerms: ["Count Outcome", "Overdispersion"],
-  },
-  {
-    term: "Negative Binomial Regression",
-    definition:
-      "A model for count outcomes that allows variance to exceed the mean, commonly used when overdispersion is present.",
-    category: "Modeling",
-    relatedTerms: ["Count Outcome", "Overdispersion"],
-  },
-  {
-    term: "Ordinal Logistic Regression",
-    definition:
-      "A model for ordered categorical outcomes (e.g., Likert scales) that respects the natural ordering of categories.",
-    category: "Modeling",
-    relatedTerms: ["Ordinal Outcome"],
-  },
-  {
-    term: "Quantile Regression",
-    definition:
-      "A regression approach that models conditional quantiles (e.g., median) rather than the conditional mean, useful when effects differ across the outcome distribution.",
-    category: "Modeling",
-    relatedTerms: ["Linear Regression"],
-  },
-  {
-    term: "Generalized Estimating Equations (GEE)",
-    definition:
-      "A modeling framework for correlated observations (e.g., repeated measures) that focuses on population-average effects without requiring full random-effects specification.",
-    category: "Modeling",
-    relatedTerms: ["Repeated Measures", "Clustered Data"],
-  },
   {
     term: "Mixed Models",
     definition:
@@ -393,13 +323,6 @@ export const glossaryTerms: GlossaryTerm[] = [
       "A held-out subset of data used once at the end to estimate out-of-sample performance after model selection is complete.",
     category: "Machine Learning",
     relatedTerms: ["Training Set", "Validation Set", "Data Leakage"],
-  },
-  {
-    term: "Cross-Validation",
-    definition:
-      "A resampling approach that repeatedly splits data into training/validation parts to estimate performance more reliably and tune models.",
-    category: "Machine Learning",
-    relatedTerms: ["Validation Set", "Overfitting"],
   },
   {
     term: "Overfitting",
