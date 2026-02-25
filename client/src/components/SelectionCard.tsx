@@ -1,7 +1,5 @@
 import { cn } from "@/lib/utils";
-import ReactMarkdown from "react-markdown";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
+import { TextWithGlossary } from "@/components/TextWithGlossary";
 
 interface SelectionCardProps {
   value: string;
@@ -39,15 +37,11 @@ export function SelectionCard({
         </div>
         <div className="flex-1 min-w-0">
           <div className={cn("font-medium markdown-inline", isSelected && "text-foreground")}>
-            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-              {label}
-            </ReactMarkdown>
+            <TextWithGlossary text={label} />
           </div>
           {description && (
             <div className="text-sm text-muted-foreground mt-0.5 markdown-inline">
-              <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-                {description}
-              </ReactMarkdown>
+              <TextWithGlossary text={description} />
             </div>
           )}
         </div>

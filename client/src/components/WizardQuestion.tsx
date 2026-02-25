@@ -1,7 +1,5 @@
 import { SelectionCard } from "./SelectionCard";
-import ReactMarkdown from "react-markdown";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
+import { TextWithGlossary } from "@/components/TextWithGlossary";
 
 interface Option {
   value: string;
@@ -28,15 +26,11 @@ export function WizardQuestion({
     <div className="space-y-6">
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-semibold markdown-inline">
-          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-            {question}
-          </ReactMarkdown>
+          <TextWithGlossary text={question} />
         </h2>
         {description && (
           <div className="text-muted-foreground">
-            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-              {description}
-            </ReactMarkdown>
+            <TextWithGlossary text={description} />
           </div>
         )}
       </div>

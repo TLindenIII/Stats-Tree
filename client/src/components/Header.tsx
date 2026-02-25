@@ -1,6 +1,7 @@
 import { Link } from "@/lib/OfflineLink";
 import { DraftingCompass } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { GlossaryToggle } from "@/components/GlossaryToggle";
 import { NavLinks } from "@/components/NavLinks";
 
 interface HeaderProps {
@@ -45,6 +46,7 @@ export function Header({ currentPage }: HeaderProps) {
           ) : (
             <>
               <NavLinks currentPage={currentPage === "browse" ? "browse" : currentPage} />
+              <GlossaryToggle />
               <ThemeToggle />
             </>
           )}

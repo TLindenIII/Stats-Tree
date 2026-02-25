@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { StatTest } from "@/lib/statsData";
-import ReactMarkdown from "react-markdown";
+import { TextWithGlossary } from "@/components/TextWithGlossary";
 
 interface TestTileProps {
   test: StatTest;
@@ -30,7 +30,7 @@ export function TestTile({ test, onClick, hoverColor = "primary", className = ""
       </CardHeader>
       <CardContent>
         <div className="text-sm text-muted-foreground line-clamp-3">
-          <ReactMarkdown>{test.description}</ReactMarkdown>
+          <TextWithGlossary text={test.description} />
         </div>
       </CardContent>
     </Card>

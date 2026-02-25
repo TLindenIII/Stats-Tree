@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window !== "undefined") {
       const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
       if (savedTheme) return savedTheme;
-      
+
       return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     }
     return "light";
@@ -27,7 +28,7 @@ export function ThemeToggle() {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = (e: MediaQueryListEvent) => {
       // Only auto-update if the user hasn't manually set a preference in this session
-      // Or we can just always follow system if we want. 
+      // Or we can just always follow system if we want.
       // Most robust is to check if 'theme' exists in localStorage.
       if (!localStorage.getItem("theme")) {
         setTheme(e.matches ? "dark" : "light");
@@ -43,17 +44,15 @@ export function ThemeToggle() {
   };
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={toggleTheme}
-      data-testid="button-theme-toggle"
-    >
-      {theme === "light" ? (
-        <Moon className="h-5 w-5" />
-      ) : (
-        <Sun className="h-5 w-5" />
-      )}
-    </Button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button variant="ghost" size="icon" onClick={toggleTheme} data-testid="button-theme-toggle">
+          {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>{theme === "light" ? "Switch to dark mode" : "Switch to light mode"}</p>
+      </TooltipContent>
+    </Tooltip>
   );
 }

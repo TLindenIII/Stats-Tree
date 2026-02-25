@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { WizardProvider } from "@/contexts/WizardContext";
 import { NavProvider } from "@/contexts/NavContext";
+import { GlossaryProvider } from "@/contexts/GlossaryContext";
 import { useHashLocation, isOfflineMode } from "@/lib/useHashLocation";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
@@ -47,19 +48,21 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WizardProvider>
-          <NavProvider>
-            <Toaster />
-            {offlineMode ? (
-              <WouterRouter hook={useHashLocation}>
+      <TooltipProvider delayDuration={700}>
+        <GlossaryProvider>
+          <WizardProvider>
+            <NavProvider>
+              <Toaster />
+              {offlineMode ? (
+                <WouterRouter hook={useHashLocation}>
+                  <Routes />
+                </WouterRouter>
+              ) : (
                 <Routes />
-              </WouterRouter>
-            ) : (
-              <Routes />
-            )}
-          </NavProvider>
-        </WizardProvider>
+              )}
+            </NavProvider>
+          </WizardProvider>
+        </GlossaryProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

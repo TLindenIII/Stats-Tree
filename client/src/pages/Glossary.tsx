@@ -14,6 +14,8 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { GlossaryTerm } from "@/components/GlossaryTerm";
+import { TextWithGlossary } from "@/components/TextWithGlossary";
 
 export default function Glossary() {
   const [search, setSearch] = useState("");
@@ -78,27 +80,14 @@ export default function Glossary() {
                   {item.term}
                 </h3>
                 <div className="text-sm text-muted-foreground leading-relaxed">
-                  {item.definition}
+                  <TextWithGlossary text={item.definition} />
                   {item.relatedTerms && (
                     <div className="mt-1.5 text-xs">
                       <span className="font-medium text-muted-foreground/70">See also: </span>
                       {item.relatedTerms.map((relatedTerm, index) => {
-                        const details = getTermDetails(relatedTerm);
                         return (
                           <span key={relatedTerm}>
-                            <HoverCard>
-                              <HoverCardTrigger className="text-primary/80 hover:underline cursor-pointer">
-                                {relatedTerm}
-                              </HoverCardTrigger>
-                              <HoverCardContent className="w-80 text-left" side="top">
-                                <div className="space-y-1">
-                                  <h4 className="text-sm font-semibold">{details.name}</h4>
-                                  <p className="text-sm text-muted-foreground whitespace-normal">
-                                    {details.desc}
-                                  </p>
-                                </div>
-                              </HoverCardContent>
-                            </HoverCard>
+                            <GlossaryTerm term={relatedTerm} />
                             {index < item.relatedTerms!.length - 1 && ", "}
                           </span>
                         );

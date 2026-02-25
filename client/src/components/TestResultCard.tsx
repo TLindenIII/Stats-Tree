@@ -19,9 +19,7 @@ import {
 } from "lucide-react";
 import { statisticalTests, type StatTest } from "@/lib/statsData";
 import { CodeBlock } from "@/components/ui/CodeBlock";
-import ReactMarkdown from "react-markdown";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
+import { TextWithGlossary } from "@/components/TextWithGlossary";
 
 interface TestResultCardProps {
   test: StatTest;
@@ -63,10 +61,8 @@ export const TestResultCard = React.memo(function TestResultCard({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="text-muted-foreground">
-          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-            {test.description}
-          </ReactMarkdown>
+        <div className="text-muted-foreground py-2">
+          <TextWithGlossary text={test.description} />
         </div>
 
         {(test.outcome ||
@@ -135,9 +131,7 @@ export const TestResultCard = React.memo(function TestResultCard({
                   <li key={i} className="flex items-start gap-2 text-sm">
                     <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                     <div className="markdown-inline">
-                      <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-                        {assumption}
-                      </ReactMarkdown>
+                      <TextWithGlossary text={assumption} />
                     </div>
                   </li>
                 ))}
@@ -158,9 +152,7 @@ export const TestResultCard = React.memo(function TestResultCard({
                   <li key={i} className="flex items-start gap-2 text-sm">
                     <ArrowRight className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                     <div className="markdown-inline">
-                      <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-                        {use}
-                      </ReactMarkdown>
+                      <TextWithGlossary text={use} />
                     </div>
                   </li>
                 ))}

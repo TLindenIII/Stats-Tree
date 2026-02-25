@@ -1,5 +1,5 @@
 import { Link } from "@/lib/OfflineLink";
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useNavContext } from "@/contexts/NavContext";
 
 interface NavLinksProps {
@@ -16,7 +16,7 @@ const navItems = [
 export function NavLinks({ currentPage }: NavLinksProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<string, HTMLElement>>(new Map());
-  const { previousPosition, setPreviousPosition } = useNavContext();
+  const { getPreviousPosition, setPreviousPosition } = useNavContext();
 
   // Removed useIsMobile hook to prevent hydration mismatch/flicker.
   // Using CSS classes (hidden md:inline-block) for Flowchart visibility instead.
@@ -55,9 +55,11 @@ export function NavLinks({ currentPage }: NavLinksProps) {
         return;
       }
 
-      if (previousPosition) {
+      const prevPos = getPreviousPosition();
+
+      if (prevPos) {
         // We have a previous position - animate from there
-        setStartPos(previousPosition);
+        setStartPos(prevPos);
         setEndPos(newPos);
         setAnimating(false);
 

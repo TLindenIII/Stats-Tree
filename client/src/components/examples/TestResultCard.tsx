@@ -4,7 +4,8 @@ import type { StatTest } from "@/lib/statsData";
 const mockTest: StatTest = {
   id: "t-test-independent",
   name: "Independent Samples t-Test",
-  description: "Compares means of two independent groups to determine if they are statistically different.",
+  description:
+    "Compares means of two independent groups to determine if they are statistically different.",
   assumptions: [
     "Normal distribution in each group",
     "Equal variances (can be relaxed with Welch's t-test)",
@@ -16,9 +17,8 @@ const mockTest: StatTest = {
     "Sample size > 30 per group (or normally distributed)",
     "Continuous outcome variable",
   ],
-  methodFamily: "Parametric",
+
   category: "Group Comparison",
-  
 };
 
 export default function TestResultCardExample() {

@@ -21,9 +21,7 @@ import {
 import { statisticalTests, type StatTest } from "@/lib/statsData";
 import { useLocation } from "wouter";
 import { CodeBlock } from "@/components/ui/CodeBlock";
-import ReactMarkdown from "react-markdown";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
+import { TextWithGlossary } from "@/components/TextWithGlossary";
 
 interface TestDetailSheetProps {
   test: StatTest | null;
@@ -56,9 +54,7 @@ export function TestDetailSheet({
             </DialogTitle>
           </div>
           <DialogDescription>
-            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-              {test.description}
-            </ReactMarkdown>
+            <TextWithGlossary text={test.description} />
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="flex-1">
@@ -67,9 +63,7 @@ export function TestDetailSheet({
               <div>
                 <h3 className="font-semibold font-mono text-base">{test.name}</h3>
                 <div className="text-sm text-muted-foreground mt-1">
-                  <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-                    {test.description}
-                  </ReactMarkdown>
+                  <TextWithGlossary text={test.description} />
                 </div>
                 <div className="flex gap-3 mt-2 flex-wrap items-center">
                   <Badge variant="outline">{test.category}</Badge>
@@ -108,9 +102,7 @@ export function TestDetailSheet({
                     <li key={i} className="flex items-start gap-2">
                       <span className="text-muted-foreground/50">-</span>
                       <div className="markdown-inline">
-                        <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-                          {a}
-                        </ReactMarkdown>
+                        <TextWithGlossary text={a} />
                       </div>
                     </li>
                   ))}
@@ -127,9 +119,7 @@ export function TestDetailSheet({
                     <li key={i} className="flex items-start gap-2">
                       <span className="text-muted-foreground/50">-</span>
                       <div className="markdown-inline">
-                        <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-                          {w}
-                        </ReactMarkdown>
+                        <TextWithGlossary text={w} />
                       </div>
                     </li>
                   ))}

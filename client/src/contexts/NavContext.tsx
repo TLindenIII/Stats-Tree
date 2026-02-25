@@ -6,7 +6,7 @@ interface NavPosition {
 }
 
 interface NavContextType {
-  previousPosition: NavPosition | null;
+  getPreviousPosition: () => NavPosition | null;
   setPreviousPosition: (pos: NavPosition) => void;
 }
 
@@ -20,11 +20,15 @@ export function NavProvider({ children }: { children: ReactNode }) {
     positionRef.current = pos;
   };
 
+  const getPreviousPosition = () => positionRef.current;
+
   return (
-    <NavContext.Provider value={{ 
-      previousPosition: positionRef.current, 
-      setPreviousPosition 
-    }}>
+    <NavContext.Provider
+      value={{
+        getPreviousPosition,
+        setPreviousPosition,
+      }}
+    >
       {children}
     </NavContext.Provider>
   );
