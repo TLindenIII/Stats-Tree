@@ -13,7 +13,7 @@ export function Header({ currentPage }: HeaderProps) {
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-2 font-semibold">
-          <DraftingCompass className="w-5 h-5 text-primary" />
+          <DraftingCompass className="w-5 h-5 text-primary dark:text-white" />
           {/* Always hide StatsTree text on mobile for non-home pages to match previous fix. 
               For consistency, let's also hide it on mobile for Home if we want to stop "jumping".
               However, the user request specifically said "pages like wizard...". 

@@ -49,7 +49,7 @@ export default function Home() {
       <Header currentPage="home" />
 
       <main>
-        <section className="pt-16 sm:pt-20 pb-24 px-4 relative overflow-hidden flex flex-col items-center min-h-[85vh]">
+        <section className="pt-6 sm:pt-10 pb-24 px-4 relative overflow-hidden flex flex-col items-center min-h-[85vh]">
           <div className="relative w-full max-w-5xl flex flex-col items-center justify-center mb-10 sm:mb-16 h-[220px] sm:h-[300px]">
             {/* Globe Background Container */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140vw] sm:w-[1200px] h-[600px] sm:h-[800px] pointer-events-none">
