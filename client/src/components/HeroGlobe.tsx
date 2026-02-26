@@ -49,6 +49,8 @@ export function HeroGlobe() {
 
     const radius = 340; // Increased radius for better spread
 
+    const isOpera = typeof navigator !== "undefined" && /Opera|OPR\//.test(navigator.userAgent);
+
     const updateSphere = () => {
       // Rotate the sphere very slowly
       angleY += 0.0004;
@@ -83,50 +85,68 @@ export function HeroGlobe() {
         const opacity = 0.25 + depthRatio * 0.75;
 
         // Z-index sorting so front items draw over back items
-        const zIndex = Math.floor(depthRatio * 100);
+        const newZIndex = Math.floor(depthRatio * 100).toString();
 
-        el.style.transform = `translate3d(-50%, -50%, 0) translate3d(${renderX}px, ${renderY}px, 0) scale(${scale})`;
-        el.style.opacity = `${opacity}`;
-        el.style.zIndex = `${zIndex}`;
+        // Calculate final pixel positions (centering is handled by CSS left-1/2 top-1/2 on the parent)
+        // We use a single translate3d string to allow the browser compositor to bypass CSS function parsing.
+        // The -50% centering is baked into the CSS classes `left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2`
+        el.style.transform = `translate3d(${renderX}px, ${renderY}px, 0) scale(${scale})`;
+        el.style.opacity = opacity.toFixed(3); // Fix precision to reduce string allocation thrashing
+
+        // Only update zIndex if it actually changed to prevent expensive layout thrashing in Chromium/Opera
+        if (el.style.zIndex !== newZIndex) {
+          el.style.zIndex = newZIndex;
+        }
       });
 
-      animationFrameId = requestAnimationFrame(updateSphere);
+      // If Opera, do not queue the next frame (leave it static after first layout)
+      if (!isOpera) {
+        animationFrameId = requestAnimationFrame(updateSphere);
+      }
     };
 
     updateSphere();
 
-    return () => cancelAnimationFrame(animationFrameId);
+    return () => {
+      if (!isOpera && animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
   }, [spherePoints]);
 
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none flex items-center justify-center">
+    <div
+      className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none flex items-center justify-center transform-gpu"
+      style={{ willChange: "transform" }}
+    >
       {/* Vignette Overlay for smooth edges using solid inline CSS to guarantee parsing */}
       <div
-        className="absolute inset-0 z-50 pointer-events-none"
+        className="absolute inset-0 z-50 pointer-events-none transform-gpu"
         style={{
           background:
             "radial-gradient(ellipse at center, transparent 0%, hsl(var(--background)) 55%)",
+          willChange: "transform",
         }}
       />
 
       {/* Sphere Container */}
       <div
         ref={containerRef}
-        className="relative w-full h-full flex items-center justify-center pointer-events-none"
+        className="relative w-full h-full flex items-center justify-center pointer-events-none transform-gpu"
+        style={{ willChange: "transform" }}
       >
         {testNames.map((name, i) => (
           <div
             key={i}
             ref={(el) => (itemsRef.current[i] = el)}
-            className="absolute left-1/2 top-1/2 whitespace-nowrap text-sm font-semibold transition-colors duration-200"
+            // Added -translate-x-1/2 -translate-y-1/2 here so we don't have to calculate it in the JS loop
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-sm font-semibold transition-colors duration-200"
             style={{
               willChange: "transform, opacity",
             }}
           >
-            {/* The individual text nodes without backgrounds/borders */}
-            <div className="text-foreground/70 font-medium whitespace-nowrap drop-shadow-sm">
-              {name}
-            </div>
+            {/* The individual text nodes without backgrounds/borders or expensive drop-shadows */}
+            <div className="text-foreground/70 font-medium whitespace-nowrap">{name}</div>
           </div>
         ))}
       </div>

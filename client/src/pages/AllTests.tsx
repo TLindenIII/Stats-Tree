@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { useSearch } from "wouter";
+import { useAppSearch } from "@/lib/useAppSearch";
 import { Link } from "@/lib/OfflineLink";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -138,7 +138,7 @@ import {
 } from "@/components/ui/select";
 
 export default function AllTests() {
-  const searchString = useSearch();
+  const searchString = useAppSearch();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedOutcomeScale, setSelectedOutcomeScale] = useState<string | null>(null);

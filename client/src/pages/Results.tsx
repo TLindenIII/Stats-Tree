@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { useSearch, useLocation } from "wouter";
+import { useLocation } from "wouter";
+import { useAppSearch } from "@/lib/useAppSearch";
 import { Link } from "@/lib/OfflineLink";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -22,7 +23,7 @@ function resolveTests(ids: string[]): StatTest[] {
 
 export default function Results() {
   const [, setLocation] = useLocation();
-  const searchString = useSearch();
+  const searchString = useAppSearch();
   const params = new URLSearchParams(searchString);
 
   // Support both old format (?tests=) and new format (?primary=&alt=&comp=)

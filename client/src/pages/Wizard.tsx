@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
-import { useLocation, useSearch } from "wouter";
+import { useLocation } from "wouter";
+import { useAppSearch } from "@/lib/useAppSearch";
 import { Link } from "@/lib/OfflineLink";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -26,7 +27,7 @@ const matchesRule = (tags: Record<string, any>, ruleCondition: Record<string, an
 
 export default function Wizard() {
   const [, setLocation] = useLocation();
-  const searchString = useSearch();
+  const searchString = useAppSearch();
   const params = new URLSearchParams(searchString);
 
   // -- State Machine State --

@@ -2,7 +2,11 @@ import { useSyncExternalStore, useCallback } from "react";
 
 const currentHashLocation = () => {
   const hash = window.location.hash;
-  return hash.replace(/^#/, "") || "/";
+  // Wouter's <Route path="..."> needs matches against the pathname only.
+  // We must strip the ?query string from the returned location so wouter matches it, 
+  // but keep the actual window.location.hash intact so `useSearch` can read the params.
+  const pathWithQuery = hash.replace(/^#/, "") || "/";
+  return pathWithQuery.split('?')[0]; // Return just the path part for routing
 };
 
 const subscribe = (callback: () => void) => {
@@ -12,11 +16,11 @@ const subscribe = (callback: () => void) => {
 
 export const useHashLocation = (): [string, (to: string) => void] => {
   const location = useSyncExternalStore(subscribe, currentHashLocation);
-  
+
   const navigate = useCallback((to: string) => {
     window.location.hash = to;
   }, []);
-  
+
   return [location, navigate];
 };
 
