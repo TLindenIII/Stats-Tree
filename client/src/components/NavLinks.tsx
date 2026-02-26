@@ -8,7 +8,7 @@ interface NavLinksProps {
 
 const navItems = [
   { id: "wizard", label: "Wizard", href: "/wizard" },
-  { id: "cascading", label: "Decision Tree", href: "/tree" },
+  { id: "cascading", label: "Tree", href: "/tree" },
   { id: "browse", label: "Browse", href: "/browse" },
   { id: "glossary", label: "Glossary", href: "/glossary" },
 ] as const;

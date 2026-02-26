@@ -30,7 +30,7 @@ export function Header({ currentPage }: HeaderProps) {
               
               Let's try to ensure the Right Side container is stable.
           */}
-          <span className={currentPage === "home" ? "" : "hidden sm:inline"}>StatsTree</span>
+          <span className={currentPage === "home" ? "" : "hidden sm:inline"}>The Statlas</span>
         </Link>
         <div className="flex items-center gap-2">
           {currentPage === "home" ? (
@@ -41,11 +41,13 @@ export function Header({ currentPage }: HeaderProps) {
               >
                 Glossary
               </Link>
+              <div className="h-5 w-px bg-border" aria-hidden="true" />
               <ThemeToggle />
             </div>
           ) : (
             <>
               <NavLinks currentPage={currentPage === "browse" ? "browse" : currentPage} />
+              <div className="h-5 w-px bg-border ml-1 mr-1" aria-hidden="true" />
               <GlossaryToggle />
               <ThemeToggle />
             </>
