@@ -205,20 +205,6 @@ export const glossaryTerms: GlossaryTerm[] = [
 
   // --- Multiple-testing adjustments (methods, not tests) ---
   {
-    term: "Holm–Bonferroni",
-    definition:
-      "A stepwise multiple-comparisons adjustment that controls family-wise error rate and is typically less conservative than Bonferroni.",
-    category: "Inference",
-    relatedTerms: ["Multiple Comparisons", "Family-wise Error Rate (FWER)"],
-  },
-  {
-    term: "Benjamini–Hochberg Procedure",
-    definition:
-      "A multiple-comparisons procedure that controls false discovery rate (FDR), often used when running many tests.",
-    category: "Inference",
-    relatedTerms: ["Multiple Comparisons", "False Discovery Rate (FDR)"],
-  },
-  {
     term: "Post-hoc Comparison",
     definition:
       "A follow-up comparison conducted after an overall analysis indicates differences exist; typically paired with multiple-comparisons control.",
@@ -961,7 +947,7 @@ export const glossaryTerms: GlossaryTerm[] = [
     term: "Series",
     definition: "A sequence of data points, ordered typically by time (e.g., Time Series).",
     category: "Time Series",
-    aliases: [],
+    aliases: ["Time Series"],
     relatedTerms: ["Temporal", "Forecasting"],
   },
   {
@@ -1105,5 +1091,29 @@ export const glossaryTerms: GlossaryTerm[] = [
     category: "Inference",
     aliases: ["Pairwise comparisons"],
     relatedTerms: ["Multiple Comparisons", "Group Comparison"],
+  },
+  {
+    term: "Exact Test",
+    definition:
+      "A hypothesis test that computes p-values from the exact sampling distribution (not an asymptotic/large-sample approximation). Often used when sample sizes are small or expected counts are low.",
+    category: "Inference",
+    aliases: ["Exact inference", "Exact significance test", "Exact Tests"],
+    relatedTerms: [],
+  },
+  {
+    term: "Longitudinal",
+    definition:
+      "A study design where the same subjects are measured repeatedly over time, allowing analysis of within-subject change and time trends (often with correlated observations).",
+    category: "Study Design",
+    aliases: [],
+    relatedTerms: ["Repeated Measures", "Clustered Data", "Mixed Models", "Time Series"],
+  },
+  {
+    term: "Bernoulli",
+    definition:
+      "A distribution for a single binary trial with outcomes 0/1 (failure/success) and success probability p. It is the building block of the binomial model and many binary-outcome methods.",
+    category: "Probability",
+    aliases: ["Bernoulli trial", "Binary trial"],
+    relatedTerms: ["Proportion"],
   },
 ];
