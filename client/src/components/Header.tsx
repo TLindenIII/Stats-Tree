@@ -1,5 +1,4 @@
 import { Link } from "@/lib/OfflineLink";
-import { DraftingCompass } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GlossaryToggle } from "@/components/GlossaryToggle";
 import { NavLinks } from "@/components/NavLinks";
@@ -13,7 +12,12 @@ export function Header({ currentPage }: HeaderProps) {
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-2 font-semibold">
-          <DraftingCompass className="w-5 h-5 text-primary dark:text-white" />
+          {currentPage !== "home" && (
+            <>
+              <img src="/logo-light-theme.svg" alt="StatSprig" className="w-10 h-10 block dark:hidden" />
+              <img src="/logo-dark-theme.svg" alt="StatSprig" className="w-10 h-10 hidden dark:block" />
+            </>
+          )}
           {/* Always hide StatsTree text on mobile for non-home pages to match previous fix. 
               For consistency, let's also hide it on mobile for Home if we want to stop "jumping".
               However, the user request specifically said "pages like wizard...". 
@@ -30,7 +34,7 @@ export function Header({ currentPage }: HeaderProps) {
               
               Let's try to ensure the Right Side container is stable.
           */}
-          <span className={currentPage === "home" ? "" : "hidden sm:inline"}>The Statlas</span>
+          <span className={currentPage === "home" ? "" : "hidden sm:inline"}>StatSprig</span>
         </Link>
         <div className="flex items-center gap-1 sm:gap-2">
           {currentPage === "home" ? (

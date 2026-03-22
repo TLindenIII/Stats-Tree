@@ -7,7 +7,6 @@ import {
   GraduationCap,
   Layers,
   Library,
-  DraftingCompass,
   BookOpen,
   Network,
   Wand2,
@@ -61,9 +60,15 @@ export default function Home() {
               <div className="h-24 w-24 sm:h-32 sm:w-32 bg-white dark:bg-gradient-to-b dark:from-zinc-800 dark:to-zinc-950 rounded-[2rem] shadow-xl dark:shadow-[0_0_40px_-10px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.15)] border border-black/5 dark:border-black/50 flex items-center justify-center relative group overflow-hidden">
                 {/* Inner metallic sheen for dark mode */}
                 <div className="hidden dark:block absolute inset-0 rounded-[2rem] bg-gradient-to-tr from-transparent to-white/5 pointer-events-none" />
-                <DraftingCompass
-                  className="w-12 h-12 sm:w-16 sm:h-16 text-primary dark:text-white dark:drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] relative z-10"
-                  strokeWidth={1.5}
+                <img
+                  src="/logo-light-theme.svg"
+                  alt="StatSprig"
+                  className="w-12 h-12 sm:w-16 sm:h-16 relative z-10 block dark:hidden"
+                />
+                <img
+                  src="/logo-dark-theme.svg"
+                  alt="StatSprig"
+                  className="w-12 h-12 sm:w-16 sm:h-16 relative z-10 hidden dark:block"
                 />
               </div>
             </div>
@@ -71,9 +76,9 @@ export default function Home() {
 
           <div className="max-w-4xl mx-auto text-center space-y-8 relative z-20">
             <h1 className="text-5xl sm:text-7xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
-              Navigate statistics
+              Grow your
               <br />
-              with confidence
+              statistical intuition
             </h1>
             <p className="text-xl sm:text-2xl text-foreground/80 max-w-2xl mx-auto font-medium">
               Find a reasonable starting point, check assumptions, and see <i>why</i> a common
@@ -167,7 +172,7 @@ export default function Home() {
 
       <footer className="border-t py-8 px-4">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between text-sm text-muted-foreground gap-4">
-          <p>The Statlas - A Statistical Selection Tool</p>
+          <p>StatSprig - A Statistical Selection Tool</p>
           <a
             href="https://github.com/TLindenIII/Stats-Tree"
             target="_blank"

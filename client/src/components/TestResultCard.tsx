@@ -47,7 +47,7 @@ export const TestResultCard = React.memo(function TestResultCard({
 }: TestResultCardProps) {
   return (
     <Card
-      className={cn("relative", isPrimary ? "border-blue-500 border-2 shadow-md" : "", "min-w-0")}
+      className={cn("relative", isPrimary ? "border-green-500 border-2 shadow-md" : "", "min-w-0")}
       data-testid={`test-result-${test.id}`}
     >
       <CardHeader className="pb-3 pt-6">

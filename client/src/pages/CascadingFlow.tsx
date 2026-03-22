@@ -279,14 +279,14 @@ export default function CascadingFlow() {
                   {primaryTest ? (
                     <div className="space-y-4">
                       <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-blue-500" />
+                        <div className="w-2 h-2 rounded-full bg-green-500" />
                         Best Match
                       </h3>
                       <TestTile
                         test={primaryTest}
                         onClick={() => setSelectedTest(primaryTest)}
-                        hoverColor="blue"
-                        className="border-2 border-blue-500 shadow-sm"
+                        hoverColor="green"
+                        className="border-2 border-green-500 shadow-sm"
                       />
                     </div>
                   ) : (
@@ -303,7 +303,7 @@ export default function CascadingFlow() {
                   {recs?.alternatives && recs.alternatives.length > 0 && primaryTest && (
                     <div className="space-y-4">
                       <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                        <div className="w-2 h-2 rounded-full bg-blue-500" />
                         Related Methods
                       </h3>
                       <div className="grid gap-3">
@@ -321,7 +321,7 @@ export default function CascadingFlow() {
                                   recs.alternatives
                                 )
                               }
-                              hoverColor="green"
+                              hoverColor="blue"
                             />
                           );
                         })}

@@ -258,7 +258,7 @@ export default function Results() {
                 {primaryTests.length > 0 && (
                   <section className="space-y-6">
                     <div className="flex items-center gap-3">
-                      <div className="h-8 w-1 bg-blue-500 rounded-full" />
+                      <div className="h-8 w-1 bg-green-500 rounded-full" />
                       <div>
                         <h2 className="text-2xl font-semibold">Best Match</h2>
                         <p className="text-sm text-muted-foreground">
@@ -284,7 +284,7 @@ export default function Results() {
                 {alternativeTests.length > 0 && (
                   <section className="space-y-6">
                     <div className="flex items-center gap-3">
-                      <div className="h-8 w-1 bg-green-500 rounded-full" />
+                      <div className="h-8 w-1 bg-blue-500 rounded-full" />
                       <div>
                         <h2 className="text-xl font-semibold">Related Methods</h2>
                         <p className="text-sm text-muted-foreground">
@@ -307,7 +307,7 @@ export default function Results() {
                           key={test.id}
                           test={test}
                           onClick={() => handleAlternativeTileClick(test.id)}
-                          hoverColor="green"
+                          hoverColor="blue"
                         />
                       ))}
                     </div>
