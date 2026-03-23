@@ -18,32 +18,32 @@ StatSprig is designed for students, researchers, educators, analysts, and anyone
 
 The current product includes:
 
-- A guided wizard for test selection based on goal, outcome type, design, and structure
+### A guided wizard for test selection based on goal, outcome type, design, and structure
   ![](readme-images/wizard.png)
 
 </br>
 
-- A horizontally explorable decision tree for browsing the same logic more directly
+### A horizontally explorable decision tree for browsing the same logic more directly
   ![](readme-images/flowchart.png)
 
 </br>
 
-- A searchable test library with filtering by category, outcome scale, and design
+### A searchable test library with filtering by category, outcome scale, and design
   ![](readme-images/browse-all.png)
 
 </br>
 
-- Side-by-side comparison views for related methods and companion measures
+### Side-by-side comparison views for related methods and companion measures
   ![](readme-images/see-related.png)
 
 </br>
 
-- Detailed test cards with assumptions, use cases, related methods, and code examples
+### Detailed test cards with assumptions, use cases, related methods, and code examples
   ![](readme-images/details.png)
 
 </br>
 
-- Inline glossary support across the app, plus a dedicated glossary page
+### Inline glossary support across the app, plus a dedicated glossary page
   ![](readme-images/glossary.png)
 
 </br>
@@ -140,23 +140,14 @@ StatSprig aims to make statistical method selection more practical and less opaq
 
 ## Acknowledgment
 
-<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 24px;">
+- DOED Minority Science and Engineering Improvement Program (MSEIP) Grant#: P120A220015, "Boosting STEM Student Success"</li>
+- Dr. Bernadette Hence at U.S. Department of Education</li>
+- Dr. Mary Jo Parker, PI, MSEIP at University of Houston-Downtown</li>
+- Dr. Katherine Shoemaker, Co-PI, MSEIP at University of Houston-Downtown</li>
 
-  <div style="flex: 1;">
-    <ul>
-      <li>DOED Minority Science and Engineering Improvement Program (MSEIP) Grant#: P120A220015, "Boosting STEM Student Success"</li>
-      <li>Dr. Bernadette Hence at U.S. Department of Education</li>
-      </br>
-      <li>Dr. Mary Jo Parker, PI, MSEIP at University of Houston-Downtown</li>
-      <li>Dr. Katherine Shoemaker, Co-PI, MSEIP at University of Houston-Downtown</li>
-    </ul>
-  </div>
-
-  <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
-    <img src="readme-images/doe.png" height="90">
-    <img src="readme-images/sa.png" height="110">
-  </div>
-
+<div style="display: flex; justify-content: center; align-items: center; gap: 24px; flex-wrap: wrap;">
+    <img src="readme-images/doe.png" height="100">
+    <img src="readme-images/sa.png" height="100">
 </div>
 
 ## Related Work
